@@ -461,7 +461,7 @@ function tog(id){
 function renderRight(){
   const items=[...basket].map(id=>PM[id]);
   const n=items.length;
-  document.getElementById('bcount').textContent=n?`· ${n} item${n!==1?'s':''}'':'' ;
+  document.getElementById('bcount').textContent=n?`· ${n} item${n!==1?'s':''}`:'' ;
   document.getElementById('clrbtn').style.display=n?'block':'none';
   if(!n){
     document.getElementById('rsub').textContent='Add items to find your cheapest single store';
