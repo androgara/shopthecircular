@@ -162,20 +162,30 @@ const PRODUCTS = [
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+const SPOONACULAR_KEY = '2fe55f43c833460189cb07ed22ae0bff';
+
 async function fetchImage(upc, name) {
-  const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${upc}`;
+  // Search by product name — avoids bad UPC codes entirely
+  const url = `https://api.spoonacular.com/food/products/search?query=${encodeURIComponent(name)}&number=1&apiKey=${SPOONACULAR_KEY}`;
   try {
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    const res = await fetch(url);
     if (!res.ok) {
       console.log(`  ✗ ${name} (HTTP ${res.status})`);
       return '';
     }
     const data = await res.json();
-    const img = data?.items?.[0]?.images?.[0] || '';
+    const product = data.products?.[0];
+    if (!product) {
+      console.log(`  ~ ${name} (not found)`);
+      return '';
+    }
+    const img = product.image
+      ? (product.image.startsWith('http') ? product.image : `https://img.spoonacular.com/products/${product.image}`)
+      : '';
     if (img) {
-      console.log(`  ✓ ${name}`);
+      console.log(`  ✓ ${name} → ${product.title}`);
     } else {
-      console.log(`  ~ ${name} (no image in database)`);
+      console.log(`  ~ ${name} (no image)`);
     }
     return img;
   } catch (e) {
@@ -188,22 +198,31 @@ async function main() {
   console.log('\n🛒 NYC Best Store Finder — Image Fetcher');
   console.log('━'.repeat(50));
   console.log(`Fetching images for ${PRODUCTS.length} products...`);
-  console.log('This will take ~4 minutes (throttled to respect free API limits)\n');
+  console.log('Source: Spoonacular (search by name — bypasses bad UPCs)\n');
 
   const imageMap = {}; // id -> url
 
-  // Load existing progress if interrupted
+  // Seed from images already baked into index.html
+  const indexPath = path.join(__dirname, 'index.html');
+  try {
+    const existing = fs.readFileSync(indexPath, 'utf8');
+    const match = existing.match(/const IMG = (\{[\s\S]*?\});/);
+    if (match) Object.assign(imageMap, JSON.parse(match[1]));
+    const seeded = Object.values(imageMap).filter(v => v).length;
+    if (seeded) console.log(`Loaded ${seeded} existing images from index.html\n`);
+  } catch(e) {}
+
+  // Also resume from progress file if interrupted mid-run
   const progressFile = path.join(__dirname, '.image-progress.json');
   if (fs.existsSync(progressFile)) {
     try {
       const saved = JSON.parse(fs.readFileSync(progressFile, 'utf8'));
       Object.assign(imageMap, saved);
-      const done = Object.keys(imageMap).length;
-      console.log(`Resuming from previous run — ${done} products already fetched\n`);
+      console.log(`Resuming from previous run\n`);
     } catch(e) {}
   }
 
-  const remaining = PRODUCTS.filter(p => imageMap[p.id] === undefined);
+  const remaining = PRODUCTS.filter(p => !imageMap[p.id]);
   console.log(`Fetching ${remaining.length} remaining products...\n`);
 
   for (let i = 0; i < remaining.length; i++) {
@@ -214,26 +233,21 @@ async function main() {
     // Save progress after each fetch in case of interruption
     fs.writeFileSync(progressFile, JSON.stringify(imageMap));
 
-    // UPCitemdb free: 6 req/min = 1 every 10s
-    // We wait 11s to be safe, except after the last one
-    if (i < remaining.length - 1) {
-      process.stdout.write('    waiting 11s...\r');
-      await sleep(11000);
-    }
+    // Be polite to Open Food Facts — 1s between requests
+    if (i < remaining.length - 1) await sleep(1000);
   }
 
   const found = Object.values(imageMap).filter(v => v).length;
   console.log(`\n✓ Done! Found images for ${found}/${PRODUCTS.length} products`);
 
   // Build the final HTML
-  console.log('\nBuilding nyc_best_store_finder.html...');
+  console.log('\nUpdating index.html...');
   buildHTML(imageMap);
 
   // Clean up progress file
   if (fs.existsSync(progressFile)) fs.unlinkSync(progressFile);
 
-  console.log('✓ nyc_best_store_finder.html is ready!');
-  console.log('\nOpen it in any browser — no internet connection needed for images.\n');
+  console.log('✓ index.html updated with images!');
 }
 
 function buildHTML(imageMap) {
