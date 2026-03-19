@@ -237,10 +237,11 @@ async function main() {
 }
 
 function buildHTML(imageMap) {
-  // Inline the image map as a JS object in the HTML
+  const indexPath = path.join(__dirname, 'index.html');
+  let html = fs.readFileSync(indexPath, 'utf8');
   const imgMapJS = JSON.stringify(imageMap, null, 2);
-  const html = getHTMLTemplate(imgMapJS);
-  fs.writeFileSync(path.join(__dirname, 'nyc_best_store_finder.html'), html, 'utf8');
+  html = html.replace(/const IMG = \{[\s\S]*?\};/, `const IMG = ${imgMapJS};`);
+  fs.writeFileSync(indexPath, html, 'utf8');
 }
 
 function getHTMLTemplate(imgMapJS) {
