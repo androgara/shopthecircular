@@ -1,2 +1,4 @@
 .image-progress.json
+.price-progress.json
 .claude/
+node_modules/
