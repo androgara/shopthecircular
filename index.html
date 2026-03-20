@@ -495,29 +495,35 @@ function renderRight(){
       else if(pr===false) notSold.push(p);
       else noPrice.push(p);
     });
-    return{s,total,covered,notSold,noPrice,pct:covered/items.length};
-  }).sort((a,b)=>b.covered!==a.covered?b.covered-a.covered:a.total-b.total);
+    const projected=covered>0?(total/covered)*items.length:null;
+    return{s,total,covered,notSold,noPrice,pct:covered/items.length,projected};
+  }).sort((a,b)=>{
+    if(a.projected===null&&b.projected===null)return 0;
+    if(a.projected===null)return 1;
+    if(b.projected===null)return -1;
+    return a.projected-b.projected;
+  });
 
-  const winner=results[0];
+  const winner=results.find(r=>r.projected!==null);
   document.getElementById('results-area').innerHTML=`<div class="sres">
     <div class="srt">Store ranking · your basket</div>
     ${results.map((r,i)=>{
-      const isW=i===0&&r.covered>0;
+      const isW=winner&&r.s.id===winner.s.id&&r.covered>0;
       const sc=r.s.color;
-      const diff=r.covered===winner.covered&&!isW&&r.covered>0?r.total-winner.total:null;
-      const unavail=[...r.notSold,...r.noPrice];
+      const fullCoverage=r.covered===items.length;
+      const priceLabel=r.projected===null?'—':(fullCoverage?'$':'~$')+r.projected.toFixed(2);
+      const diff=!isW&&r.projected!==null&&winner?r.projected-winner.projected:null;
       return `<div class="sc${isW?' win':''}">
         <div class="sct">
           <span class="scd" style="background:${sc}"></span>
           <span class="scn">${r.s.name}</span>
           ${isW?'<span class="wb">★ Best deal</span>':''}
-          <span class="scto" style="color:${r.covered===0?'#ccc':isW?sc:'#222'}">
-            ${r.covered===0?'—':'$'+r.total.toFixed(2)}</span>
+          <span class="scto" style="color:${r.projected===null?'#ccc':isW?sc:'#222'}">${priceLabel}</span>
         </div>
         <div class="bar-bg"><div class="bar-fill" style="width:${(r.pct*100).toFixed(0)}%;background:${sc}"></div></div>
         <div class="scd2">
-          <span>${r.covered}/${items.length} items stocked</span>
-          ${diff!=null?`<span style="color:#e74c3c">+$${diff.toFixed(2)}</span>`:''}
+          <span>${r.covered}/${items.length} items priced${fullCoverage?'':' · projected total'}</span>
+          ${diff!==null?`<span style="color:#e74c3c">+$${diff.toFixed(2)}</span>`:''}
         </div>
         ${r.notSold.length?`<div class="miss" style="color:#aaa">Not sold here: ${r.notSold.slice(0,4).map(p=>p.b).join(', ')}${r.notSold.length>4?' +'+(r.notSold.length-4)+' more':''}</div>`:''}
         ${r.noPrice.length?`<div class="miss">Price not in circular: ${r.noPrice.slice(0,4).map(p=>p.b).join(', ')}${r.noPrice.length>4?' +'+(r.noPrice.length-4)+' more':''}</div>`:''}
