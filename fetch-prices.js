@@ -170,6 +170,63 @@ const PRODUCTS = [
   { id:'bg2', name:'Domino Granulated Sugar',       brand:'Domino',           size:'4 lb'      },
   { id:'bg3', name:'Duncan Hines Yellow Cake Mix',  brand:'Duncan Hines',     size:'15.25 oz'  },
   { id:'bg4', name:'Pillsbury Brownie Mix',         brand:'Pillsbury',        size:'18.4 oz'   },
+  // Rice & Grains
+  { id:'ri1', name:"Ben's Original White Rice",     brand:"Ben's Original",   size:'2 lb'      },
+  { id:'ri2', name:'Minute Instant White Rice',     brand:'Minute',           size:'28 oz'     },
+  { id:'ri3', name:'Goya Long Grain Rice',          brand:'Goya',             size:'5 lb'      },
+  { id:'ri4', name:'Mahatma Jasmine Rice',          brand:'Mahatma',          size:'2 lb'      },
+  { id:'ri5', name:'Lundberg Organic Brown Rice',   brand:'Lundberg',         size:'2 lb'      },
+  { id:'ri6', name:'Near East Rice Pilaf',          brand:'Near East',        size:'6.9 oz'    },
+  { id:'ri7', name:'Goya Yellow Rice Mix',          brand:'Goya',             size:'8 oz'      },
+  // Milk
+  { id:'ml1', name:'Horizon Organic 2% Milk',       brand:'Horizon',          size:'1/2 gal'   },
+  { id:'ml2', name:'Lactaid Whole Milk',            brand:'Lactaid',          size:'1/2 gal'   },
+  { id:'ml3', name:'Organic Valley Whole Milk',     brand:'Organic Valley',   size:'1/2 gal'   },
+  { id:'ml4', name:'Hood Whole Milk',               brand:'Hood',             size:'1 gal'     },
+  { id:'ml5', name:'Fairlife Whole Milk',           brand:'Fairlife',         size:'52 oz'     },
+  // Dairy additions
+  { id:'da11',name:'Daisy Sour Cream',              brand:'Daisy',            size:'16 oz'     },
+  { id:'da12',name:"Breakstone's Cottage Cheese",   brand:"Breakstone's",     size:'16 oz'     },
+  { id:'da13',name:'Cabot Cheddar Block',           brand:'Cabot',            size:'8 oz'      },
+  // Meat additions
+  { id:'me6', name:'Tyson Boneless Skinless Chicken Breasts', brand:'Tyson',  size:'3 lb'      },
+  { id:'me7', name:'Perdue Chicken Breasts',        brand:'Perdue',           size:'3 lb'      },
+  { id:'me8', name:'Jennie-O Ground Turkey',        brand:'Jennie-O',         size:'1 lb'      },
+  { id:'me9', name:'Sabrett Hot Dogs',              brand:'Sabrett',          size:'12 oz'     },
+  // Produce
+  { id:'pr1', name:'Dole Classic Iceberg Salad',    brand:'Dole',             size:'12 oz'     },
+  { id:'pr2', name:'Earthbound Farm Baby Spinach',  brand:'Earthbound Farm',  size:'5 oz'      },
+  { id:'pr3', name:'Dole Baby Carrots',             brand:'Dole',             size:'16 oz'     },
+  { id:'pr4', name:'Taylor Farms Chopped Salad Kit',brand:'Taylor Farms',     size:'11.15 oz'  },
+  { id:'pr5', name:'Green Giant Broccoli Florets',  brand:'Green Giant',      size:'12 oz'     },
+  { id:'pr6', name:'Del Monte Fresh Cut Green Beans',brand:'Del Monte',       size:'14.5 oz'   },
+  // Frozen additions
+  { id:'fr9', name:'Tyson Chicken Nuggets',         brand:'Tyson',            size:'32 oz'     },
+  { id:'fr10',name:'Green Giant Steamers Broccoli', brand:'Green Giant',      size:'12 oz'     },
+  { id:'fr11',name:'Birds Eye Steamfresh Mixed Vegetables', brand:'Birds Eye', size:'10.8 oz'  },
+  { id:'fr12',name:"Stouffer's Lasagna",            brand:"Stouffer's",       size:'19 oz'     },
+  { id:'fr13',name:"Amy's Black Bean Burrito",      brand:"Amy's",            size:'6 oz'      },
+  // Canned goods additions
+  { id:'ca9', name:'Goya Chickpeas',                brand:'Goya',             size:'15.5 oz'   },
+  { id:'ca10',name:'Goya Kidney Beans',             brand:'Goya',             size:'15.5 oz'   },
+  { id:'ca11',name:'Swanson Chicken Broth',         brand:'Swanson',          size:'32 oz'     },
+  { id:'ca12',name:'Rotel Diced Tomatoes & Chilies',brand:'Rotel',            size:'10 oz'     },
+  // Condiments/pantry additions
+  { id:'co11',name:'Goya Olive Oil',                brand:'Goya',             size:'17 oz'     },
+  { id:'co12',name:'Goya Sofrito',                  brand:'Goya',             size:'12 oz'     },
+  { id:'co13',name:'Crisco Vegetable Oil',          brand:'Crisco',           size:'48 oz'     },
+  { id:'co14',name:'Mazola Corn Oil',               brand:'Mazola',           size:'40 oz'     },
+  // Coffee additions
+  { id:'cf6', name:'Café Bustelo Espresso Ground',  brand:'Café Bustelo',     size:'10 oz'     },
+  { id:'cf7', name:'Café Bustelo Instant Espresso', brand:'Café Bustelo',     size:'7.05 oz'   },
+  // Snack additions
+  { id:'sn13',name:'Clif Bar Chocolate Chip',       brand:'Clif Bar',         size:'2.4 oz'    },
+  { id:'sn14',name:'Quaker Chewy Granola Bars',     brand:'Quaker',           size:'8 ct'      },
+  { id:'sn15',name:"Welch's Fruit Snacks",          brand:"Welch's",          size:'22 ct'     },
+  // Household additions
+  { id:'hw8', name:'Febreze Air Freshener',         brand:'Febreze',          size:'8.8 oz'    },
+  { id:'hw9', name:'Ziploc Storage Bags Gallon',    brand:'Ziploc',           size:'19 ct'     },
+  { id:'hw10',name:'Reynolds Wrap Aluminum Foil',   brand:'Reynolds',         size:'75 sq ft'  },
 ];
 
 // ── Stores to scrape ──────────────────────────────────────────────────────────
