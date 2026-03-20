@@ -227,6 +227,65 @@ const PRODUCTS = [
   { id:'hw8', name:'Febreze Air Freshener',         brand:'Febreze',          size:'8.8 oz'    },
   { id:'hw9', name:'Ziploc Storage Bags Gallon',    brand:'Ziploc',           size:'19 ct'     },
   { id:'hw10',name:'Reynolds Wrap Aluminum Foil',   brand:'Reynolds',         size:'75 sq ft'  },
+  // Soda & Water additions
+  { id:'sw9', name:'Sprite 12-Pack',                brand:'Sprite',           size:'12x12 oz'  },
+  { id:'sw10',name:'7UP 12-Pack',                   brand:'7UP',              size:'12x12 oz'  },
+  { id:'sw11',name:'Snapple Lemon Tea',             brand:'Snapple',          size:'6x16 oz'   },
+  { id:'sw12',name:'Arizona Green Tea',             brand:'Arizona',          size:'6x16 oz'   },
+  { id:'sw13',name:'Poland Spring Water Gallon',    brand:'Poland Spring',    size:'1 gal'     },
+  { id:'sw14',name:'Poland Spring 24-Pack',         brand:'Poland Spring',    size:'24x16.9 oz'},
+  // Bread additions
+  { id:'br6', name:'Arnold Country White',          brand:'Arnold',           size:'24 oz'     },
+  { id:'br7', name:'Pepperidge Farm Sandwich White',brand:'Pepperidge Farm',  size:'22 oz'     },
+  // Pasta additions
+  { id:'pa7', name:'Ronzoni Spaghetti',             brand:'Ronzoni',          size:'16 oz'     },
+  { id:'pa8', name:'Ronzoni Penne',                 brand:'Ronzoni',          size:'16 oz'     },
+  { id:'pa9', name:'De Cecco Spaghetti',            brand:'De Cecco',         size:'16 oz'     },
+  // Bakery
+  { id:'bk1e',name:"Entenmann's Chocolate Donuts",  brand:"Entenmann's",      size:'16 oz'     },
+  { id:'bk2e',name:"Entenmann's Rich Frosted Donuts",brand:"Entenmann's",     size:'16 oz'     },
+  { id:'bk3e',name:"Entenmann's Crumb Coffee Cake", brand:"Entenmann's",      size:'19 oz'     },
+  { id:'bk4e',name:"Drake's Devil Dogs",            brand:"Drake's",          size:'10 ct'     },
+  { id:'bk5e',name:"Drake's Ring Dings",            brand:"Drake's",          size:'12 ct'     },
+  // Dairy additions
+  { id:'da14',name:'Sargento String Cheese',        brand:'Sargento',         size:'12 ct'     },
+  { id:'da15',name:'Hood Heavy Whipping Cream',     brand:'Hood',             size:'1 pint'    },
+  { id:'da16',name:'Coffee-Mate Original Creamer',  brand:'Coffee-Mate',      size:'35.3 oz'   },
+  { id:'da17',name:'Reddi Whip Original',           brand:'Reddi Whip',       size:'6.5 oz'    },
+  // Frozen additions
+  { id:'fr14',name:"Gorton's Fish Sticks",          brand:"Gorton's",         size:'19 oz'     },
+  { id:'fr15',name:'Hot Pockets Ham & Cheese',      brand:'Hot Pockets',      size:'2 ct'      },
+  { id:'fr16',name:'Bagel Bites Cheese & Pepperoni',brand:'Bagel Bites',      size:'9 ct'      },
+  { id:'fr17',name:'Ling Ling Potstickers',         brand:'Ling Ling',        size:'16 oz'     },
+  { id:'fr18',name:"Marie Callender's Chicken Pot Pie", brand:"Marie Callender's", size:'15 oz'},
+  // Condiments / NYC pantry staples
+  { id:'co15',name:'Goya Sazon with Coriander',     brand:'Goya',             size:'3.52 oz'   },
+  { id:'co16',name:'Goya Adobo All Purpose',        brand:'Goya',             size:'8 oz'      },
+  { id:'co17',name:'La Choy Soy Sauce',             brand:'La Choy',          size:'10 oz'     },
+  { id:'co18',name:'Wish-Bone Italian Dressing',    brand:'Wish-Bone',        size:'16 oz'     },
+  // Personal care additions
+  { id:'pc5', name:'Pantene Pro-V Shampoo',         brand:'Pantene',          size:'27.7 oz'   },
+  { id:'pc6', name:'TRESemmé Moisture Rich Shampoo',brand:'TRESemmé',         size:'28 oz'     },
+  { id:'pc7', name:'Dove Body Wash',                brand:'Dove',             size:'22 oz'     },
+  { id:'pc8', name:'Degree Original Deodorant',     brand:'Degree',           size:'2.7 oz'    },
+  { id:'pc9', name:'Old Spice Deodorant',           brand:'Old Spice',        size:'3 oz'      },
+  { id:'pc10',name:'Secret Antiperspirant',         brand:'Secret',           size:'2.6 oz'    },
+  { id:'pc11',name:'Always Infinity Pads',          brand:'Always',           size:'18 ct'     },
+  { id:'pc12',name:'Tampax Pearl Tampons',          brand:'Tampax',           size:'18 ct'     },
+  { id:'pc13',name:'Gillette Mach3 Razors',         brand:'Gillette',         size:'4 ct'      },
+  { id:'pc14',name:'Oral-B Toothbrush',             brand:'Oral-B',           size:'2 ct'      },
+  // Household additions
+  { id:'hw11',name:'Clorox Regular Bleach',         brand:'Clorox',           size:'43 oz'     },
+  { id:'hw12',name:'Pine-Sol Original',             brand:'Pine-Sol',         size:'48 oz'     },
+  { id:'hw13',name:'Cascade Complete Dishwasher Pods', brand:'Cascade',       size:'43 ct'     },
+  { id:'hw14',name:'Saran Premium Wrap',            brand:'Saran',            size:'100 sq ft' },
+  { id:'hw15',name:'Dixie Everyday Plates',         brand:'Dixie',            size:'44 ct'     },
+  { id:'hw16',name:'Hefty Strong Trash Bags',       brand:'Hefty',            size:'30 ct'     },
+  // Baby additions
+  { id:'ba4', name:'Pampers Baby Wipes',            brand:'Pampers',          size:'72 ct'     },
+  { id:'ba5', name:'Huggies Simply Clean Wipes',    brand:'Huggies',          size:'64 ct'     },
+  { id:'ba6', name:'Similac Advance Formula',       brand:'Similac',          size:'23.2 oz'   },
+  { id:'ba7', name:'Enfamil NeuroPro Formula',      brand:'Enfamil',          size:'20.7 oz'   },
 ];
 
 // ── Stores to scrape ──────────────────────────────────────────────────────────
