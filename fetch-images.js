@@ -162,28 +162,44 @@ const PRODUCTS = [
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-const SPOONACULAR_KEY = '2fe55f43c833460189cb07ed22ae0bff';
+const KROGER_CLIENT_ID = 'shopthecircular-bbcdpnn5';
+const KROGER_CLIENT_SECRET = 'j8UJAxffv-UPrU0dI2eardpPdi3173Fiqgc0d8MI';
+
+let krogerToken = null;
+async function getKrogerToken() {
+  if (krogerToken) return krogerToken;
+  const creds = Buffer.from(`${KROGER_CLIENT_ID}:${KROGER_CLIENT_SECRET}`).toString('base64');
+  const res = await fetch('https://api.kroger.com/v1/connect/oauth2/token', {
+    method: 'POST',
+    headers: { 'Authorization': `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=client_credentials&scope=product.compact'
+  });
+  const data = await res.json();
+  krogerToken = data.access_token;
+  return krogerToken;
+}
 
 async function fetchImage(upc, name) {
-  // Search by product name — avoids bad UPC codes entirely
-  const url = `https://api.spoonacular.com/food/products/search?query=${encodeURIComponent(name)}&number=1&apiKey=${SPOONACULAR_KEY}`;
   try {
-    const res = await fetch(url);
+    const token = await getKrogerToken();
+    const url = `https://api.kroger.com/v1/products?filter.term=${encodeURIComponent(name)}&filter.limit=1`;
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) {
       console.log(`  ✗ ${name} (HTTP ${res.status})`);
       return '';
     }
     const data = await res.json();
-    const product = data.products?.[0];
+    const product = data.data?.[0];
     if (!product) {
       console.log(`  ~ ${name} (not found)`);
       return '';
     }
-    const img = product.image
-      ? (product.image.startsWith('http') ? product.image : `https://img.spoonacular.com/products/${product.image}`)
-      : '';
+    // Prefer front-facing xlarge image
+    const images = product.images || [];
+    const front = images.find(i => i.perspective === 'front') || images[0];
+    const img = front?.sizes?.find(s => s.size === 'xlarge')?.url || front?.sizes?.[0]?.url || '';
     if (img) {
-      console.log(`  ✓ ${name} → ${product.title}`);
+      console.log(`  ✓ ${name} → ${product.description}`);
     } else {
       console.log(`  ~ ${name} (no image)`);
     }
@@ -198,7 +214,7 @@ async function main() {
   console.log('\n🛒 NYC Best Store Finder — Image Fetcher');
   console.log('━'.repeat(50));
   console.log(`Fetching images for ${PRODUCTS.length} products...`);
-  console.log('Source: Spoonacular (search by name — bypasses bad UPCs)\n');
+  console.log('Source: Kroger API (search by name)\n');
 
   const imageMap = {}; // id -> url
 
