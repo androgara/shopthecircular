@@ -24,7 +24,8 @@ const fs = require('fs');
 
 const PROGRESS_FILE = '.price-progress.json';
 const INDEX_FILE    = 'index.html';
-const DELAY_MS      = 2500;   // pause between requests (be polite, avoid blocks)
+const DELAY_MS      = 800;    // pause between requests per page
+const CONCURRENCY   = 3;      // parallel browser pages per store
 const NAV_TIMEOUT   = 30000;  // ms to wait for page load
 const PRICE_TIMEOUT = 12000;  // ms to wait for price element to appear
 
@@ -293,18 +294,12 @@ const PRODUCTS = [
 // onlyNull: true = skip products that already have a price in index.html
 const SCRAPERS = [
   { id:'fb',  name:'Food Bazaar',  type:'instacart', slug:'food-bazaar'             },
-  { id:'ct',  name:'C-Town',       type:'instacart', slug:'c-town-supermarkets'     },
   { id:'wb',  name:'Western Beef', type:'instacart', slug:'western-beef'            },
-  { id:'asc', name:'Associated',   type:'instacart', slug:'associated-supermarkets' },
-  { id:'fw',  name:'Fairway',      type:'instacart', slug:'fairway-market'          },
-  { id:'tg',  name:'Target',       type:'target'                                   },
-  { id:'co',  name:'Costco',       type:'costco'                                   },
-  { id:'bjs', name:"BJ's",         type:'bjs'                                      },
-  // Existing stores — fill in any nulls
+  { id:'fw',  name:'Fairway',      type:'instacart', slug:'fairway'                 },
   { id:'kf',  name:'Key Food',     type:'instacart', slug:'key-food'               },
-  { id:'ss',  name:'Stop & Shop',  type:'instacart', slug:'stop-and-shop'          },
+  { id:'ss',  name:'Stop & Shop',  type:'instacart', slug:'stop-shop'              },
   { id:'sr',  name:'ShopRite',     type:'instacart', slug:'shoprite'               },
-  { id:'wf',  name:'Whole Foods',  type:'instacart', slug:'whole-foods-market'     },
+  { id:'tg',  name:'Target',        type:'target'                                   },
 ];
 
 // ── Price extraction helpers ──────────────────────────────────────────────────
@@ -320,89 +315,29 @@ function parsePrice(raw) {
   return null;
 }
 
-// Instacart price selectors (in priority order)
-const INSTACART_PRICE_SELECTORS = [
-  '[data-testid="item_price"]',
-  '[data-testid="item-price"]',
-  '.item-price',
-  '[class*="ItemPrice"]',
-  '[class*="item_price"]',
-  '[class*="price"]',
-];
-
-const INSTACART_TILE_SELECTORS = [
-  '[data-testid="item_tile"]',
-  '[data-testid="item-tile"]',
-  '[class*="ItemTile"]',
-  '[class*="item_tile"]',
-  '[class*="item-tile"]',
-  'li[class*="item"]',
-];
-
 async function scrapeInstacart(page, slug, product) {
   const query = encodeURIComponent(`${product.brand} ${product.name}`);
-  const url = `https://www.instacart.com/store/${slug}/search_v3/${query}`;
+  const url = `https://www.instacart.com/store/${slug}/search?k=${query}`;
 
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
 
-    // Wait for any product tile to appear
-    let tileSelector = null;
-    for (const sel of INSTACART_TILE_SELECTORS) {
-      try {
-        await page.waitForSelector(sel, { timeout: PRICE_TIMEOUT });
-        tileSelector = sel;
-        break;
-      } catch {}
-    }
+    // Dismiss login modal with Escape
+    await page.keyboard.press('Escape');
 
-    if (!tileSelector) {
-      // Try reading raw page text for any dollar amount (last resort)
-      const text = await page.innerText('body').catch(() => '');
-      if (text.includes('sign in') || text.includes('Sign In')) return { price: null, note: 'auth required' };
-      return { price: null, note: 'no tiles found' };
-    }
+    // Wait for screen-reader price spans to appear (Instacart puts prices there)
+    await page.waitForSelector('span.screen-reader-only', { timeout: PRICE_TIMEOUT });
 
-    // Extract price from page via evaluate
-    const result = await page.evaluate((priceSelectors, tileSelectors, productName, productBrand) => {
-      // Find all tiles
-      let tiles = [];
-      for (const sel of tileSelectors) {
-        tiles = Array.from(document.querySelectorAll(sel));
-        if (tiles.length) break;
+    // Extract the first "Current price: $X.XX" from the page
+    const result = await page.evaluate(() => {
+      const spans = Array.from(document.querySelectorAll('span.screen-reader-only'));
+      for (const span of spans) {
+        const text = span.textContent.trim();
+        const m = text.match(/Current price:\s*\$([\d.]+)/i);
+        if (m) return { price: parseFloat(m[1]), note: 'screen-reader-only' };
       }
-
-      if (!tiles.length) return { price: null, note: 'no tiles in DOM' };
-
-      // Score tiles by name match
-      const nameLower = productName.toLowerCase();
-      const brandLower = productBrand.toLowerCase();
-
-      let bestTile = null;
-      let bestScore = -1;
-
-      for (const tile of tiles.slice(0, 8)) {
-        const text = tile.innerText.toLowerCase();
-        let score = 0;
-        if (text.includes(nameLower)) score += 2;
-        if (text.includes(brandLower)) score += 1;
-        if (score > bestScore) { bestScore = score; bestTile = tile; }
-      }
-
-      if (!bestTile) bestTile = tiles[0];
-
-      // Extract price from best tile
-      for (const sel of priceSelectors) {
-        const el = bestTile.querySelector(sel);
-        if (el && el.innerText.trim()) return { price: el.innerText.trim(), note: 'matched' };
-      }
-
-      // Fallback: look for $ in tile text
-      const priceMatch = bestTile.innerText.match(/\$[\d.]+/);
-      if (priceMatch) return { price: priceMatch[0], note: 'regex fallback' };
-
-      return { price: null, note: 'no price in tile' };
-    }, INSTACART_PRICE_SELECTORS, INSTACART_TILE_SELECTORS, product.name, product.brand);
+      return { price: null, note: 'no current price span found' };
+    });
 
     return result;
   } catch (e) {
@@ -416,27 +351,16 @@ async function scrapeTarget(page, product) {
 
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
-    await page.waitForSelector('[data-test="product-price"], [class*="Price"], [class*="price"]', { timeout: PRICE_TIMEOUT });
 
-    const result = await page.evaluate((productName, productBrand) => {
-      const cards = Array.from(document.querySelectorAll('[data-test="product-card"], [class*="ProductCardWrapper"], li[class*="product"]'));
-      if (!cards.length) return { price: null, note: 'no cards' };
+    // Target uses data-test="current-price" on price spans
+    await page.waitForSelector('[data-test="current-price"], span.current-price', { timeout: PRICE_TIMEOUT });
 
-      const nameLower = productName.toLowerCase();
-      const brandLower = productBrand.toLowerCase();
-      let bestCard = null, bestScore = -1;
-      for (const card of cards.slice(0, 6)) {
-        const text = card.innerText.toLowerCase();
-        let score = (text.includes(nameLower) ? 2 : 0) + (text.includes(brandLower) ? 1 : 0);
-        if (score > bestScore) { bestScore = score; bestCard = card; }
-      }
-      if (!bestCard) bestCard = cards[0];
-
-      const priceEl = bestCard.querySelector('[data-test="product-price"], [class*="Price"]');
-      if (priceEl) return { price: priceEl.innerText.trim(), note: 'matched' };
-      const match = bestCard.innerText.match(/\$[\d.]+/);
-      return match ? { price: match[0], note: 'regex' } : { price: null, note: 'no price' };
-    }, product.name, product.brand);
+    const result = await page.evaluate(() => {
+      const el = document.querySelector('[data-test="current-price"], span.current-price');
+      if (!el) return { price: null, note: 'no price element' };
+      const m = el.innerText.trim().match(/\$([\d.]+)/);
+      return m ? { price: parseFloat(m[1]), note: 'target-current-price' } : { price: null, note: 'no $ in element' };
+    });
 
     return result;
   } catch (e) {
@@ -520,7 +444,18 @@ function loadProgress() {
 }
 
 function saveProgress(progress) {
-  fs.writeFileSync(PROGRESS_FILE, JSON.stringify(progress, null, 2));
+  // Retry on Windows file lock (EBUSY) from parallel writes
+  for (let i = 0; i < 5; i++) {
+    try {
+      fs.writeFileSync(PROGRESS_FILE, JSON.stringify(progress, null, 2));
+      return;
+    } catch (e) {
+      if (e.code !== 'EBUSY' || i === 4) throw e;
+      // Brief spin-wait (synchronous) before retry
+      const end = Date.now() + 100;
+      while (Date.now() < end) {}
+    }
+  }
 }
 
 // ── index.html updater ────────────────────────────────────────────────────────
@@ -585,8 +520,6 @@ async function main() {
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
   });
 
-  const page = await context.newPage();
-
   const scrapers = forceStore
     ? SCRAPERS.filter(s => s.id === forceStore)
     : SCRAPERS;
@@ -595,41 +528,53 @@ async function main() {
     console.log(`\n── ${scraper.name} (${scraper.id}) ──────────────────`);
     if (!allPrices[scraper.id]) allPrices[scraper.id] = {};
 
-    let found = 0, skipped = 0, missed = 0;
+    const todo = PRODUCTS.filter(p => allPrices[scraper.id][p.id] === undefined);
+    const skipped = PRODUCTS.length - todo.length;
 
-    for (const product of PRODUCTS) {
-      // Skip if already have a price for this product+store
-      if (allPrices[scraper.id][product.id] !== undefined) {
-        skipped++;
-        continue;
+    let found = 0, missed = 0;
+
+    // Open a pool of parallel pages
+    const pages = await Promise.all(
+      Array.from({ length: Math.min(CONCURRENCY, todo.length || 1) }, () => context.newPage())
+    );
+
+    // Work queue: assign products to pages in parallel
+    let idx = 0;
+    const mutex = { saving: false };
+
+    async function scrapeWorker(pg) {
+      while (idx < todo.length) {
+        const product = todo[idx++];
+
+        let result;
+        switch (scraper.type) {
+          case 'instacart': result = await scrapeInstacart(pg, scraper.slug, product); break;
+          case 'target':    result = await scrapeTarget(pg, product);   break;
+          case 'costco':    result = await scrapeCostco(pg, product);   break;
+          case 'bjs':       result = await scrapeBJs(pg, product);      break;
+          default:          result = { price: null, note: 'unknown type' };
+        }
+
+        const price = typeof result.price === 'number' ? result.price : parsePrice(result.price);
+        allPrices[scraper.id][product.id] = price;
+
+        if (price !== null) {
+          console.log(`  ✓ ${product.name.padEnd(35)} $${price.toFixed(2)}`);
+          found++;
+        } else {
+          console.log(`  ~ ${product.name.padEnd(35)} (${result.note})`);
+          missed++;
+        }
+
+        progress.prices = allPrices;
+        saveProgress(progress);
+
+        await pg.waitForTimeout(DELAY_MS);
       }
-
-      let result;
-      switch (scraper.type) {
-        case 'instacart': result = await scrapeInstacart(page, scraper.slug, product); break;
-        case 'target':    result = await scrapeTarget(page, product);   break;
-        case 'costco':    result = await scrapeCostco(page, product);   break;
-        case 'bjs':       result = await scrapeBJs(page, product);      break;
-        default:          result = { price: null, note: 'unknown type' };
-      }
-
-      const price = parsePrice(result.price);
-      allPrices[scraper.id][product.id] = price;
-
-      if (price !== null) {
-        console.log(`  ✓ ${product.name.padEnd(35)} $${price.toFixed(2)}`);
-        found++;
-      } else {
-        console.log(`  ~ ${product.name.padEnd(35)} (${result.note})`);
-        missed++;
-      }
-
-      // Save progress after every product
-      progress.prices = allPrices;
-      saveProgress(progress);
-
-      await page.waitForTimeout(DELAY_MS);
     }
+
+    await Promise.all(pages.map(pg => scrapeWorker(pg)));
+    await Promise.all(pages.map(pg => pg.close()));
 
     console.log(`  → ${found} found, ${missed} not found, ${skipped} already done`);
   }
