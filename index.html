@@ -71,6 +71,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .clr{margin:0 12px 12px;padding:8px;border:1px solid #ddd;border-radius:8px;background:transparent;cursor:pointer;font-size:12px;color:#888;width:calc(100% - 24px);}
 .clr:hover{background:white;}
 .disc{font-size:10px;color:#bbb;padding:0 12px 12px;line-height:1.5;}
+.rank-tabs{display:flex;gap:4px;margin-bottom:8px;}
+.rtab{flex:1;padding:5px 8px;border-radius:7px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer;color:#666;font-weight:500;text-align:center;}
+.rtab.on{background:#1a1a2e;color:white;border-color:#1a1a2e;}
 @media(max-width:700px){.layout{grid-template-columns:1fr;}.right{max-height:none;border-top:1px solid #e8e8e8;}.panel{max-height:400px;}}
 </style>
 </head>
@@ -168,7 +171,7 @@ const IMG = {
   "ic2": "https://www.kroger.com/product/images/xlarge/front/0007457065057",
   "ic3": "https://www.kroger.com/product/images/xlarge/front/0018685200024",
   "ic4": "https://www.kroger.com/product/images/xlarge/front/0007756725426",
-  "ic5": "",
+  "ic5": "https://www.kroger.com/product/images/xlarge/front/0004154800185",
   "ic6": "https://www.kroger.com/product/images/xlarge/front/0085808900305",
   "ic7": "https://www.kroger.com/product/images/xlarge/front/0001111000454",
   "ch1": "https://www.kroger.com/product/images/xlarge/front/0002840019914",
@@ -210,7 +213,7 @@ const IMG = {
   "da8": "https://www.kroger.com/product/images/xlarge/front/0002100004024",
   "da9": "https://www.kroger.com/product/images/xlarge/front/0071514111357",
   "da10": "https://www.kroger.com/product/images/xlarge/front/0019064664101",
-  "me1": "",
+  "me1": "https://www.kroger.com/product/images/xlarge/front/0004470002268",
   "me2": "https://www.kroger.com/product/images/xlarge/front/0007790053608",
   "me3": "https://www.kroger.com/product/images/xlarge/front/0005450019329",
   "me4": "https://www.kroger.com/product/images/xlarge/front/0007495618057",
@@ -264,7 +267,102 @@ const IMG = {
   "bg1": "https://www.kroger.com/product/images/xlarge/front/0001600010710",
   "bg2": "https://www.kroger.com/product/images/xlarge/front/0004920004550",
   "bg3": "https://www.kroger.com/product/images/xlarge/front/0064420930749",
-  "bg4": "https://www.kroger.com/product/images/xlarge/front/0001330055538"
+  "bg4": "https://www.kroger.com/product/images/xlarge/front/0001330055538",
+  "ri1": "https://www.kroger.com/product/images/xlarge/front/0005480042355",
+  "ri2": "https://www.kroger.com/product/images/xlarge/front/0001740011805",
+  "ri3": "https://www.kroger.com/product/images/xlarge/front/0007152400019",
+  "ri4": "https://www.kroger.com/product/images/xlarge/front/0001740010951",
+  "ri5": "https://www.kroger.com/product/images/xlarge/front/0007341600014",
+  "ri6": "https://www.kroger.com/product/images/xlarge/front/0007225100105",
+  "ri7": "",
+  "ml1": "https://www.kroger.com/product/images/xlarge/front/0074236526425",
+  "ml2": "https://www.kroger.com/product/images/xlarge/front/0004138309073",
+  "ml3": "https://www.kroger.com/product/images/xlarge/front/0009396651300",
+  "ml4": "https://www.kroger.com/product/images/xlarge/front/0005215970115",
+  "ml5": "https://www.kroger.com/product/images/xlarge/front/0081162002016",
+  "da11": "https://www.kroger.com/product/images/xlarge/front/0007342000011",
+  "da12": "https://www.kroger.com/product/images/xlarge/front/0002100012382",
+  "da13": "https://www.kroger.com/product/images/xlarge/front/0001111010260",
+  "da14": "https://www.kroger.com/product/images/xlarge/front/0004610000715",
+  "da15": "https://www.kroger.com/product/images/xlarge/front/0001111050315",
+  "da16": "https://www.kroger.com/product/images/xlarge/front/0005000030262",
+  "da17": "https://www.kroger.com/product/images/xlarge/front/0007027223202",
+  "me6": "https://www.kroger.com/product/images/xlarge/front/0002370016220",
+  "me7": "https://www.kroger.com/product/images/xlarge/front/0007274554618",
+  "me8": "https://www.kroger.com/product/images/xlarge/front/0002265571556",
+  "me9": "https://www.kroger.com/product/images/xlarge/front/0088831391404",
+  "pr1": "https://www.kroger.com/product/images/xlarge/front/0001111091036",
+  "pr2": "",
+  "pr3": "https://www.kroger.com/product/images/xlarge/front/0007143000964",
+  "pr4": "https://www.kroger.com/product/images/xlarge/front/0003022304225",
+  "pr5": "https://www.kroger.com/product/images/xlarge/front/0002000029015",
+  "pr6": "https://www.kroger.com/product/images/xlarge/front/0002400055076",
+  "fr9": "https://www.kroger.com/product/images/xlarge/front/0002370006026",
+  "fr10": "https://www.kroger.com/product/images/xlarge/front/0002000029015",
+  "fr11": "https://www.kroger.com/product/images/xlarge/front/0001450002128",
+  "fr12": "https://www.kroger.com/product/images/xlarge/front/0001380014333",
+  "fr13": "https://www.kroger.com/product/images/xlarge/front/0004227200073",
+  "fr14": "https://www.kroger.com/product/images/xlarge/front/0004440015460",
+  "fr15": "https://www.kroger.com/product/images/xlarge/front/0004369550650",
+  "fr16": "https://www.kroger.com/product/images/xlarge/front/0007008504690",
+  "fr17": "https://www.kroger.com/product/images/xlarge/front/0001087801559",
+  "fr18": "https://www.kroger.com/product/images/xlarge/front/0002113150694",
+  "ca9": "",
+  "ca10": "",
+  "ca11": "https://www.kroger.com/product/images/xlarge/front/0005100012114",
+  "ca12": "https://www.kroger.com/product/images/xlarge/front/0006414428243",
+  "co11": "",
+  "co12": "",
+  "co13": "https://www.kroger.com/product/images/xlarge/front/0019600570833",
+  "co14": "https://www.kroger.com/product/images/xlarge/front/0076172098749",
+  "co15": "",
+  "co16": "https://www.kroger.com/product/images/xlarge/front/0007152428503",
+  "co17": "https://www.kroger.com/product/images/xlarge/front/0004430012513",
+  "co18": "https://www.kroger.com/product/images/xlarge/front/0004132100611",
+  "cf6": "https://www.kroger.com/product/images/xlarge/front/0007447101720",
+  "cf7": "https://www.kroger.com/product/images/xlarge/front/0007447101108",
+  "sw9": "https://www.kroger.com/product/images/xlarge/front/0004900002892",
+  "sw10": "https://www.kroger.com/product/images/xlarge/front/0007800001180",
+  "sw11": "https://www.kroger.com/product/images/xlarge/front/0007618347550",
+  "sw12": "https://www.kroger.com/product/images/xlarge/front/0061300871585",
+  "sw13": "https://www.kroger.com/product/images/xlarge/front/0001111042139",
+  "sw14": "",
+  "br6": "https://www.kroger.com/product/images/xlarge/front/0001111014431",
+  "br7": "https://www.kroger.com/product/images/xlarge/front/0001410007083",
+  "pa7": "https://www.kroger.com/product/images/xlarge/front/0007130004008",
+  "pa8": "https://www.kroger.com/product/images/xlarge/front/0007130004234",
+  "pa9": "https://www.kroger.com/product/images/xlarge/front/0002409407012",
+  "bk1e": "https://www.kroger.com/product/images/xlarge/front/0007203095997",
+  "bk2e": "https://www.kroger.com/product/images/xlarge/front/0007203000026",
+  "bk3e": "",
+  "bk4e": "https://www.kroger.com/product/images/xlarge/front/0088810911579",
+  "bk5e": "https://www.kroger.com/product/images/xlarge/front/0088810911061",
+  "sn13": "https://www.kroger.com/product/images/xlarge/front/0072225206876",
+  "sn14": "https://www.kroger.com/product/images/xlarge/front/0003000031184",
+  "sn15": "https://www.kroger.com/product/images/xlarge/front/0003485686608",
+  "hw8": "https://www.kroger.com/product/images/xlarge/front/0003077221118",
+  "hw9": "https://www.kroger.com/product/images/xlarge/front/0002570001363",
+  "hw10": "https://www.kroger.com/product/images/xlarge/front/0001090028130",
+  "hw11": "https://www.kroger.com/product/images/xlarge/front/0004460032263",
+  "hw12": "https://www.kroger.com/product/images/xlarge/front/0004129460149",
+  "hw13": "https://www.kroger.com/product/images/xlarge/front/0003700097722",
+  "hw14": "https://www.kroger.com/product/images/xlarge/front/0001111003115",
+  "hw15": "https://www.kroger.com/product/images/xlarge/front/0004200015969",
+  "hw16": "https://www.kroger.com/product/images/xlarge/front/0001370021755",
+  "pc5": "https://www.kroger.com/product/images/xlarge/front/0008087820151",
+  "pc6": "https://www.kroger.com/product/images/xlarge/front/0002240039365",
+  "pc7": "https://www.kroger.com/product/images/xlarge/front/0001111112425",
+  "pc8": "https://www.kroger.com/product/images/xlarge/front/0007940026700",
+  "pc9": "https://www.kroger.com/product/images/xlarge/front/0001204401560",
+  "pc10": "https://www.kroger.com/product/images/xlarge/front/0003700088793",
+  "pc11": "https://www.kroger.com/product/images/xlarge/front/0003700082073",
+  "pc12": "https://www.kroger.com/product/images/xlarge/front/0007301000455",
+  "pc13": "https://www.kroger.com/product/images/xlarge/front/0004740066181",
+  "pc14": "https://www.kroger.com/product/images/xlarge/front/0030041010141",
+  "ba4": "https://www.kroger.com/product/images/xlarge/front/0003700087076",
+  "ba5": "https://www.kroger.com/product/images/xlarge/front/0003600055529",
+  "ba6": "https://www.kroger.com/product/images/xlarge/front/0007007455958",
+  "ba7": "https://www.kroger.com/product/images/xlarge/front/0030087512109"
 };
 
 const P=[
@@ -529,6 +627,7 @@ const P=[
 const PM={};P.forEach(p=>PM[p.id]=p);
 let aC='all';
 const basket=new Set();
+let rankMode='price';
 
 function minP(p){const v=STORES.map(s=>p.p[s.id]).filter(x=>x>0);return v.length?Math.min(...v):null;}
 function stCt(p){return STORES.filter(s=>p.p[s.id]>0).length;}
@@ -592,7 +691,7 @@ function renderRight(){
     document.getElementById('results-area').innerHTML='';
     return;
   }
-  document.getElementById('rsub').textContent='Stores ranked cheapest → most expensive';
+  document.getElementById('rsub').textContent=rankMode==='price'?'Stores ranked cheapest → most expensive':'Stores ranked by most items available';
   document.getElementById('bitems-area').innerHTML=`<div class="bitems">${items.map(p=>{
     const img=IMG[p.id]||'';
     const imgEl=img?`<img src="${img}" style="width:100%;height:100%;object-fit:contain;padding:2px;" onerror="this.style.display='none'">`:`<span style="font-size:16px">${p.e}</span>`;
@@ -603,7 +702,7 @@ function renderRight(){
     </div>`;
   }).join('')}</div>`;
 
-  const results=STORES.map(s=>{
+  const scored=STORES.map(s=>{
     let total=0,covered=0,notSold=[],noPrice=[];
     items.forEach(p=>{
       const pr=p.p[s.id];
@@ -613,33 +712,48 @@ function renderRight(){
     });
     const projected=covered>0?(total/covered)*items.length:null;
     return{s,total,covered,notSold,noPrice,pct:covered/items.length,projected};
-  }).sort((a,b)=>{
+  });
+
+  const results=[...scored].sort((a,b)=>{
+    if(rankMode==='selection'){
+      if(b.covered!==a.covered) return b.covered-a.covered;
+      if(a.total>0&&b.total>0) return a.total-b.total;
+      if(a.total>0) return -1;
+      if(b.total>0) return 1;
+      return 0;
+    }
     if(a.projected===null&&b.projected===null)return 0;
     if(a.projected===null)return 1;
     if(b.projected===null)return -1;
     return a.projected-b.projected;
   });
 
-  const winner=results.find(r=>r.projected!==null);
+  const winner=results.find(r=>rankMode==='selection'?r.covered>0:r.projected!==null);
+  const winLabel=rankMode==='selection'?'★ Most items':'★ Best deal';
   document.getElementById('results-area').innerHTML=`<div class="sres">
-    <div class="srt">Store ranking · your basket</div>
+    <div class="rank-tabs">
+      <button class="rtab${rankMode==='price'?' on':''}" onclick="setRank('price')">$ Price</button>
+      <button class="rtab${rankMode==='selection'?' on':''}" onclick="setRank('selection')">✓ Selection</button>
+    </div>
     ${results.map((r,i)=>{
-      const isW=winner&&r.s.id===winner.s.id&&r.covered>0;
+      const isW=winner&&r.s.id===winner.s.id;
       const sc=r.s.color;
       const fullCoverage=r.covered===items.length;
       const priceLabel=r.projected===null?'—':(fullCoverage?'$':'~$')+r.projected.toFixed(2);
-      const diff=!isW&&r.projected!==null&&winner?r.projected-winner.projected:null;
+      const diff=rankMode==='price'&&!isW&&r.projected!==null&&winner?r.projected-winner.projected:null;
       return `<div class="sc${isW?' win':''}">
         <div class="sct">
           <span class="scd" style="background:${sc}"></span>
           <span class="scn">${r.s.name}</span>
-          ${isW?'<span class="wb">★ Best deal</span>':''}
-          <span class="scto" style="color:${r.projected===null?'#ccc':isW?sc:'#222'}">${priceLabel}</span>
+          ${isW?`<span class="wb">${winLabel}</span>`:''}
+          <span class="scto" style="color:${rankMode==='selection'?(r.covered>0?isW?sc:'#222':'#ccc'):(r.projected===null?'#ccc':isW?sc:'#222')}">${rankMode==='selection'?`${r.covered}/${items.length}`:priceLabel}</span>
         </div>
         <div class="bar-bg"><div class="bar-fill" style="width:${(r.pct*100).toFixed(0)}%;background:${sc}"></div></div>
         <div class="scd2">
-          <span>${r.covered}/${items.length} items priced${fullCoverage?'':' · projected total'}</span>
-          ${diff!==null?`<span style="color:#e74c3c">+$${diff.toFixed(2)}</span>`:''}
+          ${rankMode==='selection'
+            ?`<span>${r.covered}/${items.length} items priced</span><span>${priceLabel}</span>`
+            :`<span>${r.covered}/${items.length} items priced${fullCoverage?'':' · projected total'}</span>${diff!==null?`<span style="color:#e74c3c">+$${diff.toFixed(2)}</span>`:''}`
+          }
         </div>
         ${r.notSold.length?`<div class="miss" style="color:#aaa">Not sold here: ${r.notSold.slice(0,4).map(p=>p.b).join(', ')}${r.notSold.length>4?' +'+(r.notSold.length-4)+' more':''}</div>`:''}
         ${r.noPrice.length?`<div class="miss">Price not in circular: ${r.noPrice.slice(0,4).map(p=>p.b).join(', ')}${r.noPrice.length>4?' +'+(r.noPrice.length-4)+' more':''}</div>`:''}
@@ -650,6 +764,7 @@ function renderRight(){
   </div>`;
 }
 
+function setRank(m){rankMode=m;renderRight();}
 function clearB(){basket.clear();render();renderRight();}
 function setC(c){aC=c;renderCats();render();}
 document.getElementById('search').addEventListener('input',render);
