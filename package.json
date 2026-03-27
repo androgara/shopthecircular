@@ -1,0 +1,25 @@
+{
+  "name": "shopthecircular",
+  "version": "1.0.0",
+  "description": "Runs a one-time script that fetches real product images for all ~150 products from UPCitemdb (free, no account needed), then bakes them into a standalone HTML file that works in any browser with no internet dependency.",
+  "main": "fetch-images.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/androgara/shopthecircular.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/androgara/shopthecircular/issues"
+  },
+  "homepage": "https://github.com/androgara/shopthecircular#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "playwright": "^1.58.2"
+  }
+}

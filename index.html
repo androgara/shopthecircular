@@ -3,865 +3,506 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYC Best Store Finder</title>
+<title>ShopTheCircular</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;}
-.app{width:100%;max-width:1100px;background:white;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);}
-.topbar{background:#1a1a2e;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.app-title{font-size:18px;font-weight:600;color:white;}
-.app-sub{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;}
-.wk{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);font-size:11px;padding:4px 12px;border-radius:20px;white-space:nowrap;}
-.layout{display:grid;grid-template-columns:1fr 320px;min-height:680px;}
-.left{display:flex;flex-direction:column;border-right:1px solid #e8e8e8;}
-.searchbar{padding:10px 14px;border-bottom:1px solid #e8e8e8;background:white;display:flex;gap:10px;align-items:center;}
-.searchbar input{flex:1;padding:7px 12px;font-size:13px;border:1px solid #ddd;border-radius:8px;background:#f7f7f7;color:#222;outline:none;}
-.searchbar input:focus{border-color:#1a1a2e;background:white;}
-.pcount{font-size:11px;color:#aaa;white-space:nowrap;flex-shrink:0;}
-.cats-row{background:#f7f7f7;border-bottom:1px solid #e8e8e8;padding:8px 14px;display:flex;gap:5px;flex-wrap:wrap;}
-.fb{padding:4px 11px;border-radius:20px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer;color:#666;white-space:nowrap;transition:all 0.12s;}
-.fb:hover{border-color:#999;color:#333;}
-.fb.on{background:#1a1a2e;color:white;border-color:#1a1a2e;}
-.panel{padding:12px;overflow-y:auto;flex:1;max-height:570px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;}
-.pc{background:white;border:1.5px solid #e5e5e5;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform 0.1s,border-color 0.15s,box-shadow 0.15s;position:relative;user-select:none;display:flex;flex-direction:column;}
-.pc:hover{transform:translateY(-2px);border-color:#999;box-shadow:0 3px 10px rgba(0,0,0,0.08);}
-.pc.sel{border-color:#1a1a2e;border-width:2px;background:#eef2ff;}
-.img-wrap{width:100%;height:80px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
-.img-wrap img{width:100%;height:100%;object-fit:contain;padding:6px;display:block;}
-.fe{font-size:30px;line-height:1;}
-.pc-body{padding:6px 7px 7px;text-align:center;flex:1;}
-.pn{font-size:10px;font-weight:600;color:#222;line-height:1.3;margin-bottom:1px;min-height:26px;display:flex;align-items:center;justify-content:center;}
-.pb{font-size:9px;color:#888;}
-.pf{font-size:9px;color:#bbb;margin-top:2px;}
-.pck{position:absolute;top:5px;right:5px;width:17px;height:17px;border-radius:50%;background:#1a1a2e;color:white;font-size:10px;display:flex;align-items:center;justify-content:center;z-index:3;}
-.sh{font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin:12px 0 6px;padding-left:2px;color:#888;display:flex;align-items:center;gap:6px;}
-.no-d{text-align:center;padding:40px 20px;color:#999;font-size:13px;}
-.right{display:flex;flex-direction:column;background:#f7f7f7;max-height:680px;overflow-y:auto;}
-.rhead{padding:12px 14px 10px;border-bottom:1px solid #e8e8e8;background:white;}
-.rht{font-size:14px;font-weight:600;color:#222;}
-.rhs{font-size:11px;color:#888;margin-top:2px;}
-.bempty{font-size:12px;color:#999;text-align:center;padding:24px 14px;line-height:1.7;}
-.bitems{padding:8px 12px;border-bottom:1px solid #e8e8e8;}
-.bi{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid #f0f0f0;}
-.bi:last-child{border-bottom:none;}
-.bi-img{width:32px;height:32px;background:#f0f0f0;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:1px solid #e8e8e8;}
-.bi-img img{width:100%;height:100%;object-fit:contain;padding:2px;}
-.bin{font-size:11px;color:#222;flex:1;line-height:1.3;font-weight:500;}
-.bib{font-size:9px;color:#888;}
-.birm{font-size:14px;color:#ccc;cursor:pointer;padding:0 3px;line-height:1;}
-.birm:hover{color:#e74c3c;}
-.sres{padding:10px 12px;}
-.srt{font-size:10px;font-weight:600;color:#999;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;}
-.sc{background:white;border:1.5px solid #e5e5e5;border-radius:10px;padding:10px 11px;margin-bottom:7px;}
-.sc.win{border-color:#16a34a;border-width:2px;}
-.sct{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
-.scd{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-.scn{font-size:12px;font-weight:600;color:#222;flex:1;}
-.scto{font-size:14px;font-weight:600;}
-.wb{background:#16a34a;color:white;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600;}
-.bar-bg{height:4px;background:#eee;border-radius:3px;margin-bottom:4px;}
-.bar-fill{height:4px;border-radius:3px;}
-.scd2{font-size:10px;color:#888;display:flex;justify-content:space-between;}
-.miss{font-size:10px;color:#e74c3c;margin-top:3px;line-height:1.4;}
-.ibd{font-size:10px;border-top:1px solid #f0f0f0;margin-top:6px;padding-top:5px;}
-.irow{display:flex;justify-content:space-between;padding:2px 0;gap:6px;}
-.iname{color:#666;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.iprice{font-weight:600;color:#222;flex-shrink:0;}
-.clr{margin:0 12px 12px;padding:8px;border:1px solid #ddd;border-radius:8px;background:transparent;cursor:pointer;font-size:12px;color:#888;width:calc(100% - 24px);}
-.clr:hover{background:white;}
-.disc{font-size:10px;color:#bbb;padding:0 12px 12px;line-height:1.5;}
-.rank-tabs{display:flex;gap:4px;margin-bottom:8px;}
-.rtab{flex:1;padding:5px 8px;border-radius:7px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer;color:#666;font-weight:500;text-align:center;}
-.rtab.on{background:#1a1a2e;color:white;border-color:#1a1a2e;}
-@media(max-width:700px){.layout{grid-template-columns:1fr;}.right{max-height:none;border-top:1px solid #e8e8e8;}.panel{max-height:400px;}}
-.zip-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
-.zip-modal{background:white;border-radius:14px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
-.zip-title{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px;}
-.zip-sub{font-size:13px;color:#888;margin-bottom:18px;line-height:1.5;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f3;min-height:100vh;color:#1a1a2e;}
+
+/* ── Zip modal ───────────────────────────────────────────────────────────── */
+.zip-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.zip-modal{background:white;border-radius:16px;padding:32px 28px;width:100%;max-width:380px;box-shadow:0 12px 40px rgba(0,0,0,0.2);}
+.zip-logo{font-size:22px;font-weight:800;color:#1a1a2e;margin-bottom:4px;}
+.zip-logo span{color:#22863a;}
+.zip-title{font-size:16px;color:#555;margin-bottom:20px;line-height:1.5;}
 .zip-row{display:flex;gap:8px;}
-.zip-input{flex:1;padding:10px 14px;font-size:16px;border:1.5px solid #ddd;border-radius:8px;outline:none;min-width:0;}
+.zip-input{flex:1;padding:12px 14px;font-size:16px;border:1.5px solid #ddd;border-radius:10px;outline:none;min-width:0;}
 .zip-input:focus{border-color:#1a1a2e;}
-.zip-go{padding:10px 18px;background:#1a1a2e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.zip-go{padding:12px 20px;background:#1a1a2e;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;}
 .zip-go:hover{background:#2d2d4e;}
 .zip-go:disabled{opacity:0.5;cursor:default;}
-.zip-err{font-size:12px;color:#e74c3c;margin-top:8px;}
-.loc-chip{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;}
-.loc-chip:hover{background:rgba(255,255,255,0.22);}
+.zip-err{font-size:12px;color:#e53e3e;margin-top:8px;}
+
+/* ── Loading screen ──────────────────────────────────────────────────────── */
+#loading-screen{position:fixed;inset:0;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:24px;}
+.load-logo{font-size:26px;font-weight:800;color:#1a1a2e;margin-bottom:6px;}
+.load-logo span{color:#22863a;}
+.load-sub{font-size:14px;color:#888;margin-bottom:32px;}
+.load-spinner{width:48px;height:48px;border:4px solid #e8e8e8;border-top-color:#22863a;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:28px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-log{width:100%;max-width:480px;max-height:240px;overflow-y:auto;font-size:12px;color:#555;line-height:1.9;font-family:monospace;background:#f8f9f8;border-radius:10px;padding:14px 16px;}
+.load-log p{border-bottom:1px solid #eee;padding-bottom:4px;margin-bottom:4px;}
+.load-log p:last-child{border:none;margin:0;padding:0;color:#22863a;font-weight:600;}
+
+/* ── App shell ───────────────────────────────────────────────────────────── */
+#app{display:flex;flex-direction:column;min-height:100vh;}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.header{background:#1a1a2e;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;flex-wrap:wrap;}
+.h-logo{font-size:18px;font-weight:800;color:white;white-space:nowrap;flex-shrink:0;}
+.h-logo span{color:#4ade80;}
+.h-search{flex:1;min-width:160px;position:relative;}
+.h-search input{width:100%;padding:9px 14px 9px 36px;border-radius:22px;border:none;background:rgba(255,255,255,0.12);color:white;font-size:14px;outline:none;}
+.h-search input::placeholder{color:rgba(255,255,255,0.45);}
+.h-search input:focus{background:rgba(255,255,255,0.2);}
+.h-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;opacity:0.6;}
+.h-loc{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;flex-shrink:0;}
+.h-loc:hover{background:rgba(255,255,255,0.22);}
+
+/* ── Sort bar ────────────────────────────────────────────────────────────── */
+.sort-bar{display:flex;align-items:center;gap:8px;padding:12px 20px;background:white;border-bottom:1px solid #e8e8e8;flex-wrap:wrap;}
+.sort-label{font-size:12px;color:#888;font-weight:500;white-space:nowrap;}
+.sort-btn{padding:6px 14px;border-radius:20px;border:1.5px solid #ddd;background:white;font-size:12px;font-weight:600;color:#555;cursor:pointer;transition:all 0.12s;}
+.sort-btn:hover{border-color:#999;}
+.sort-btn.active{background:#1a1a2e;color:white;border-color:#1a1a2e;}
+.stores-found{margin-left:auto;font-size:12px;color:#888;}
+
+/* ── Store rows ──────────────────────────────────────────────────────────── */
+.stores-container{padding:16px 20px;display:flex;flex-direction:column;gap:16px;flex:1;}
+
+.store-row{background:white;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);transition:box-shadow 0.15s;}
+.store-row:hover{box-shadow:0 3px 14px rgba(0,0,0,0.10);}
+
+.store-header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #f2f2f2;cursor:default;}
+.store-logo{width:46px;height:46px;border-radius:8px;object-fit:contain;background:#f5f5f5;flex-shrink:0;border:1px solid #eee;}
+.store-logo-fallback{width:46px;height:46px;border-radius:8px;background:#1a1a2e;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0;}
+.store-info{flex:1;min-width:0;}
+.store-name{font-size:15px;font-weight:700;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.store-meta{font-size:11px;color:#aaa;margin-top:2px;}
+.store-total{flex-shrink:0;text-align:right;}
+.total-pill{display:inline-flex;flex-direction:column;align-items:flex-end;background:#f0faf0;border:1.5px solid #22863a;border-radius:10px;padding:5px 11px;}
+.total-amount{font-size:15px;font-weight:800;color:#22863a;line-height:1;}
+.total-label{font-size:9px;color:#22863a;opacity:0.8;margin-top:2px;text-transform:uppercase;letter-spacing:0.04em;}
+
+/* ── Item scroll container ───────────────────────────────────────────────── */
+.items-scroll{display:flex;gap:10px;padding:12px 18px 14px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#ddd transparent;-webkit-overflow-scrolling:touch;}
+.items-scroll::-webkit-scrollbar{height:4px;}
+.items-scroll::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px;}
+
+/* ── Item card ───────────────────────────────────────────────────────────── */
+.item-card{flex-shrink:0;width:158px;background:white;border:1.5px solid #e8e8e8;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow 0.12s,border-color 0.12s;position:relative;}
+.item-card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.10);border-color:#ccc;}
+.item-card.in-basket{border-color:#22863a;border-width:2px;}
+
+.item-img-wrap{width:100%;height:138px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+.item-img-wrap img{width:100%;height:100%;object-fit:contain;padding:8px;}
+.item-img-fallback{font-size:40px;opacity:0.25;}
+
+.disc-badge{position:absolute;top:6px;left:6px;background:#e53e3e;color:white;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:0.02em;}
+
+.add-btn{position:absolute;bottom:8px;right:8px;width:32px;height:32px;background:#1a1a2e;color:white;border:none;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);transition:background 0.12s,transform 0.1s;}
+.add-btn:hover{background:#22863a;transform:scale(1.08);}
+
+.qty-ctrl{position:absolute;bottom:8px;right:6px;display:flex;align-items:center;background:white;border:2px solid #22863a;border-radius:16px;overflow:hidden;}
+.qty-btn{width:28px;height:28px;background:none;border:none;color:#22863a;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;}
+.qty-btn:hover{background:#f0faf0;}
+.qty-num{font-size:13px;font-weight:800;color:#22863a;min-width:18px;text-align:center;}
+
+.item-body{padding:8px 10px 10px;flex:1;display:flex;flex-direction:column;}
+.item-prices{display:flex;align-items:baseline;gap:5px;margin-bottom:4px;}
+.item-price{font-size:16px;font-weight:800;color:#1a1a2e;}
+.item-was{font-size:11px;color:#bbb;text-decoration:line-through;}
+.item-name{font-size:11px;color:#333;line-height:1.35;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.item-brand{font-size:10px;color:#aaa;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ── No results ──────────────────────────────────────────────────────────── */
+.no-results{text-align:center;padding:60px 20px;color:#aaa;font-size:15px;}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media(max-width:600px){
+  .stores-container{padding:12px;}
+  .header{padding:10px 14px;}
+  .sort-bar{padding:10px 14px;}
+}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="zip-overlay" id="zipOverlay">
-    <div class="zip-modal">
-      <div class="zip-title">What's your zip code?</div>
-      <div class="zip-sub">We'll show you grocery stores within 5 miles of you.</div>
-      <div class="zip-row">
-        <input class="zip-input" id="zipInput" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 11435" onkeydown="if(event.key==='Enter')submitZip()">
-        <button class="zip-go" id="zipGo" onclick="submitZip()">Go</button>
-      </div>
-      <div class="zip-err" id="zipErr" style="display:none"></div>
+
+<!-- ── Zip modal ─────────────────────────────────────────────────────────── -->
+<div class="zip-overlay" id="zipOverlay">
+  <div class="zip-modal">
+    <div class="zip-logo">Shop<span>TheCircular</span></div>
+    <div class="zip-title">Enter your zip code to see this week's grocery deals near you.</div>
+    <div class="zip-row">
+      <input class="zip-input" id="zipInput" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 11435" onkeydown="if(event.key==='Enter')submitZip()">
+      <button class="zip-go" id="zipGo" onclick="submitZip()">Go</button>
     </div>
-  </div>
-  <div class="topbar">
-    <div><div class="app-title">NYC Best Store Finder</div><div class="app-sub">Real product images · build your basket · find your cheapest single store</div></div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <button class="loc-chip" id="locChip" onclick="showZipModal()" style="display:none">📍 —</button>
-      <span class="wk">Updated Mar 23, 2026</span>
-    </div>
-  </div>
-  <div class="layout">
-    <div class="left">
-      <div class="searchbar">
-        <input id="search" type="text" placeholder="Search brand or product... (Heinz, Oreo, Tide, Cheerios...)">
-        <span class="pcount" id="pcount"></span>
-      </div>
-      <div class="cats-row" id="cats"></div>
-      <div class="panel" id="panel"></div>
-    </div>
-    <div class="right">
-      <div class="rhead">
-        <div class="rht">Basket <span id="bcount" style="font-size:12px;color:#888;font-weight:400;"></span></div>
-        <div class="rhs" id="rsub">Add items to find your cheapest single store</div>
-      </div>
-      <div id="bitems-area"></div>
-      <div id="results-area"></div>
-      <button class="clr" id="clrbtn" onclick="clearB()" style="display:none">Clear basket</button>
-      <div class="disc">Images via UPCitemdb. Prices scraped Mar 23, 2026. Verify in-store before shopping.</div>
-    </div>
+    <div class="zip-err" id="zipErr" style="display:none"></div>
   </div>
 </div>
 
-<script>
-const STORES=[
-  {id:'fb', name:'Food Bazaar',  color:'#f26522', lat:40.7064,lng:-73.7975},
-  {id:'wb', name:'Western Beef', color:'#cc0000', lat:40.7027,lng:-73.9049},
-  {id:'kf_bh',chain:'kf',name:'Key Food',location:'Briarwood',   dataKey:'kf',color:'#8b0000',lat:40.7063,lng:-73.8215},
-  {id:'kf_fh',chain:'kf',name:'Key Food',location:'Forest Hills', dataKey:'kf',color:'#8b0000',lat:40.7196,lng:-73.8383},
-  {id:'kf_fm',chain:'kf',name:'Key Food',location:'Fresh Meadows',dataKey:'kf',color:'#8b0000',lat:40.7344,lng:-73.7940},
-  {id:'kf_pk',chain:'kf',name:'Key Food',location:'Pomonok',      dataKey:'kf',color:'#8b0000',lat:40.7373,lng:-73.8063},
-  {id:'ct', name:'C-Town',       color:'#004b87', lat:40.8083,lng:-73.9262},
-  {id:'asc',name:'Associated',   color:'#006633', lat:40.7007,lng:-73.7997},
-  {id:'fw', name:'Fairway Market',color:'#4a7c59',lat:40.6736,lng:-74.0057},
-  {id:'sr', name:'ShopRite',     color:'#e31837', lat:40.7262,lng:-73.7918},
-  {id:'ss', name:'Stop & Shop',  color:'#b00000', lat:40.7261,lng:-73.8607},
-  {id:'tg', name:'Target',       color:'#cc0000', lat:40.7335,lng:-73.8790},
-  {id:'wf', name:'Whole Foods',  color:'#00674b', lat:40.7682,lng:-73.9817},
-];
-let activeStores=STORES;
-const SM={};STORES.forEach(s=>SM[s.id]=s);
-const CATS=['all','cereal','bread','pasta & sauce','rice & grains','canned goods','condiments','ice cream','chips','coffee','juice','soda & water','dairy','milk','meat','produce','snacks','frozen','bakery','breakfast','personal care','household','baby','pet','vitamins','baking'];
-const CE={all:'🛒',cereal:'🥣',bread:'🍞','pasta & sauce':'🍝','rice & grains':'🍚','canned goods':'🥫',condiments:'🧂','ice cream':'🍦',chips:'🥔',coffee:'☕',juice:'🍊','soda & water':'🥤',dairy:'🧀',milk:'🥛',meat:'🥩',produce:'🥬',snacks:'🍿',frozen:'🧊',bakery:'🎂',breakfast:'🥞','personal care':'🧴',household:'🧹',baby:'👶',pet:'🐾',vitamins:'💊',baking:'🧁'};
+<!-- ── Loading / scraping screen ─────────────────────────────────────────── -->
+<div id="loading-screen" style="display:none">
+  <div class="load-logo">Shop<span>TheCircular</span></div>
+  <div class="load-sub" id="loadSub">Finding grocery deals near you...</div>
+  <div class="load-spinner"></div>
+  <div class="load-log" id="loadLog"></div>
+</div>
 
-// ── BAKED-IN IMAGE MAP (generated by fetch-images.js) ──
-const IMG = {
-  "c1": "https://i5.walmartimages.com/asr/b278408b-0cc1-48d6-ad98-83a2f6d1ded8.b72c2a970da4022b903c86003c87f1c0.jpeg?odnHeight=450&odnWidth=450&odnBg=ffffff",
-  "c2": "http://www.meijer.com/assets/product_images/styles/xlarge/1001029_016000275591_A_400.jpg",
-  "c3": "https://www.kroger.com/product/images/xlarge/front/0001111014931",
-  "c4": "https://www.kroger.com/product/images/xlarge/front/0001600012685",
-  "c5": "https://www.kroger.com/product/images/xlarge/front/0001600012399",
-  "c6": "https://www.kroger.com/product/images/xlarge/front/0004119210328",
-  "c7": "https://www.kroger.com/product/images/xlarge/front/0003800023153",
-  "c8": "https://www.kroger.com/product/images/xlarge/front/0003000001020",
-  "c9": "https://www.kroger.com/product/images/xlarge/front/0003000057330",
-  "c10": "https://www.kroger.com/product/images/xlarge/front/0001111012008",
-  "br1": "https://www.kroger.com/product/images/xlarge/front/0007225004919",
-  "br2": "https://www.kroger.com/product/images/xlarge/front/0007225001137",
-  "br3": "https://www.kroger.com/product/images/xlarge/front/0001376402803",
-  "br4": "https://www.kroger.com/product/images/xlarge/front/0004812110208",
-  "br5": "https://www.kroger.com/product/images/xlarge/front/0007294560133",
-  "pa1": "https://www.kroger.com/product/images/xlarge/front/0007680828008",
-  "pa2": "https://www.kroger.com/product/images/xlarge/front/0007680828073",
-  "pa3": "https://www.kroger.com/product/images/xlarge/front/0005100012910",
-  "pa4": "https://www.kroger.com/product/images/xlarge/front/0074747900001",
-  "pa5": "https://www.kroger.com/product/images/xlarge/front/0002100065883",
-  "pa6": "https://www.kroger.com/product/images/xlarge/front/0003620043097",
-  "ca1": "https://i5.walmartimages.com/asr/631f5583-53e1-4011-8e13-ad61393c7293_1.1663650f027eadda2126bd9b83f3e79a.jpeg?odnHeight=450&odnWidth=450&odnBg=ffffff",
-  "ca2": "https://www.kroger.com/product/images/xlarge/front/0005100016461",
-  "ca3": "https://www.kroger.com/product/images/xlarge/front/0008000000673",
-  "ca4": "",
-  "ca5": "https://www.kroger.com/product/images/xlarge/front/0003940001614",
-  "ca6": "https://www.kroger.com/product/images/xlarge/front/0002700038040",
-  "ca7": "https://www.kroger.com/product/images/xlarge/front/0002400001440",
-  "ca8": "https://www.kroger.com/product/images/xlarge/front/0004119640482",
-  "co1": "https://www.kroger.com/product/images/xlarge/front/0001300000640",
-  "co2": "https://www.kroger.com/product/images/xlarge/front/0004800135450",
-  "co3": "https://www.kroger.com/product/images/xlarge/front/0004150000031",
-  "co4": "https://www.kroger.com/product/images/xlarge/front/0007110000551",
-  "co5": "https://www.kroger.com/product/images/xlarge/front/0004150074510",
-  "co6": "https://www.kroger.com/product/images/xlarge/front/0003760011075",
-  "co7": "https://www.kroger.com/product/images/xlarge/front/0005150025516",
-  "co8": "https://www.kroger.com/product/images/xlarge/front/0005150000163",
-  "co9": "https://www.kroger.com/product/images/xlarge/front/0002446306109",
-  "co10": "https://www.kroger.com/product/images/xlarge/front/0001121000001",
-  "ic1": "https://www.kroger.com/product/images/xlarge/front/0007684010015",
-  "ic2": "https://www.kroger.com/product/images/xlarge/front/0007457065057",
-  "ic3": "https://www.kroger.com/product/images/xlarge/front/0018685200024",
-  "ic4": "https://www.kroger.com/product/images/xlarge/front/0007756725426",
-  "ic5": "https://www.kroger.com/product/images/xlarge/front/0004154800185",
-  "ic6": "https://www.kroger.com/product/images/xlarge/front/0085808900305",
-  "ic7": "https://www.kroger.com/product/images/xlarge/front/0001111000454",
-  "ch1": "https://www.kroger.com/product/images/xlarge/front/0002840019914",
-  "ch2": "https://www.kroger.com/product/images/xlarge/front/0002840051779",
-  "ch3": "https://pics.walgreens.com/prodimg/599142/450.jpg",
-  "ch4": "https://www.kroger.com/product/images/xlarge/front/0002840031409",
-  "ch5": "https://mobileimages.lowes.com/product/converted/028400/028400097673lg.jpg",
-  "ch6": "https://www.kroger.com/product/images/xlarge/front/0002840051777",
-  "ch7": "https://www.kroger.com/product/images/xlarge/front/0002840031403",
-  "ch8": "https://www.kroger.com/product/images/xlarge/front/0002840019961",
-  "ch9": "https://www.kroger.com/product/images/xlarge/front/0002840051774",
-  "ch10": "https://www.kroger.com/product/images/xlarge/front/0002840080041",
-  "cf1": "https://www.kroger.com/product/images/xlarge/front/0002550030407",
-  "cf2": "https://www.kroger.com/product/images/xlarge/front/0004300009422",
-  "cf3": "https://www.kroger.com/product/images/xlarge/front/0088133401643",
-  "cf4": "https://www.kroger.com/product/images/xlarge/front/0076211188810",
-  "cf5": "https://www.kroger.com/product/images/xlarge/front/0004127102773",
-  "ju1": "https://www.kroger.com/product/images/xlarge/front/0004850020571",
-  "ju2": "https://www.kroger.com/product/images/xlarge/front/0002500013678",
-  "ju3": "https://www.kroger.com/product/images/xlarge/front/0001480000034",
-  "ju4": "https://www.kroger.com/product/images/xlarge/front/0004180037741",
-  "ju5": "https://tshop.r10s.com/c71/181/01fc/483c/9086/c2b8/80f9/11ebe9b3000242ac110004.jpg?_ex=512x512",
-  "ju6": "https://www.kroger.com/product/images/xlarge/front/0003120033027",
-  "sw1": "https://i5.walmartimages.com/asr/7dfaf160-aad0-4597-917f-266991551629_1.962904bb0eb9314b830a89815bcaa169.jpeg?odnHeight=450&odnWidth=450&odnBg=ffffff",
-  "sw2": "https://www.kroger.com/product/images/xlarge/front/0001200000017",
-  "sw3": "https://www.kroger.com/product/images/xlarge/front/0007800008216",
-  "sw4": "https://pics.walgreens.com/prodimg/417524/450.jpg",
-  "sw5": "https://www.kroger.com/product/images/xlarge/front/0001299322133",
-  "sw6": "https://www.kroger.com/product/images/xlarge/front/0061126926373",
-  "sw7": "https://www.kroger.com/product/images/xlarge/front/0005200012196",
-  "sw8": "https://www.kroger.com/product/images/xlarge/front/0007084703756",
-  "da1": "https://www.kroger.com/product/images/xlarge/front/0089470001013",
-  "da2": "https://www.kroger.com/product/images/xlarge/front/0068954408020",
-  "da3": "https://www.kroger.com/product/images/xlarge/front/0007047000300",
-  "da4": "https://www.kroger.com/product/images/xlarge/front/0002100061526",
-  "da5": "https://tshop.r10s.com/481/17a/3076/ec14/f0da/895d/0d20/1124e993ec0242ac110006.jpg?_ex=512x512",
-  "da6": "https://target.scene7.com/is/image/Target/GUEST_b953d959-64b0-456f-a6e6-2d33128032be?wid=1000&hei=1000",
-  "da7": "https://www.kroger.com/product/images/xlarge/front/0003450015119",
-  "da8": "https://www.kroger.com/product/images/xlarge/front/0002100004024",
-  "da9": "https://www.kroger.com/product/images/xlarge/front/0071514111357",
-  "da10": "https://www.kroger.com/product/images/xlarge/front/0019064664101",
-  "me1": "https://www.kroger.com/product/images/xlarge/front/0004470002268",
-  "me2": "https://www.kroger.com/product/images/xlarge/front/0007790053608",
-  "me3": "https://www.kroger.com/product/images/xlarge/front/0005450019329",
-  "me4": "https://www.kroger.com/product/images/xlarge/front/0007495618057",
-  "me5": "https://www.kroger.com/product/images/xlarge/front/0004450034171",
-  "sn1": "https://www.kroger.com/product/images/xlarge/front/0004400006023",
-  "sn2": "https://www.kroger.com/product/images/xlarge/front/0004400003338",
-  "sn3": "https://pics.walgreens.com/prodimg/495232/450.jpg",
-  "sn4": "https://www.kroger.com/product/images/xlarge/front/0001410008547",
-  "sn5": "https://www.kroger.com/product/images/xlarge/front/0007797508006",
-  "sn6": "https://www.kroger.com/product/images/xlarge/front/0085025100400",
-  "sn7": "https://www.kroger.com/product/images/xlarge/front/0060265255250",
-  "sn8": "https://www.kroger.com/product/images/xlarge/front/0004082201114",
-  "sn9": "https://www.kroger.com/product/images/xlarge/front/0001600018696",
-  "sn10": "https://www.kroger.com/product/images/xlarge/front/0003800022253",
-  "sn11": "https://www.kroger.com/product/images/xlarge/front/0002900001669",
-  "sn12": "https://www.kroger.com/product/images/xlarge/front/0004400006921",
-  "fr1": "https://www.kroger.com/product/images/xlarge/front/0007192121457",
-  "fr2": "https://www.kroger.com/product/images/xlarge/front/0007218063473",
-  "fr3": "https://www.kroger.com/product/images/xlarge/front/0003800040260",
-  "fr4": "https://www.kroger.com/product/images/xlarge/front/0001380010342",
-  "fr5": "https://www.kroger.com/product/images/xlarge/front/0001312000082",
-  "fr6": "https://www.kroger.com/product/images/xlarge/front/0004280072157",
-  "fr7": "https://www.kroger.com/product/images/xlarge/front/0001450002183",
-  "fr8": "https://www.kroger.com/product/images/xlarge/front/0001380044730",
-  "bk1": "https://www.kroger.com/product/images/xlarge/front/0000980089500",
-  "bk2": "https://www.kroger.com/product/images/xlarge/front/0004144900186",
-  "bk3": "https://www.kroger.com/product/images/xlarge/front/0003000056728",
-  "bk4": "https://www.kroger.com/product/images/xlarge/front/0004300000037",
-  "bk5": "https://www.kroger.com/product/images/xlarge/front/0007790050308",
-  "pc1": "https://www.kroger.com/product/images/xlarge/front/0003077206279",
-  "pc2": "https://www.kroger.com/product/images/xlarge/front/0001111161120",
-  "pc3": "https://www.kroger.com/product/images/xlarge/front/0082785400189",
-  "pc4": "https://www.kroger.com/product/images/xlarge/front/0031254742735",
-  "hw1": "https://www.kroger.com/product/images/xlarge/front/0003077212101",
-  "hw2": "https://www.kroger.com/product/images/xlarge/front/0003700000995",
-  "hw3": "https://www.kroger.com/product/images/xlarge/front/0003077215703",
-  "hw4": "https://www.kroger.com/product/images/xlarge/front/0003077216564",
-  "hw5": "https://www.kroger.com/product/images/xlarge/front/0001920074186",
-  "hw6": "https://www.kroger.com/product/images/xlarge/front/0003077219188",
-  "hw7": "https://www.kroger.com/product/images/xlarge/front/0001258778685",
-  "ba1": "https://www.kroger.com/product/images/xlarge/front/0003700074969",
-  "ba2": "https://www.kroger.com/product/images/xlarge/front/0003600053589",
-  "ba3": "https://www.kroger.com/product/images/xlarge/front/0001500007605",
-  "pe1": "https://www.kroger.com/product/images/xlarge/front/0005000021562",
-  "pe2": "https://www.kroger.com/product/images/xlarge/front/0002310014359",
-  "pe3": "https://www.kroger.com/product/images/xlarge/front/0007910090237",
-  "vi1": "https://www.kroger.com/product/images/xlarge/front/0030573475671",
-  "vi2": "https://www.kroger.com/product/images/xlarge/front/0088589833025",
-  "vi3": "https://www.kroger.com/product/images/xlarge/front/0030045044909",
-  "vi4": "https://www.kroger.com/product/images/xlarge/front/0030573016040",
-  "bg1": "https://www.kroger.com/product/images/xlarge/front/0001600010710",
-  "bg2": "https://www.kroger.com/product/images/xlarge/front/0004920004550",
-  "bg3": "https://www.kroger.com/product/images/xlarge/front/0064420930749",
-  "bg4": "https://www.kroger.com/product/images/xlarge/front/0001330055538",
-  "ri1": "https://www.kroger.com/product/images/xlarge/front/0005480042355",
-  "ri2": "https://www.kroger.com/product/images/xlarge/front/0001740011805",
-  "ri3": "https://www.kroger.com/product/images/xlarge/front/0007152400019",
-  "ri4": "https://www.kroger.com/product/images/xlarge/front/0001740010951",
-  "ri5": "https://www.kroger.com/product/images/xlarge/front/0007341600014",
-  "ri6": "https://www.kroger.com/product/images/xlarge/front/0007225100105",
-  "ri7": "",
-  "ml1": "https://www.kroger.com/product/images/xlarge/front/0074236526425",
-  "ml2": "https://www.kroger.com/product/images/xlarge/front/0004138309073",
-  "ml3": "https://www.kroger.com/product/images/xlarge/front/0009396651300",
-  "ml4": "https://www.kroger.com/product/images/xlarge/front/0005215970115",
-  "ml5": "https://www.kroger.com/product/images/xlarge/front/0081162002016",
-  "da11": "https://www.kroger.com/product/images/xlarge/front/0007342000011",
-  "da12": "https://www.kroger.com/product/images/xlarge/front/0002100012382",
-  "da13": "https://www.kroger.com/product/images/xlarge/front/0001111010260",
-  "da14": "https://www.kroger.com/product/images/xlarge/front/0004610000715",
-  "da15": "https://www.kroger.com/product/images/xlarge/front/0001111050315",
-  "da16": "https://www.kroger.com/product/images/xlarge/front/0005000030262",
-  "da17": "https://www.kroger.com/product/images/xlarge/front/0007027223202",
-  "me6": "https://www.kroger.com/product/images/xlarge/front/0002370016220",
-  "me7": "https://www.kroger.com/product/images/xlarge/front/0007274554618",
-  "me8": "https://www.kroger.com/product/images/xlarge/front/0002265571556",
-  "me9": "https://www.kroger.com/product/images/xlarge/front/0088831391404",
-  "pr1": "https://www.kroger.com/product/images/xlarge/front/0001111091036",
-  "pr2": "",
-  "pr3": "https://www.kroger.com/product/images/xlarge/front/0007143000964",
-  "pr4": "https://www.kroger.com/product/images/xlarge/front/0003022304225",
-  "pr5": "https://www.kroger.com/product/images/xlarge/front/0002000029015",
-  "pr6": "https://www.kroger.com/product/images/xlarge/front/0002400055076",
-  "fr9": "https://www.kroger.com/product/images/xlarge/front/0002370006026",
-  "fr10": "https://www.kroger.com/product/images/xlarge/front/0002000029015",
-  "fr11": "https://www.kroger.com/product/images/xlarge/front/0001450002128",
-  "fr12": "https://www.kroger.com/product/images/xlarge/front/0001380014333",
-  "fr13": "https://www.kroger.com/product/images/xlarge/front/0004227200073",
-  "fr14": "https://www.kroger.com/product/images/xlarge/front/0004440015460",
-  "fr15": "https://www.kroger.com/product/images/xlarge/front/0004369550650",
-  "fr16": "https://www.kroger.com/product/images/xlarge/front/0007008504690",
-  "fr17": "https://www.kroger.com/product/images/xlarge/front/0001087801559",
-  "fr18": "https://www.kroger.com/product/images/xlarge/front/0002113150694",
-  "ca9": "",
-  "ca10": "",
-  "ca11": "https://www.kroger.com/product/images/xlarge/front/0005100012114",
-  "ca12": "https://www.kroger.com/product/images/xlarge/front/0006414428243",
-  "co11": "",
-  "co12": "",
-  "co13": "https://www.kroger.com/product/images/xlarge/front/0019600570833",
-  "co14": "https://www.kroger.com/product/images/xlarge/front/0076172098749",
-  "co15": "",
-  "co16": "https://www.kroger.com/product/images/xlarge/front/0007152428503",
-  "co17": "https://www.kroger.com/product/images/xlarge/front/0004430012513",
-  "co18": "https://www.kroger.com/product/images/xlarge/front/0004132100611",
-  "cf6": "https://www.kroger.com/product/images/xlarge/front/0007447101720",
-  "cf7": "https://www.kroger.com/product/images/xlarge/front/0007447101108",
-  "sw9": "https://www.kroger.com/product/images/xlarge/front/0004900002892",
-  "sw10": "https://www.kroger.com/product/images/xlarge/front/0007800001180",
-  "sw11": "https://www.kroger.com/product/images/xlarge/front/0007618347550",
-  "sw12": "https://www.kroger.com/product/images/xlarge/front/0061300871585",
-  "sw13": "https://www.kroger.com/product/images/xlarge/front/0001111042139",
-  "sw14": "",
-  "br6": "https://www.kroger.com/product/images/xlarge/front/0001111014431",
-  "br7": "https://www.kroger.com/product/images/xlarge/front/0001410007083",
-  "pa7": "https://www.kroger.com/product/images/xlarge/front/0007130004008",
-  "pa8": "https://www.kroger.com/product/images/xlarge/front/0007130004234",
-  "pa9": "https://www.kroger.com/product/images/xlarge/front/0002409407012",
-  "bk1e": "https://www.kroger.com/product/images/xlarge/front/0007203095997",
-  "bk2e": "https://www.kroger.com/product/images/xlarge/front/0007203000026",
-  "bk3e": "",
-  "bk4e": "https://www.kroger.com/product/images/xlarge/front/0088810911579",
-  "bk5e": "https://www.kroger.com/product/images/xlarge/front/0088810911061",
-  "sn13": "https://www.kroger.com/product/images/xlarge/front/0072225206876",
-  "sn14": "https://www.kroger.com/product/images/xlarge/front/0003000031184",
-  "sn15": "https://www.kroger.com/product/images/xlarge/front/0003485686608",
-  "hw8": "https://www.kroger.com/product/images/xlarge/front/0003077221118",
-  "hw9": "https://www.kroger.com/product/images/xlarge/front/0002570001363",
-  "hw10": "https://www.kroger.com/product/images/xlarge/front/0001090028130",
-  "hw11": "https://www.kroger.com/product/images/xlarge/front/0004460032263",
-  "hw12": "https://www.kroger.com/product/images/xlarge/front/0004129460149",
-  "hw13": "https://www.kroger.com/product/images/xlarge/front/0003700097722",
-  "hw14": "https://www.kroger.com/product/images/xlarge/front/0001111003115",
-  "hw15": "https://www.kroger.com/product/images/xlarge/front/0004200015969",
-  "hw16": "https://www.kroger.com/product/images/xlarge/front/0001370021755",
-  "pc5": "https://www.kroger.com/product/images/xlarge/front/0008087820151",
-  "pc6": "https://www.kroger.com/product/images/xlarge/front/0002240039365",
-  "pc7": "https://www.kroger.com/product/images/xlarge/front/0001111112425",
-  "pc8": "https://www.kroger.com/product/images/xlarge/front/0007940026700",
-  "pc9": "https://www.kroger.com/product/images/xlarge/front/0001204401560",
-  "pc10": "https://www.kroger.com/product/images/xlarge/front/0003700088793",
-  "pc11": "https://www.kroger.com/product/images/xlarge/front/0003700082073",
-  "pc12": "https://www.kroger.com/product/images/xlarge/front/0007301000455",
-  "pc13": "https://www.kroger.com/product/images/xlarge/front/0004740066181",
-  "pc14": "https://www.kroger.com/product/images/xlarge/front/0030041010141",
-  "ba4": "https://www.kroger.com/product/images/xlarge/front/0003700087076",
-  "ba5": "https://www.kroger.com/product/images/xlarge/front/0003600055529",
-  "ba6": "https://www.kroger.com/product/images/xlarge/front/0007007455958",
-  "ba7": "https://www.kroger.com/product/images/xlarge/front/0030087512109"
+<!-- ── Main app ───────────────────────────────────────────────────────────── -->
+<div id="app" style="display:none">
+  <header class="header">
+    <div class="h-logo">Shop<span>TheCircular</span></div>
+    <div class="h-search">
+      <span class="h-search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search items across all stores..." oninput="onSearch()">
+    </div>
+    <button class="h-loc" id="locBtn" onclick="showZipModal()">📍 —</button>
+  </header>
+
+  <div class="sort-bar">
+    <span class="sort-label">Sort by:</span>
+    <button class="sort-btn active" id="sort-deals"  onclick="setSort('deals')">🔥 Best Deals</button>
+    <button class="sort-btn"        id="sort-az"     onclick="setSort('az')">A–Z</button>
+    <span class="stores-found" id="storesFound"></span>
+  </div>
+
+  <div class="stores-container" id="storesContainer"></div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let state = {
+  zip:     null,
+  stores:  [],          // full store+item data from API
+  sortBy:  'deals',
+  search:  '',
+  basket:  {},          // storeId (flyer_id) → Map(itemId → qty)
 };
 
-const P=[
-  {id:'c1',n:'Cheerios',b:'General Mills',e:'🥣',c:'cereal',sz:'8.9 oz',p:{wf:4.99,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:4.99,fb:4.99,ct:null,wb:10.49,asc:null,fw:6.65,tg:5.99,co:null}},
-  {id:'c2',n:'Honey Nut Cheerios',b:'General Mills',e:'🥣',c:'cereal',sz:'10.8 oz',p:{wf:4.99,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:4.99,fb:6.99,ct:null,wb:8.99,asc:null,fw:6.65,tg:5.99,co:null}},
-  {id:'c3',n:'Frosted Flakes',b:"Kellogg's",e:'🥣',c:'cereal',sz:'13.5 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:4.49,fb:5.00,ct:3.99,wb:9.39,asc:null,fw:8.87,tg:5.99,co:null}},
-  {id:'c4',n:'Cinnamon Toast Crunch',b:'General Mills',e:'🥣',c:'cereal',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:5.19,fb:7.69,ct:4.99,wb:7.29,asc:null,fw:7.20,tg:7.89,co:null}},
-  {id:'c5',n:'Lucky Charms',b:'General Mills',e:'🥣',c:'cereal',sz:'11.5 oz',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:9.39,fb:1.59,ct:null,wb:7.29,asc:null,fw:8.31,tg:5.99,co:null}},
-  {id:'c6',n:'Special K',b:"Kellogg's",e:'🥣',c:'cereal',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:9.99,fb:5.99,ct:null,wb:7.89,asc:null,fw:6.84,tg:6.29,co:null}},
-  {id:'c7',n:'Rice Krispies',b:"Kellogg's",e:'🥣',c:'cereal',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:5.19,fb:5.99,ct:null,wb:4.19,asc:null,fw:null,tg:5.99,co:null}},
-  {id:'c8',n:'Quaker Old Fashioned Oats',b:'Quaker',e:'🥣',c:'cereal',sz:'42 oz',p:{wf:5.99,tj:false,aldi:false,sr:5.49,bjs:null,ss:5.49,kf:3.09,fb:6.79,ct:5.99,wb:9.99,asc:null,fw:11.64,tg:7.69,co:null}},
-  {id:'c9',n:"Cap'n Crunch",b:'Quaker',e:'🥣',c:'cereal',sz:'14 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:4.19,fb:4.69,ct:null,wb:6.29,asc:null,fw:6.98,tg:6.29,co:null}},
-  {id:'c10',n:'Raisin Bran',b:"Kellogg's",e:'🥣',c:'cereal',sz:'16.6 oz',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:8.39,fb:13.99,ct:null,wb:7.29,asc:null,fw:6.90,tg:5.49,co:null}},
-  {id:'br1',n:"Nature's Own Butterbread",b:"Nature's Own",e:'🍞',c:'bread',sz:'20 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.99,fb:4.59,ct:null,wb:4.79,asc:null,fw:6.65,tg:4.79,co:null}},
-  {id:'br2',n:'Wonder Classic White',b:'Wonder',e:'🍞',c:'bread',sz:'20 oz',p:{wf:null,tj:false,aldi:false,sr:2.99,bjs:null,ss:2.99,kf:2.99,fb:3.99,ct:null,wb:4.19,asc:null,fw:4.21,tg:8.49,co:null}},
-  {id:'br3',n:"Dave's Killer Bread",b:"Dave's Killer",e:'🍞',c:'bread',sz:'27 oz',p:{wf:5.99,tj:false,aldi:false,sr:5.49,bjs:null,ss:4.99,kf:7.89,fb:6.49,ct:null,wb:7.89,asc:null,fw:8.31,tg:6.79,co:null}},
-  {id:'br4',n:'Thomas English Muffins',b:'Thomas',e:'🥐',c:'bread',sz:'6 ct',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.09,fb:5.69,ct:null,wb:5.99,asc:null,fw:6.32,tg:3.69,co:null}},
-  {id:'br5',n:'Sara Lee Classic White',b:'Sara Lee',e:'🍞',c:'bread',sz:'20 oz',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:null,fb:4.79,ct:null,wb:4.69,asc:null,fw:5.54,tg:3.49,co:null}},
-  {id:'pa1',n:'Barilla Spaghetti',b:'Barilla',e:'🍝',c:'pasta & sauce',sz:'16 oz',p:{wf:1.99,tj:false,aldi:false,sr:1.49,bjs:null,ss:1.49,kf:1.99,fb:2.99,ct:null,wb:3.79,asc:null,fw:3.88,tg:1.89,co:null}},
-  {id:'pa2',n:'Barilla Penne',b:'Barilla',e:'🍝',c:'pasta & sauce',sz:'16 oz',p:{wf:1.99,tj:false,aldi:false,sr:1.49,bjs:null,ss:1.49,kf:1.99,fb:2.99,ct:null,wb:3.79,asc:null,fw:2.22,tg:1.89,co:null}},
-  {id:'pa3',n:'Prego Tomato Sauce',b:'Prego',e:'🍅',c:'pasta & sauce',sz:'24 oz',p:{wf:null,tj:false,aldi:false,sr:2.99,bjs:null,ss:2.99,kf:2.99,fb:4.69,ct:null,wb:4.79,asc:null,fw:11.09,tg:3.29,co:null}},
-  {id:'pa4',n:"Rao's Homemade Marinara",b:"Rao's",e:'🍅',c:'pasta & sauce',sz:'24 oz',p:{wf:8.99,tj:false,aldi:false,sr:7.99,bjs:null,ss:7.99,kf:19.89,fb:7.49,ct:null,wb:7.69,asc:null,fw:8.00,tg:7.89,co:null}},
-  {id:'pa5',n:'Kraft Mac & Cheese',b:'Kraft',e:'🧀',c:'pasta & sauce',sz:'7.25 oz',p:{wf:null,tj:false,aldi:false,sr:1.49,bjs:null,ss:1.49,kf:1.49,fb:6.29,ct:null,wb:20.99,asc:null,fw:2.21,tg:1.29,co:null}},
-  {id:'pa6',n:"Ragú Old World Marinara",b:'Ragú',e:'🍅',c:'pasta & sauce',sz:'24 oz',p:{wf:null,tj:false,aldi:false,sr:2.99,bjs:null,ss:2.99,kf:4.19,fb:2.50,ct:null,wb:4.19,asc:null,fw:3.66,tg:4.79,co:null}},
-  {id:'ca1',n:"Campbell's Chicken Noodle",b:"Campbell's",e:'🥫',c:'canned goods',sz:'10.75 oz',p:{wf:null,tj:false,aldi:false,sr:1.99,bjs:null,ss:1.99,kf:1.99,fb:2.69,ct:null,wb:2.79,asc:null,fw:3.32,tg:1.69,co:null}},
-  {id:'ca2',n:"Campbell's Tomato Soup",b:"Campbell's",e:'🥫',c:'canned goods',sz:'10.75 oz',p:{wf:null,tj:false,aldi:false,sr:1.99,bjs:null,ss:1.99,kf:1.99,fb:2.39,ct:null,wb:3.09,asc:null,fw:4.43,tg:1.69,co:null}},
-  {id:'ca3',n:'StarKist Tuna Chunk Light',b:'StarKist',e:'🐟',c:'canned goods',sz:'5 oz',p:{wf:null,tj:false,aldi:false,sr:1.49,bjs:null,ss:1.49,kf:1.49,fb:1.25,ct:null,wb:2.69,asc:null,fw:3.32,tg:5.89,co:null}},
-  {id:'ca4',n:'Goya Black Beans',b:'Goya',e:'🫘',c:'canned goods',sz:'15.5 oz',p:{wf:null,tj:false,aldi:false,sr:1.29,bjs:null,ss:1.29,kf:1.29,fb:1.40,ct:1.33,wb:10.49,asc:null,fw:1.65,tg:1.39,co:null}},
-  {id:'ca5',n:"Bush's Best Baked Beans",b:"Bush's",e:'🫘',c:'canned goods',sz:'28 oz',p:{wf:null,tj:false,aldi:false,sr:2.99,bjs:null,ss:2.99,kf:2.89,fb:2.89,ct:null,wb:3.49,asc:null,fw:3.10,tg:3.19,co:null}},
-  {id:'ca6',n:"Hunt's Diced Tomatoes",b:"Hunt's",e:'🍅',c:'canned goods',sz:'14.5 oz',p:{wf:null,tj:false,aldi:false,sr:1.49,bjs:null,ss:1.49,kf:1.49,fb:2.00,ct:null,wb:null,asc:null,fw:3.99,tg:1.79,co:null}},
-  {id:'ca7',n:'Del Monte Sweet Corn',b:'Del Monte',e:'🌽',c:'canned goods',sz:'15.25 oz',p:{wf:null,tj:false,aldi:false,sr:1.29,bjs:null,ss:1.29,kf:3.49,fb:2.29,ct:null,wb:1.89,asc:null,fw:3.32,tg:1.99,co:null}},
-  {id:'ca8',n:'Progresso Chicken Noodle',b:'Progresso',e:'🥫',c:'canned goods',sz:'19 oz',p:{wf:null,tj:false,aldi:false,sr:2.49,bjs:null,ss:2.49,kf:5.79,fb:5.79,ct:null,wb:5.59,asc:null,fw:4.41,tg:2.79,co:null}},
-  {id:'co1',n:'Heinz Ketchup',b:'Heinz',e:'🍅',c:'condiments',sz:'20 oz',p:{wf:null,tj:false,aldi:false,sr:2.00,bjs:null,ss:2.00,kf:2.49,fb:6.99,ct:null,wb:8.39,asc:null,fw:7.76,tg:5.49,co:null}},
-  {id:'co2',n:"Hellmann's Real Mayo",b:"Hellmann's",e:'🥄',c:'condiments',sz:'30 oz',p:{wf:null,tj:false,aldi:false,sr:5.99,bjs:null,ss:5.99,kf:7.29,fb:6.99,ct:null,wb:4.69,asc:null,fw:6.98,tg:6.49,co:null}},
-  {id:'co3',n:"French's Yellow Mustard",b:"French's",e:'🌭',c:'condiments',sz:'20 oz',p:{wf:null,tj:false,aldi:false,sr:2.49,bjs:null,ss:2.49,kf:2.89,fb:2.50,ct:null,wb:2.79,asc:null,fw:2.54,tg:1.99,co:null}},
-  {id:'co4',n:'Hidden Valley Ranch',b:'Hidden Valley',e:'🥗',c:'condiments',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:6.29,fb:6.19,ct:null,wb:5.89,asc:null,fw:6.65,tg:4.99,co:null}},
-  {id:'co5',n:"Frank's RedHot Sauce",b:"Frank's",e:'🌶️',c:'condiments',sz:'12 oz',p:{wf:3.99,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:6.29,fb:5.89,ct:null,wb:6.29,asc:null,fw:6.65,tg:4.49,co:null}},
-  {id:'co6',n:'Skippy Peanut Butter',b:'Skippy',e:'🥜',c:'condiments',sz:'16.3 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.69,fb:5.49,ct:4.99,wb:9.39,asc:null,fw:6.65,tg:5.79,co:null}},
-  {id:'co7',n:'Jif Peanut Butter',b:'Jif',e:'🥜',c:'condiments',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:5.19,fb:9.49,ct:null,wb:3.99,asc:null,fw:4.98,tg:7.69,co:null}},
-  {id:'co8',n:"Smucker's Strawberry Jam",b:"Smucker's",e:'🍓',c:'condiments',sz:'18 oz',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:4.39,fb:3.89,ct:null,wb:5.79,asc:null,fw:4.98,tg:6.29,co:null}},
-  {id:'co9',n:'Sriracha Hot Sauce',b:'Huy Fong',e:'🌶️',c:'condiments',sz:'17 oz',p:{wf:4.49,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:6.79,fb:11.99,ct:null,wb:5.59,asc:null,fw:6.65,tg:4.99,co:null}},
-  {id:'co10',n:'Tabasco Hot Sauce',b:'Tabasco',e:'🌶️',c:'condiments',sz:'5 oz',p:{wf:3.49,tj:false,aldi:false,sr:3.29,bjs:null,ss:3.29,kf:3.49,fb:1.67,ct:null,wb:5.19,asc:null,fw:6.65,tg:7.89,co:null}},
-  {id:'ic1',n:"Ben & Jerry's Cherry Garcia",b:"Ben & Jerry's",e:'🍦',c:'ice cream',sz:'1 pint',p:{wf:5.99,tj:false,aldi:false,sr:5.49,bjs:null,ss:5.49,kf:5.99,fb:2.19,ct:null,wb:8.89,asc:null,fw:6.98,tg:5.89,co:null}},
-  {id:'ic2',n:'Häagen-Dazs Vanilla',b:'Häagen-Dazs',e:'🍦',c:'ice cream',sz:'1 pint',p:{wf:5.49,tj:false,aldi:false,sr:4.99,bjs:null,ss:4.99,kf:5.49,fb:9.99,ct:5.99,wb:12.59,asc:null,fw:5.89,tg:6.29,co:null}},
-  {id:'ic3',n:'Talenti Sea Salt Caramel',b:'Talenti',e:'🍨',c:'ice cream',sz:'1 pint',p:{wf:5.49,tj:false,aldi:false,sr:4.99,bjs:null,ss:4.99,kf:5.19,fb:5.99,ct:null,wb:7.29,asc:null,fw:6.98,tg:6.69,co:null}},
-  {id:'ic4',n:'Breyers Natural Vanilla',b:'Breyers',e:'🍨',c:'ice cream',sz:'48 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:4.49,fb:6.99,ct:null,wb:7.29,asc:null,fw:8.87,tg:5.59,co:null}},
-  {id:'ic5',n:"Edy's Grand Vanilla",b:"Edy's",e:'🍨',c:'ice cream',sz:'48 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.49,kf:4.99,fb:6.99,ct:null,wb:7.29,asc:null,fw:9.98,tg:3.59,co:null}},
-  {id:'ic6',n:'Halo Top Vanilla Bean',b:'Halo Top',e:'🍦',c:'ice cream',sz:'1 pint',p:{wf:4.99,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:7.19,fb:8.69,ct:null,wb:8.39,asc:null,fw:8.31,tg:5.99,co:null}},
-  {id:'ic7',n:'Turkey Hill Vanilla',b:'Turkey Hill',e:'🍨',c:'ice cream',sz:'48 oz',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:7.89,fb:3.99,ct:3.50,wb:7.29,asc:null,fw:8.32,tg:4.59,co:null}},
-  {id:'ch1',n:"Lay's Classic",b:"Lay's",e:'🥔',c:'chips',sz:'8 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.99,fb:4.29,ct:null,wb:4.49,asc:null,fw:4.98,tg:6.19,co:null}},
-  {id:'ch2',n:'Doritos Nacho Cheese',b:'Doritos',e:'🌮',c:'chips',sz:'9.25 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.99,fb:5.99,ct:4.00,wb:5.79,asc:null,fw:6.09,tg:6.19,co:null}},
-  {id:'ch3',n:'Pringles Original',b:'Pringles',e:'🥔',c:'chips',sz:'5.2 oz',p:{wf:null,tj:false,aldi:false,sr:2.49,bjs:null,ss:2.49,kf:2.99,fb:2.50,ct:7.99,wb:3.49,asc:null,fw:2.99,tg:1.89,co:null}},
-  {id:'ch4',n:'Cheetos Crunchy',b:'Cheetos',e:'🧡',c:'chips',sz:'8.5 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.99,fb:3.99,ct:null,wb:5.79,asc:null,fw:6.09,tg:4.79,co:null}},
-  {id:'ch5',n:'Tostitos Scoops',b:'Tostitos',e:'🌮',c:'chips',sz:'10 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.99,fb:5.49,ct:null,wb:5.79,asc:null,fw:5.54,tg:6.69,co:null}},
-  {id:'ch6',n:'Doritos Cool Ranch',b:'Doritos',e:'🌮',c:'chips',sz:'9.25 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:4.19,fb:3.99,ct:null,wb:5.79,asc:null,fw:6.09,tg:4.59,co:null}},
-  {id:'ch7',n:'Fritos Original',b:'Fritos',e:'🌽',c:'chips',sz:'9.25 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:2.79,fb:5.49,ct:null,wb:5.79,asc:null,fw:5.54,tg:6.69,co:null}},
-  {id:'ch8',n:"Lay's BBQ",b:"Lay's",e:'🥔',c:'chips',sz:'7.75 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.69,fb:2.50,ct:null,wb:5.19,asc:null,fw:4.76,tg:3.49,co:null}},
-  {id:'ch9',n:'Ruffles Cheddar Sour Cream',b:'Ruffles',e:'🥔',c:'chips',sz:'8 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:2.79,fb:5.49,ct:null,wb:5.79,asc:null,fw:6.09,tg:6.69,co:null}},
-  {id:'ch10',n:'Smartfood White Cheddar',b:'Smartfood',e:'🍿',c:'chips',sz:'6.75 oz',p:{wf:4.49,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:4.99,fb:4.59,ct:null,wb:4.79,asc:null,fw:5.09,tg:6.19,co:null}},
-  {id:'cf1',n:'Folgers Classic Roast',b:'Folgers',e:'☕',c:'coffee',sz:'30.5 oz',p:{wf:null,tj:false,aldi:false,sr:8.99,bjs:null,ss:8.49,kf:25.59,fb:24.99,ct:null,wb:11.09,asc:null,fw:11.09,tg:17.49,co:null}},
-  {id:'cf2',n:'Maxwell House Original',b:'Maxwell House',e:'☕',c:'coffee',sz:'30.6 oz',p:{wf:null,tj:false,aldi:false,sr:7.99,bjs:null,ss:7.99,kf:7.29,fb:9.99,ct:5.99,wb:34.99,asc:null,fw:21.08,tg:5.89,co:null}},
-  {id:'cf3',n:"Dunkin' Original Blend",b:"Dunkin'",e:'☕',c:'coffee',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:7.99,bjs:null,ss:7.49,kf:20.99,fb:17.89,ct:null,wb:11.89,asc:null,fw:16.64,tg:18.39,co:null}},
-  {id:'cf4',n:'Starbucks Pike Place',b:'Starbucks',e:'☕',c:'coffee',sz:'12 oz',p:{wf:10.99,tj:false,aldi:false,sr:9.99,bjs:null,ss:9.99,kf:17.59,fb:19.99,ct:12.99,wb:15.69,asc:null,fw:19.97,tg:14.39,co:null}},
-  {id:'cf5',n:'Stok Cold Brew',b:'Stok',e:'🧋',c:'coffee',sz:'48 oz',p:{wf:null,tj:false,aldi:false,sr:5.99,bjs:null,ss:5.99,kf:8.29,fb:6.99,ct:null,wb:7.89,asc:null,fw:8.31,tg:6.49,co:null}},
-  {id:'ju1',n:'Tropicana Pure Premium OJ',b:'Tropicana',e:'🍊',c:'juice',sz:'52 oz',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:10.49,fb:13.99,ct:null,wb:6.29,asc:null,fw:5.43,tg:4.69,co:null}},
-  {id:'ju2',n:'Simply Orange',b:'Simply Orange',e:'🍊',c:'juice',sz:'52 oz',p:{wf:5.49,tj:false,aldi:false,sr:4.99,bjs:null,ss:4.99,kf:4.69,fb:11.99,ct:3.99,wb:6.79,asc:null,fw:2.54,tg:5.29,co:null}},
-  {id:'ju3',n:"Mott's Apple Juice",b:"Mott's",e:'🍎',c:'juice',sz:'64 oz',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:3.99,fb:4.69,ct:null,wb:5.59,asc:null,fw:3.32,tg:5.59,co:null}},
-  {id:'ju4',n:"Welch's Grape Juice",b:"Welch's",e:'🍇',c:'juice',sz:'64 oz',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:5.79,fb:5.79,ct:null,wb:5.79,asc:null,fw:5.54,tg:5.99,co:null}},
-  {id:'ju5',n:'Minute Maid OJ',b:'Minute Maid',e:'🍊',c:'juice',sz:'59 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.99,fb:5.49,ct:null,wb:5.19,asc:null,fw:3.65,tg:9.79,co:null}},
-  {id:'ju6',n:'Ocean Spray Cranberry',b:'Ocean Spray',e:'🍇',c:'juice',sz:'64 oz',p:{wf:null,tj:false,aldi:false,sr:6.23,bjs:null,ss:3.00,kf:7.89,fb:7.99,ct:null,wb:7.99,asc:null,fw:6.20,tg:4.99,co:null}},
-  {id:'sw1',n:'Coca-Cola 12-Pack',b:'Coca-Cola',e:'🥤',c:'soda & water',sz:'12x12 oz',p:{wf:null,tj:false,aldi:false,sr:7.49,bjs:null,ss:6.99,kf:12.59,fb:8.99,ct:null,wb:13.59,asc:null,fw:12.20,tg:7.99,co:null}},
-  {id:'sw2',n:'Pepsi 12-Pack',b:'Pepsi',e:'🥤',c:'soda & water',sz:'12x12 oz',p:{wf:null,tj:false,aldi:false,sr:7.49,bjs:null,ss:6.99,kf:6.50,fb:5.89,ct:null,wb:2.39,asc:null,fw:6.65,tg:8.39,co:null}},
-  {id:'sw3',n:'Dr Pepper 12-Pack',b:'Dr Pepper',e:'🥤',c:'soda & water',sz:'12x12 oz',p:{wf:null,tj:false,aldi:false,sr:7.49,bjs:null,ss:6.99,kf:11.49,fb:8.99,ct:null,wb:10.49,asc:null,fw:11.87,tg:8.39,co:null}},
-  {id:'sw4',n:'Diet Coke 12-Pack',b:'Diet Coke',e:'🥤',c:'soda & water',sz:'12x12 oz',p:{wf:null,tj:false,aldi:false,sr:7.49,bjs:null,ss:6.99,kf:12.59,fb:8.99,ct:null,wb:13.59,asc:null,fw:11.87,tg:8.89,co:null}},
-  {id:'sw5',n:'LaCroix Sparkling 12pk',b:'LaCroix',e:'💧',c:'soda & water',sz:'12x12 oz',p:{wf:5.99,tj:false,aldi:false,sr:5.49,bjs:null,ss:5.49,kf:7.29,fb:6.99,ct:null,wb:9.39,asc:null,fw:6.53,tg:4.39,co:null}},
-  {id:'sw6',n:'Red Bull 4-Pack',b:'Red Bull',e:'🐂',c:'soda & water',sz:'4x8.4 oz',p:{wf:7.99,tj:false,aldi:false,sr:6.99,bjs:null,ss:6.99,kf:2.09,fb:33.99,ct:null,wb:4.19,asc:null,fw:4.43,tg:8.99,co:null}},
-  {id:'sw7',n:'Gatorade Fruit Punch 12pk',b:'Gatorade',e:'🏃',c:'soda & water',sz:'12x12 oz',p:{wf:null,tj:false,aldi:false,sr:10.99,bjs:null,ss:10.99,kf:8.89,fb:17.29,ct:null,wb:17.79,asc:null,fw:7.76,tg:9.49,co:null}},
-  {id:'sw8',n:'Monster Energy',b:'Monster',e:'🟢',c:'soda & water',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:2.49,bjs:null,ss:2.49,kf:2.59,fb:33.99,ct:null,wb:3.09,asc:null,fw:3.87,tg:2.99,co:null}},
-  {id:'da1',n:'Chobani Greek Yogurt',b:'Chobani',e:'🍶',c:'dairy',sz:'32 oz',p:{wf:5.99,tj:false,aldi:false,sr:5.49,bjs:null,ss:5.49,kf:2.09,fb:1.67,ct:null,wb:3.69,asc:null,fw:2.43,tg:6.79,co:null}},
-  {id:'da2',n:'Fage Total 2%',b:'Fage',e:'🍶',c:'dairy',sz:'35.3 oz',p:{wf:6.99,tj:false,aldi:false,sr:5.99,bjs:null,ss:5.99,kf:2.49,fb:2.25,ct:null,wb:2.39,asc:null,fw:2.21,tg:8.79,co:null}},
-  {id:'da3',n:'Yoplait Strawberry',b:'Yoplait',e:'🍶',c:'dairy',sz:'6 oz',p:{wf:null,tj:false,aldi:false,sr:0.99,bjs:null,ss:0.99,kf:1.79,fb:9.99,ct:null,wb:1.59,asc:null,fw:1.44,tg:3.99,co:null}},
-  {id:'da4',n:'Kraft Singles American',b:'Kraft',e:'🧀',c:'dairy',sz:'16 slices',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:4.19,fb:5.99,ct:null,wb:6.59,asc:null,fw:6.09,tg:4.99,co:null}},
-  {id:'da5',n:'Sargento Shredded Cheddar',b:'Sargento',e:'🧀',c:'dairy',sz:'8 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:3.19,fb:5.49,ct:3.00,wb:6.09,asc:null,fw:6.09,tg:3.99,co:null}},
-  {id:'da6',n:'Silk Oat Milk',b:'Silk',e:'🥛',c:'dairy',sz:'64 oz',p:{wf:4.99,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:5.19,fb:5.99,ct:null,wb:6.59,asc:null,fw:5.32,tg:4.99,co:null}},
-  {id:'da7',n:"Land O' Lakes Butter",b:"Land O' Lakes",e:'🧈',c:'dairy',sz:'1 lb',p:{wf:5.99,tj:false,aldi:false,sr:5.49,bjs:null,ss:5.49,kf:4.19,fb:3.29,ct:null,wb:6.29,asc:null,fw:10.20,tg:5.69,co:null}},
-  {id:'da8',n:'Philadelphia Cream Cheese',b:'Philadelphia',e:'🧀',c:'dairy',sz:'8 oz',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:8.89,fb:10.49,ct:null,wb:10.09,asc:null,fw:5.99,tg:6.39,co:null}},
-  {id:'da9',n:"Eggland's Best Eggs",b:"Eggland's Best",e:'🥚',c:'dairy',sz:'12 ct',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:5.19,fb:5.29,ct:null,wb:6.79,asc:null,fw:7.76,tg:7.39,co:null}},
-  {id:'da10',n:'Oatly Oat Milk',b:'Oatly',e:'🥛',c:'dairy',sz:'64 oz',p:{wf:5.49,tj:false,aldi:false,sr:4.99,bjs:null,ss:4.99,kf:6.79,fb:4.99,ct:null,wb:6.59,asc:null,fw:6.65,tg:5.99,co:null}},
-  {id:'me1',n:'Oscar Mayer Classic Bacon',b:'Oscar Mayer',e:'🥓',c:'meat',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:5.49,bjs:null,ss:5.49,kf:7.29,fb:10.99,ct:null,wb:14.69,asc:null,fw:11.64,tg:8.29,co:null}},
-  {id:'me2',n:'Jimmy Dean Bacon',b:'Jimmy Dean',e:'🥓',c:'meat',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:4.19,bjs:null,ss:3.99,kf:5.59,fb:5.49,ct:null,wb:8.39,asc:null,fw:9.98,tg:8.29,co:null}},
-  {id:'me3',n:'Ball Park Beef Franks',b:'Ball Park',e:'🌭',c:'meat',sz:'15 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:8.39,fb:7.99,ct:null,wb:7.29,asc:null,fw:8.42,tg:6.79,co:null}},
-  {id:'me4',n:'Hebrew National Hot Dogs',b:'Hebrew National',e:'🌭',c:'meat',sz:'12 oz',p:{wf:5.49,tj:false,aldi:false,sr:4.99,bjs:null,ss:4.99,kf:8.39,fb:7.99,ct:null,wb:10.49,asc:null,fw:11.09,tg:5.49,co:null}},
-  {id:'me5',n:'Hillshire Farm Smoked Sausage',b:'Hillshire Farm',e:'🌭',c:'meat',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:7.29,fb:5.99,ct:null,wb:7.29,asc:null,fw:6.65,tg:6.49,co:null}},
-  {id:'sn1',n:'Oreo Cookies',b:'Nabisco',e:'🍪',c:'snacks',sz:'14.3 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:7.79,fb:4.99,ct:null,wb:6.89,asc:null,fw:6.21,tg:4.85,co:null}},
-  {id:'sn2',n:'Chips Ahoy!',b:'Nabisco',e:'🍪',c:'snacks',sz:'13 oz',p:{wf:null,tj:false,aldi:false,sr:5.67,bjs:null,ss:3.99,kf:4.00,fb:7.99,ct:null,wb:7.99,asc:null,fw:6.65,tg:4.67,co:null}},
-  {id:'sn3',n:'Ritz Crackers',b:'Nabisco',e:'🫙',c:'snacks',sz:'13.7 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:6.09,fb:4.99,ct:null,wb:5.79,asc:null,fw:7.21,tg:4.29,co:null}},
-  {id:'sn4',n:'Goldfish Cheddar',b:'Pepperidge Farm',e:'🐟',c:'snacks',sz:'6.6 oz',p:{wf:null,tj:false,aldi:false,sr:2.49,bjs:null,ss:2.49,kf:11.89,fb:3.00,ct:null,wb:4.99,asc:null,fw:4.10,tg:3.19,co:null}},
-  {id:'sn5',n:"Snyder's Pretzels",b:"Snyder's",e:'🥨',c:'snacks',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.49,kf:4.99,fb:4.79,ct:null,wb:4.99,asc:null,fw:5.32,tg:3.79,co:null}},
-  {id:'sn6',n:'SkinnyPop Popcorn',b:'SkinnyPop',e:'🍿',c:'snacks',sz:'4.4 oz',p:{wf:3.99,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:4.19,fb:3.50,ct:null,wb:6.29,asc:null,fw:3.83,tg:5.69,co:null}},
-  {id:'sn7',n:'Kind Bar 6-pack',b:'Kind',e:'🍫',c:'snacks',sz:'6 bars',p:{wf:6.99,tj:false,aldi:false,sr:6.49,bjs:null,ss:6.49,kf:7.29,fb:2.49,ct:null,wb:11.49,asc:null,fw:11.09,tg:15.99,co:null}},
-  {id:'sn8',n:'Sabra Classic Hummus',b:'Sabra',e:'🫘',c:'snacks',sz:'17 oz',p:{wf:5.99,tj:false,aldi:false,sr:4.99,bjs:null,ss:4.99,kf:6.29,fb:5.49,ct:null,wb:7.89,asc:null,fw:8.87,tg:4.89,co:null}},
-  {id:'sn9',n:'Nature Valley Granola Bars',b:'Nature Valley',e:'🍫',c:'snacks',sz:'8.9 oz',p:{wf:null,tj:false,aldi:false,sr:2.50,bjs:null,ss:2.50,kf:6.69,fb:4.49,ct:null,wb:6.09,asc:null,fw:9.98,tg:5.39,co:null}},
-  {id:'sn10',n:'Pop-Tarts Strawberry',b:"Kellogg's",e:'🍓',c:'snacks',sz:'8 ct',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:5.59,fb:5.79,ct:4.49,wb:4.49,asc:null,fw:5.54,tg:3.99,co:null}},
-  {id:'sn11',n:'Planters Mixed Nuts',b:'Planters',e:'🥜',c:'snacks',sz:'15.25 oz',p:{wf:null,tj:false,aldi:false,sr:6.99,bjs:null,ss:6.99,kf:11.59,fb:9.79,ct:null,wb:10.49,asc:null,fw:10.53,tg:14.89,co:null}},
-  {id:'sn12',n:'Wheat Thins',b:'Nabisco',e:'🫙',c:'snacks',sz:'9.1 oz',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:5.79,fb:7.99,ct:null,wb:6.29,asc:null,fw:6.65,tg:4.49,co:null}},
-  {id:'fr1',n:'DiGiorno Rising Crust Pizza',b:'DiGiorno',e:'🍕',c:'frozen',sz:'28.2 oz',p:{wf:null,tj:false,aldi:false,sr:6.99,bjs:null,ss:6.99,kf:6.29,fb:10.39,ct:null,wb:10.49,asc:null,fw:10.53,tg:7.29,co:null}},
-  {id:'fr2',n:'Red Baron Classic Pizza',b:'Red Baron',e:'🍕',c:'frozen',sz:'20.6 oz',p:{wf:null,tj:false,aldi:false,sr:5.49,bjs:null,ss:4.88,kf:6.29,fb:7.99,ct:null,wb:6.29,asc:null,fw:7.21,tg:5.79,co:null}},
-  {id:'fr3',n:'Eggo Homestyle Waffles',b:'Eggo',e:'🧇',c:'frozen',sz:'12.3 oz',p:{wf:null,tj:false,aldi:false,sr:4.53,bjs:null,ss:2.50,kf:3.50,fb:3.50,ct:5.99,wb:4.79,asc:null,fw:10.53,tg:3.89,co:null}},
-  {id:'fr4',n:"Stouffer's Mac & Cheese",b:"Stouffer's",e:'🧀',c:'frozen',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:8.39,fb:11.99,ct:null,wb:13.59,asc:null,fw:6.65,tg:3.99,co:null}},
-  {id:'fr5',n:'Ore-Ida Tater Tots',b:'Ore-Ida',e:'🍟',c:'frozen',sz:'28 oz',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:5.19,fb:5.00,ct:null,wb:8.39,asc:null,fw:7.76,tg:5.59,co:null}},
-  {id:'fr6',n:"Totino's Party Pizza",b:"Totino's",e:'🍕',c:'frozen',sz:'10.7 oz',p:{wf:null,tj:false,aldi:false,sr:1.99,bjs:null,ss:1.99,kf:10.49,fb:3.89,ct:null,wb:8.39,asc:null,fw:2.77,tg:4.49,co:null}},
-  {id:'fr7',n:'Birds Eye Broccoli',b:'Birds Eye',e:'🥦',c:'frozen',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:2.49,bjs:null,ss:2.49,kf:3.19,fb:3.50,ct:null,wb:4.19,asc:null,fw:4.98,tg:2.29,co:null}},
-  {id:'fr8',n:'Lean Cuisine Steamers',b:'Lean Cuisine',e:'🥘',c:'frozen',sz:'10 oz',p:{wf:null,tj:false,aldi:false,sr:2.99,bjs:null,ss:2.99,kf:6.09,fb:4.99,ct:null,wb:5.19,asc:null,fw:5.54,tg:4.49,co:null}},
-  {id:'bk1',n:'Nutella',b:'Nutella',e:'🍫',c:'breakfast',sz:'13 oz',p:{wf:4.99,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:9.39,fb:12.59,ct:null,wb:15.69,asc:null,fw:16.64,tg:8.19,co:null}},
-  {id:'bk2',n:'Pillsbury Pancake Mix',b:'Pillsbury',e:'🥞',c:'breakfast',sz:'32 oz',p:{wf:null,tj:false,aldi:false,sr:3.99,bjs:null,ss:3.99,kf:4.49,fb:3.19,ct:null,wb:5.79,asc:null,fw:4.98,tg:4.89,co:null}},
-  {id:'bk3',n:'Quaker Instant Oatmeal',b:'Quaker',e:'🥣',c:'breakfast',sz:'12 pkts',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:7.09,fb:4.99,ct:null,wb:6.29,asc:null,fw:7.20,tg:2.99,co:null}},
-  {id:'bk4',n:'Log Cabin Syrup',b:'Log Cabin',e:'🧇',c:'breakfast',sz:'24 oz',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:5.59,fb:4.19,ct:null,wb:3.69,asc:null,fw:5.32,tg:4.69,co:null}},
-  {id:'bk5',n:'Jimmy Dean Breakfast Sandwiches',b:'Jimmy Dean',e:'🥪',c:'breakfast',sz:'4 ct',p:{wf:null,tj:false,aldi:false,sr:5.99,bjs:null,ss:5.49,kf:8.79,fb:15.99,ct:null,wb:18.89,asc:null,fw:11.65,tg:8.29,co:null}},
-  {id:'pc1',n:'Head & Shoulders',b:'Head & Shoulders',e:'🧴',c:'personal care',sz:'23.7 oz',p:{wf:null,tj:false,aldi:false,sr:7.99,bjs:null,ss:7.99,kf:10.29,fb:10.49,ct:null,wb:10.49,asc:null,fw:8.87,tg:2.59,co:null}},
-  {id:'pc2',n:'Dove Beauty Bar 4pk',b:'Dove',e:'🧼',c:'personal care',sz:'4 pk',p:{wf:null,tj:false,aldi:false,sr:5.99,bjs:null,ss:5.99,kf:11.49,fb:1.99,ct:null,wb:8.99,asc:null,fw:18.86,tg:5.59,co:null}},
-  {id:'pc3',n:'Colgate Total Toothpaste',b:'Colgate',e:'🦷',c:'personal care',sz:'4.8 oz',p:{wf:null,tj:false,aldi:false,sr:4.49,bjs:null,ss:4.49,kf:4.49,fb:7.99,ct:2.50,wb:2.89,asc:null,fw:7.76,tg:5.39,co:null}},
-  {id:'pc4',n:'Listerine Cool Mint',b:'Listerine',e:'🦷',c:'personal care',sz:'33.8 oz',p:{wf:null,tj:false,aldi:false,sr:6.99,bjs:null,ss:6.99,kf:6.59,fb:7.99,ct:null,wb:9.39,asc:null,fw:9.98,tg:2.59,co:null}},
-  {id:'hw1',n:'Tide Original Liquid',b:'Tide',e:'🧺',c:'household',sz:'92 oz',p:{wf:null,tj:false,aldi:false,sr:13.99,bjs:null,ss:13.99,kf:7.89,fb:11.99,ct:null,wb:23.09,asc:null,fw:21.08,tg:9.59,co:null}},
-  {id:'hw2',n:'Tide Pods Original 42ct',b:'Tide',e:'🧺',c:'household',sz:'42 ct',p:{wf:null,tj:false,aldi:false,sr:14.99,bjs:null,ss:14.99,kf:14.69,fb:11.99,ct:null,wb:18.89,asc:null,fw:17.75,tg:9.59,co:null}},
-  {id:'hw3',n:'Bounty Paper Towels 6pk',b:'Bounty',e:'🧻',c:'household',sz:'6 rolls',p:{wf:null,tj:false,aldi:false,sr:4.76,bjs:null,ss:6.99,kf:5.19,fb:15.99,ct:5.99,wb:9.39,asc:null,fw:9.98,tg:6.49,co:null}},
-  {id:'hw4',n:'Charmin Ultra Soft 12pk',b:'Charmin',e:'🧻',c:'household',sz:'12 rolls',p:{wf:null,tj:false,aldi:false,sr:8.99,bjs:null,ss:8.99,kf:21.99,fb:14.99,ct:null,wb:14.69,asc:null,fw:20.06,tg:16.79,co:null}},
-  {id:'hw5',n:'Lysol Disinfectant Spray',b:'Lysol',e:'🫧',c:'household',sz:'12.5 oz',p:{wf:null,tj:false,aldi:false,sr:5.99,bjs:null,ss:5.99,kf:14.19,fb:6.99,ct:8.99,wb:10.49,asc:null,fw:14.42,tg:4.89,co:null}},
-  {id:'hw6',n:'Dawn Ultra Original',b:'Dawn',e:'🧴',c:'household',sz:'19.4 oz',p:{wf:null,tj:false,aldi:false,sr:7.94,bjs:null,ss:2.49,kf:1.79,fb:5.99,ct:null,wb:12.59,asc:null,fw:4.43,tg:1.69,co:null}},
-  {id:'hw7',n:'Glad ForceFlex Trash Bags',b:'Glad',e:'🗑️',c:'household',sz:'20 ct',p:{wf:null,tj:false,aldi:false,sr:7.49,bjs:null,ss:7.49,kf:15.69,fb:13.99,ct:null,wb:13.59,asc:null,fw:25.52,tg:12.89,co:null}},
-  {id:'ba1',n:'Pampers Swaddlers',b:'Pampers',e:'👶',c:'baby',sz:'27-32 ct',p:{wf:null,tj:false,aldi:false,sr:9.49,bjs:null,ss:7.49,kf:17.79,fb:13.99,ct:null,wb:41.99,asc:null,fw:18.86,tg:9.99,co:null}},
-  {id:'ba2',n:'Huggies Little Movers',b:'Huggies',e:'👶',c:'baby',sz:'25-32 ct',p:{wf:null,tj:false,aldi:false,sr:9.49,bjs:null,ss:7.49,kf:15.49,fb:14.49,ct:null,wb:13.59,asc:null,fw:2.76,tg:28.49,co:null}},
-  {id:'ba3',n:'Gerber Baby Purees',b:'Gerber',e:'🍼',c:'baby',sz:'10 ct',p:{wf:null,tj:false,aldi:false,sr:10.00,bjs:null,ss:10.00,kf:2.29,fb:2.19,ct:null,wb:2.79,asc:null,fw:2.54,tg:2.29,co:null}},
-  {id:'pe1',n:'Purina Fancy Feast 12ct',b:'Purina',e:'🐱',c:'pet',sz:'12x3oz',p:{wf:null,tj:false,aldi:false,sr:8.99,bjs:null,ss:8.99,kf:1.39,fb:25.99,ct:null,wb:32.49,asc:null,fw:1.44,tg:16.49,co:null}},
-  {id:'pe2',n:'Pedigree Dry Dog Food',b:'Pedigree',e:'🐶',c:'pet',sz:'3.5 lb',p:{wf:null,tj:false,aldi:false,sr:4.50,bjs:null,ss:4.50,kf:9.39,fb:14.79,ct:null,wb:41.99,asc:null,fw:3.10,tg:18.99,co:null}},
-  {id:'pe3',n:'Milk-Bone Dog Biscuits',b:'Milk-Bone',e:'🦴',c:'pet',sz:'24 oz',p:{wf:null,tj:false,aldi:false,sr:4.99,bjs:null,ss:4.99,kf:8.89,fb:7.99,ct:null,wb:7.89,asc:null,fw:6.65,tg:4.49,co:null}},
-  {id:'vi1',n:'Centrum Adults Multivitamin',b:'Centrum',e:'💊',c:'vitamins',sz:'130 ct',p:{wf:null,tj:false,aldi:false,sr:12.99,bjs:null,ss:12.99,kf:8.39,fb:18.99,ct:null,wb:9.39,asc:null,fw:13.75,tg:15.49,co:null}},
-  {id:'vi2',n:'Emergen-C Vitamin C 30ct',b:'Emergen-C',e:'🍊',c:'vitamins',sz:'30 ct',p:{wf:9.99,tj:false,aldi:false,sr:8.99,bjs:null,ss:8.99,kf:8.39,fb:6.89,ct:null,wb:7.29,asc:null,fw:19.41,tg:15.99,co:null}},
-  {id:'vi3',n:'Tylenol Extra Strength',b:'Tylenol',e:'💊',c:'vitamins',sz:'100 ct',p:{wf:null,tj:false,aldi:false,sr:12.99,bjs:null,ss:12.99,kf:7.09,fb:19.99,ct:null,wb:5.19,asc:null,fw:18.86,tg:5.99,co:null}},
-  {id:'vi4',n:'Advil Ibuprofen 100ct',b:'Advil',e:'💊',c:'vitamins',sz:'100 ct',p:{wf:null,tj:false,aldi:false,sr:10.99,bjs:null,ss:10.99,kf:8.39,fb:7.99,ct:null,wb:9.39,asc:null,fw:14.42,tg:5.29,co:null}},
-  {id:'bg1',n:'Gold Medal All-Purpose Flour',b:'Gold Medal',e:'🌾',c:'baking',sz:'5 lb',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:4.19,fb:4.99,ct:null,wb:3.69,asc:null,fw:7.76,tg:3.99,co:null}},
-  {id:'bg2',n:'Domino Granulated Sugar',b:'Domino',e:'🍬',c:'baking',sz:'4 lb',p:{wf:null,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.49,kf:2.59,fb:5.89,ct:4.99,wb:33.59,asc:null,fw:5.87,tg:5.89,co:null}},
-  {id:'bg3',n:'Duncan Hines Yellow Cake Mix',b:'Duncan Hines',e:'🎂',c:'baking',sz:'15.25 oz',p:{wf:null,tj:false,aldi:false,sr:1.99,bjs:null,ss:1.99,kf:2.59,fb:2.50,ct:null,wb:4.19,asc:null,fw:4.21,tg:1.59,co:null}},
-  {id:'bg4',n:'Pillsbury Brownie Mix',b:'Pillsbury',e:'🍫',c:'baking',sz:'18.4 oz',p:{wf:null,tj:false,aldi:false,sr:2.49,bjs:null,ss:2.49,kf:2.79,fb:2.39,ct:null,wb:3.69,asc:null,fw:3.10,tg:4.89,co:null}},
-  // ── Rice & Grains ──────────────────────────────────────────────────────────
-  {id:'ri1',n:"Ben's Original White Rice",b:"Ben's Original",e:'🍚',c:'rice & grains',sz:'2 lb',p:{wf:3.99,tj:false,aldi:false,sr:3.49,bjs:null,ss:3.99,kf:2.79,fb:2.89,ct:null,wb:12.09,asc:null,fw:13.31,tg:2.89,co:null}},
-  {id:'ri2',n:'Minute Instant White Rice',b:'Minute',e:'🍚',c:'rice & grains',sz:'28 oz',p:{wf:null,tj:false,aldi:false,sr:3.62,bjs:null,ss:3.99,kf:4.19,fb:3.49,ct:null,wb:5.89,asc:null,fw:null,tg:3.49,co:null}},
-  {id:'ri3',n:'Goya Long Grain Rice',b:'Goya',e:'🍚',c:'rice & grains',sz:'5 lb',p:{wf:null,tj:false,aldi:false,sr:7.14,bjs:null,ss:6.99,kf:9.39,fb:9.99,ct:null,wb:7.29,asc:null,fw:2.99,tg:5.99,co:null}},
-  {id:'ri4',n:'Mahatma Jasmine Rice',b:'Mahatma',e:'🍚',c:'rice & grains',sz:'2 lb',p:{wf:null,tj:false,aldi:false,sr:4.53,bjs:null,ss:2.99,kf:15.69,fb:3.50,ct:null,wb:38.79,asc:null,fw:12.20,tg:3.89,co:null}},
-  {id:'ri5',n:'Lundberg Organic Brown Rice',b:'Lundberg',e:'🍚',c:'rice & grains',sz:'2 lb',p:{wf:4.99,tj:false,aldi:false,sr:12.47,bjs:null,ss:11.99,kf:11.49,fb:8.99,ct:null,wb:7.89,asc:null,fw:11.09,tg:6.49,co:null}},
-  {id:'ri6',n:'Near East Rice Pilaf',b:'Near East',e:'🍚',c:'rice & grains',sz:'6.9 oz',p:{wf:2.49,tj:false,aldi:false,sr:3.39,bjs:null,ss:3.79,kf:2.59,fb:3.49,ct:null,wb:3.09,asc:null,fw:3.32,tg:3.49,co:null}},
-  {id:'ri7',n:'Goya Yellow Rice Mix',b:'Goya',e:'🍚',c:'rice & grains',sz:'8 oz',p:{wf:null,tj:false,aldi:false,sr:2.26,bjs:null,ss:2.99,kf:3.09,fb:2.89,ct:null,wb:3.09,asc:null,fw:2.21,tg:1.99,co:null}},
-  // ── Milk ───────────────────────────────────────────────────────────────────
-  {id:'ml1',n:'Horizon Organic 2% Milk',b:'Horizon',e:'🥛',c:'milk',sz:'1/2 gal',p:{wf:4.99,tj:false,aldi:false,sr:9.07,bjs:null,ss:8.99,kf:9.29,fb:7.99,ct:null,wb:8.19,asc:null,fw:16.08,tg:5.99,co:null}},
-  {id:'ml2',n:'Lactaid Whole Milk',b:'Lactaid',e:'🥛',c:'milk',sz:'1/2 gal',p:{wf:5.49,tj:false,aldi:false,sr:6.57,bjs:null,ss:5.99,kf:5.19,fb:6.39,ct:null,wb:6.59,asc:null,fw:7.20,tg:5.49,co:null}},
-  {id:'ml3',n:'Organic Valley Whole Milk',b:'Organic Valley',e:'🥛',c:'milk',sz:'1/2 gal',p:{wf:5.49,tj:false,aldi:false,sr:13.61,bjs:null,ss:6.99,kf:8.89,fb:7.99,ct:null,wb:4.79,asc:null,fw:6.43,tg:8.29,co:null}},
-  {id:'ml4',n:'Hood Whole Milk',b:'Hood',e:'🥛',c:'milk',sz:'1 gal',p:{wf:null,tj:false,aldi:false,sr:1.92,bjs:null,ss:1.99,kf:3.69,fb:3.39,ct:null,wb:5.19,asc:null,fw:null,tg:3.79,co:null}},
-  {id:'ml5',n:'Fairlife Whole Milk',b:'Fairlife',e:'🥛',c:'milk',sz:'52 oz',p:{wf:5.99,tj:false,aldi:false,sr:7.25,bjs:null,ss:7.99,kf:7.79,fb:6.99,ct:null,wb:7.29,asc:null,fw:null,tg:5.39,co:null}},
-  // ── Dairy additions ────────────────────────────────────────────────────────
-  {id:'da11',n:'Daisy Sour Cream',b:'Daisy',e:'🧀',c:'dairy',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:5.55,bjs:null,ss:3.99,kf:4.19,fb:4.69,ct:null,wb:3.99,asc:null,fw:null,tg:3.89,co:null}},
-  {id:'da12',n:"Breakstone's Cottage Cheese",b:"Breakstone's",e:'🧀',c:'dairy',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:4.98,bjs:null,ss:5.99,kf:4.39,fb:2.99,ct:null,wb:4.99,asc:null,fw:null,tg:6.59,co:null}},
-  {id:'da13',n:'Cabot Cheddar Block',b:'Cabot',e:'🧀',c:'dairy',sz:'8 oz',p:{wf:4.99,tj:false,aldi:false,sr:5.21,bjs:null,ss:4.99,kf:4.69,fb:3.00,ct:null,wb:6.79,asc:null,fw:null,tg:3.89,co:null}},
-  // ── Meat additions ─────────────────────────────────────────────────────────
-  {id:'me6',n:'Tyson Boneless Skinless Chicken Breasts',b:'Tyson',e:'🍗',c:'meat',sz:'3 lb',p:{wf:null,tj:false,aldi:false,sr:11.34,bjs:null,ss:12.99,kf:1.59,fb:10.99,ct:null,wb:17.39,asc:null,fw:13.31,tg:12.19,co:null}},
-  {id:'me7',n:'Perdue Chicken Breasts',b:'Perdue',e:'🍗',c:'meat',sz:'3 lb',p:{wf:null,tj:false,aldi:false,sr:9.07,bjs:null,ss:11.99,kf:5.19,fb:14.99,ct:null,wb:5.29,asc:null,fw:6.09,tg:8.78,co:null}},
-  {id:'me8',n:'Jennie-O Ground Turkey',b:'Jennie-O',e:'🦃',c:'meat',sz:'1 lb',p:{wf:null,tj:false,aldi:false,sr:4.53,bjs:null,ss:7.99,kf:4.19,fb:7.49,ct:null,wb:8.39,asc:null,fw:7.20,tg:null,co:null}},
-  {id:'me9',n:'Sabrett Hot Dogs',b:'Sabrett',e:'🌭',c:'meat',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:15.88,bjs:null,ss:17.99,kf:8.39,fb:6.99,ct:null,wb:24.09,asc:null,fw:22.19,tg:4.29,co:null}},
-  // ── Produce ────────────────────────────────────────────────────────────────
-  {id:'pr1',n:'Dole Classic Iceberg Salad',b:'Dole',e:'🥬',c:'produce',sz:'12 oz',p:{wf:2.99,tj:false,aldi:false,sr:4.53,bjs:null,ss:4.79,kf:3.09,fb:6.19,ct:null,wb:4.69,asc:null,fw:3.32,tg:3.69,co:null}},
-  {id:'pr2',n:'Earthbound Farm Baby Spinach',b:'Earthbound Farm',e:'🥬',c:'produce',sz:'5 oz',p:{wf:3.99,tj:false,aldi:false,sr:3.39,bjs:null,ss:3.99,kf:8.39,fb:6.99,ct:null,wb:4.69,asc:null,fw:4.98,tg:4.29,co:null}},
-  {id:'pr3',n:'Dole Baby Carrots',b:'Dole',e:'🥕',c:'produce',sz:'16 oz',p:{wf:1.99,tj:false,aldi:false,sr:2.83,bjs:null,ss:1.79,kf:2.09,fb:2.99,ct:null,wb:3.69,asc:null,fw:3.87,tg:1.59,co:null}},
-  {id:'pr4',n:'Taylor Farms Chopped Salad Kit',b:'Taylor Farms',e:'🥗',c:'produce',sz:'11.15 oz',p:{wf:3.99,tj:false,aldi:false,sr:3.85,bjs:null,ss:4.79,kf:6.29,fb:4.99,ct:null,wb:5.19,asc:null,fw:4.88,tg:1.99,co:null}},
-  {id:'pr5',n:'Green Giant Broccoli Florets',b:'Green Giant',e:'🥦',c:'produce',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:1.70,bjs:null,ss:2.89,kf:4.19,fb:3.50,ct:null,wb:2.39,asc:null,fw:3.32,tg:3.89,co:null}},
-  {id:'pr6',n:'Del Monte Fresh Cut Green Beans',b:'Del Monte',e:'🫛',c:'produce',sz:'14.5 oz',p:{wf:null,tj:false,aldi:false,sr:2.04,bjs:null,ss:2.39,kf:3.49,fb:2.29,ct:null,wb:3.09,asc:null,fw:3.88,tg:1.99,co:null}},
-  // ── Frozen additions ───────────────────────────────────────────────────────
-  {id:'fr9', n:'Tyson Chicken Nuggets',b:'Tyson',e:'🍗',c:'frozen',sz:'32 oz',p:{wf:null,tj:false,aldi:false,sr:9.07,bjs:null,ss:16.99,kf:12.59,fb:14.99,ct:null,wb:10.49,asc:null,fw:null,tg:8.49,co:null}},
-  {id:'fr10',n:'Green Giant Steamers Broccoli',b:'Green Giant',e:'🥦',c:'frozen',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:1.70,bjs:null,ss:2.89,kf:4.09,fb:5.69,ct:1.00,wb:5.19,asc:null,fw:3.32,tg:1.99,co:null}},
-  {id:'fr11',n:'Birds Eye Steamfresh Mixed Vegetables',b:'Birds Eye',e:'🫛',c:'frozen',sz:'10.8 oz',p:{wf:null,tj:false,aldi:false,sr:4.30,bjs:null,ss:3.99,kf:3.59,fb:3.50,ct:null,wb:3.09,asc:null,fw:3.87,tg:1.69,co:null}},
-  {id:'fr12',n:"Stouffer's Lasagna",b:"Stouffer's",e:'🍝',c:'frozen',sz:'19 oz',p:{wf:null,tj:false,aldi:false,sr:5.66,bjs:null,ss:8.99,kf:8.39,fb:23.99,ct:null,wb:6.89,asc:null,fw:9.42,tg:3.59,co:null}},
-  {id:'fr13',n:'Amy\'s Black Bean Burrito',b:"Amy's",e:'🌯',c:'frozen',sz:'6 oz',p:{wf:3.99,tj:false,aldi:false,sr:5.44,bjs:null,ss:5.69,kf:5.09,fb:4.79,ct:null,wb:4.49,asc:null,fw:4.76,tg:4.29,co:null}},
-  // ── Canned goods additions ─────────────────────────────────────────────────
-  {id:'ca9', n:'Goya Chickpeas',b:'Goya',e:'🫘',c:'canned goods',sz:'15.5 oz',p:{wf:null,tj:false,aldi:false,sr:2.71,bjs:null,ss:2.99,kf:1.79,fb:1.40,ct:null,wb:2.09,asc:null,fw:2.21,tg:1.39,co:null}},
-  {id:'ca10',n:'Goya Kidney Beans',b:'Goya',e:'🫘',c:'canned goods',sz:'15.5 oz',p:{wf:null,tj:false,aldi:false,sr:2.03,bjs:null,ss:1.69,kf:2.39,fb:1.99,ct:null,wb:1.79,asc:null,fw:1.99,tg:1.99,co:null}},
-  {id:'ca11',n:'Swanson Chicken Broth',b:'Swanson',e:'🍲',c:'canned goods',sz:'32 oz',p:{wf:null,tj:false,aldi:false,sr:1.91,bjs:null,ss:4.99,kf:3.09,fb:3.79,ct:2.99,wb:4.79,asc:null,fw:5.88,tg:3.59,co:null}},
-  {id:'ca12',n:'Rotel Diced Tomatoes & Chilies',b:'Rotel',e:'🍅',c:'canned goods',sz:'10 oz',p:{wf:null,tj:false,aldi:false,sr:2.15,bjs:null,ss:2.99,kf:3.39,fb:3.49,ct:null,wb:3.09,asc:null,fw:2.21,tg:1.69,co:null}},
-  // ── Condiments/pantry additions ────────────────────────────────────────────
-  {id:'co11',n:'Goya Olive Oil',b:'Goya',e:'🫙',c:'condiments',sz:'17 oz',p:{wf:null,tj:false,aldi:false,sr:8.50,bjs:null,ss:7.99,kf:6.79,fb:8.29,ct:null,wb:13.59,asc:null,fw:7.09,tg:3.99,co:null}},
-  {id:'co12',n:'Goya Sofrito',b:'Goya',e:'🫙',c:'condiments',sz:'12 oz',p:{wf:null,tj:false,aldi:false,sr:4.87,bjs:null,ss:4.99,kf:5.09,fb:5.19,ct:null,wb:5.19,asc:null,fw:5.54,tg:3.99,co:null}},
-  {id:'co13',n:'Crisco Vegetable Oil',b:'Crisco',e:'🫙',c:'condiments',sz:'48 oz',p:{wf:null,tj:false,aldi:false,sr:6.69,bjs:null,ss:7.99,kf:7.39,fb:3.59,ct:null,wb:7.89,asc:null,fw:6.65,tg:5.99,co:null}},
-  {id:'co14',n:'Mazola Corn Oil',b:'Mazola',e:'🫙',c:'condiments',sz:'40 oz',p:{wf:null,tj:false,aldi:false,sr:7.37,bjs:null,ss:7.99,kf:6.89,fb:5.89,ct:null,wb:15.69,asc:null,fw:11.09,tg:7.49,co:null}},
-  // ── Coffee additions ───────────────────────────────────────────────────────
-  {id:'cf6',n:'Café Bustelo Espresso Ground',b:'Café Bustelo',e:'☕',c:'coffee',sz:'10 oz',p:{wf:null,tj:false,aldi:false,sr:9.07,bjs:null,ss:9.99,kf:11.49,fb:8.49,ct:7.99,wb:11.29,asc:null,fw:8.87,tg:23.99,co:null}},
-  {id:'cf7',n:'Café Bustelo Instant Espresso',b:'Café Bustelo',e:'☕',c:'coffee',sz:'7.05 oz',p:{wf:null,tj:false,aldi:false,sr:11.34,bjs:null,ss:10.99,kf:8.89,fb:9.99,ct:null,wb:12.09,asc:null,fw:10.53,tg:10.49,co:null}},
-  // ── Snack additions ────────────────────────────────────────────────────────
-  {id:'sn13',n:'Clif Bar Chocolate Chip',b:'Clif Bar',e:'🍫',c:'snacks',sz:'2.4 oz',p:{wf:1.99,tj:false,aldi:false,sr:2.26,bjs:null,ss:2.99,kf:9.79,fb:2.39,ct:null,wb:5.79,asc:null,fw:2.21,tg:18.59,co:null}},
-  {id:'sn14',n:'Quaker Chewy Granola Bars',b:'Quaker',e:'🍫',c:'snacks',sz:'8 ct',p:{wf:null,tj:false,aldi:false,sr:4.87,bjs:null,ss:5.69,kf:5.59,fb:4.09,ct:4.29,wb:5.79,asc:null,fw:5.21,tg:8.29,co:null}},
-  {id:'sn15',n:'Welch\'s Fruit Snacks',b:"Welch's",e:'🍇',c:'snacks',sz:'22 ct',p:{wf:null,tj:false,aldi:false,sr:4.87,bjs:null,ss:4.79,kf:4.79,fb:2.50,ct:null,wb:1.29,asc:null,fw:4.21,tg:7.49,co:null}},
-  // ── Household additions ────────────────────────────────────────────────────
-  {id:'hw8', n:'Febreze Air Freshener',b:'Febreze',e:'🫧',c:'household',sz:'8.8 oz',p:{wf:null,tj:false,aldi:false,sr:5.32,bjs:null,ss:5.99,kf:3.69,fb:3.69,ct:null,wb:5.19,asc:null,fw:5.43,tg:6.69,co:null}},
-  {id:'hw9', n:'Ziploc Storage Bags Gallon',b:'Ziploc',e:'🛍️',c:'household',sz:'19 ct',p:{wf:null,tj:false,aldi:false,sr:8.50,bjs:null,ss:8.99,kf:5.79,fb:3.99,ct:null,wb:7.29,asc:null,fw:4.98,tg:6.79,co:null}},
-  {id:'hw10',n:'Reynolds Wrap Aluminum Foil',b:'Reynolds',e:'🫙',c:'household',sz:'75 sq ft',p:{wf:null,tj:false,aldi:false,sr:18.72,bjs:null,ss:7.99,kf:6.09,fb:6.69,ct:null,wb:19.69,asc:null,fw:18.30,tg:5.99,co:null}},
-  // ── Soda & Water additions ─────────────────────────────────────────────────
-  {id:'sw9', n:'Sprite 12-Pack',b:'Sprite',e:'🥤',c:'soda & water',sz:'12x12 oz',p:{wf:null,tj:false,aldi:false,sr:9.07,bjs:null,ss:7.99,kf:5.89,fb:8.99,ct:null,wb:10.49,asc:null,fw:9.42,tg:8.89,co:null}},
-  {id:'sw10',n:'7UP 12-Pack',b:'7UP',e:'🥤',c:'soda & water',sz:'12x12 oz',p:{wf:null,tj:false,aldi:false,sr:11.68,bjs:null,ss:12.99,kf:10.29,fb:12.99,ct:null,wb:12.59,asc:null,fw:9.98,tg:8.39,co:null}},
-  {id:'sw11',n:'Snapple Lemon Tea',b:'Snapple',e:'🍋',c:'soda & water',sz:'6x16 oz',p:{wf:null,tj:false,aldi:false,sr:2.65,bjs:null,ss:2.39,kf:1.29,fb:5.00,ct:null,wb:2.39,asc:null,fw:3.87,tg:2.69,co:null}},
-  {id:'sw12',n:'Arizona Green Tea',b:'Arizona',e:'🍵',c:'soda & water',sz:'6x16 oz',p:{wf:null,tj:false,aldi:false,sr:1.00,bjs:null,ss:1.19,kf:0.89,fb:0.80,ct:2.99,wb:0.79,asc:null,fw:4.43,tg:3.99,co:null}},
-  {id:'sw13',n:'Poland Spring Water Gallon',b:'Poland Spring',e:'💧',c:'soda & water',sz:'1 gal',p:{wf:null,tj:false,aldi:false,sr:2.60,bjs:null,ss:2.99,kf:2.39,fb:2.00,ct:5.50,wb:2.89,asc:null,fw:2.76,tg:4.99,co:null}},
-  {id:'sw14',n:'Poland Spring 24-Pack',b:'Poland Spring',e:'💧',c:'soda & water',sz:'24x16.9 oz',p:{wf:null,tj:false,aldi:false,sr:7.93,bjs:null,ss:7.99,kf:8.89,fb:4.50,ct:null,wb:4.19,asc:null,fw:1.65,tg:4.99,co:null}},
-  // ── Bread additions ────────────────────────────────────────────────────────
-  {id:'br6',n:'Arnold Country White',b:'Arnold',e:'🍞',c:'bread',sz:'24 oz',p:{wf:null,tj:false,aldi:false,sr:6.00,bjs:null,ss:5.99,kf:4.19,fb:6.39,ct:null,wb:5.59,asc:null,fw:5.87,tg:4.29,co:null}},
-  {id:'br7',n:'Pepperidge Farm Sandwich White',b:'Pepperidge Farm',e:'🍞',c:'bread',sz:'22 oz',p:{wf:null,tj:false,aldi:false,sr:5.67,bjs:null,ss:5.99,kf:5.19,fb:4.79,ct:null,wb:5.19,asc:null,fw:5.32,tg:3.99,co:null}},
-  // ── Pasta additions ────────────────────────────────────────────────────────
-  {id:'pa7',n:'Ronzoni Spaghetti',b:'Ronzoni',e:'🍝',c:'pasta & sauce',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:1.81,bjs:null,ss:3.59,kf:1.79,fb:1.79,ct:null,wb:2.49,asc:null,fw:2.44,tg:2.99,co:null}},
-  {id:'pa8',n:'Ronzoni Penne',b:'Ronzoni',e:'🍝',c:'pasta & sauce',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:1.81,bjs:null,ss:2.39,kf:2.49,fb:1.79,ct:null,wb:2.49,asc:null,fw:2.44,tg:2.99,co:null}},
-  {id:'pa9',n:'De Cecco Spaghetti',b:'De Cecco',e:'🍝',c:'pasta & sauce',sz:'16 oz',p:{wf:3.49,tj:false,aldi:false,sr:3.39,bjs:null,ss:3.99,kf:2.59,fb:3.99,ct:null,wb:4.19,asc:null,fw:3.08,tg:1.19,co:null}},
-  // ── Bakery (Entenmann's, Drake's) ──────────────────────────────────────────
-  {id:'bk1e',n:"Entenmann's Chocolate Donuts",b:"Entenmann's",e:'🍩',c:'bakery',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:4.76,bjs:null,ss:6.99,kf:7.29,fb:5.79,ct:null,wb:7.29,asc:null,fw:7.76,tg:4.29,co:null}},
-  {id:'bk2e',n:"Entenmann's Rich Frosted Donuts",b:"Entenmann's",e:'🍩',c:'bakery',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:3.87,bjs:null,ss:6.99,kf:6.19,fb:5.89,ct:null,wb:7.29,asc:null,fw:6.54,tg:4.99,co:null}},
-  {id:'bk3e',n:"Entenmann's Crumb Coffee Cake",b:"Entenmann's",e:'🎂',c:'bakery',sz:'19 oz',p:{wf:null,tj:false,aldi:false,sr:5.78,bjs:null,ss:9.99,kf:5.79,fb:7.49,ct:null,wb:8.89,asc:null,fw:6.09,tg:4.19,co:null}},
-  {id:'bk4e',n:"Drake's Devil Dogs",b:"Drake's",e:'🍫',c:'bakery',sz:'10 ct',p:{wf:null,tj:false,aldi:false,sr:4.98,bjs:null,ss:4.99,kf:4.59,fb:4.39,ct:null,wb:4.59,asc:null,fw:8.87,tg:3.99,co:null}},
-  {id:'bk5e',n:"Drake's Ring Dings",b:"Drake's",e:'🍫',c:'bakery',sz:'12 ct',p:{wf:null,tj:false,aldi:false,sr:4.98,bjs:null,ss:4.99,kf:4.59,fb:4.39,ct:null,wb:4.59,asc:null,fw:5.32,tg:3.99,co:null}},
-  // ── Dairy additions ────────────────────────────────────────────────────────
-  {id:'da14',n:'Sargento String Cheese',b:'Sargento',e:'🧀',c:'dairy',sz:'12 ct',p:{wf:null,tj:false,aldi:false,sr:7.14,bjs:null,ss:7.99,kf:9.49,fb:6.99,ct:null,wb:7.69,asc:null,fw:8.87,tg:6.29,co:null}},
-  {id:'da15',n:'Hood Heavy Whipping Cream',b:'Hood',e:'🧈',c:'dairy',sz:'1 pint',p:{wf:null,tj:false,aldi:false,sr:6.80,bjs:null,ss:4.99,kf:4.99,fb:3.99,ct:null,wb:3.99,asc:null,fw:7.76,tg:4.99,co:null}},
-  {id:'da16',n:'Coffee-Mate Original Creamer',b:'Coffee-Mate',e:'☕',c:'dairy',sz:'35.3 oz',p:{wf:null,tj:false,aldi:false,sr:4.99,bjs:null,ss:6.99,kf:8.39,fb:5.99,ct:null,wb:11.49,asc:null,fw:4.88,tg:5.49,co:null}},
-  {id:'da17',n:'Reddi Whip Original',b:'Reddi Whip',e:'🍦',c:'dairy',sz:'6.5 oz',p:{wf:null,tj:false,aldi:false,sr:5.66,bjs:null,ss:4.99,kf:4.69,fb:4.29,ct:null,wb:8.69,asc:null,fw:8.87,tg:5.99,co:null}},
-  // ── Frozen additions ───────────────────────────────────────────────────────
-  {id:'fr14',n:"Gorton's Fish Sticks",b:"Gorton's",e:'🐟',c:'frozen',sz:'19 oz',p:{wf:null,tj:false,aldi:false,sr:7.37,bjs:null,ss:8.99,kf:10.29,fb:9.99,ct:null,wb:11.49,asc:null,fw:11.65,tg:4.99,co:null}},
-  {id:'fr15',n:'Hot Pockets Ham & Cheese',b:'Hot Pockets',e:'🥪',c:'frozen',sz:'2 ct',p:{wf:null,tj:false,aldi:false,sr:8.96,bjs:null,ss:19.99,kf:10.49,fb:17.99,ct:null,wb:18.89,asc:null,fw:8.31,tg:5.99,co:null}},
-  {id:'fr16',n:'Bagel Bites Cheese & Pepperoni',b:'Bagel Bites',e:'🍕',c:'frozen',sz:'9 ct',p:{wf:null,tj:false,aldi:false,sr:8.50,bjs:null,ss:3.99,kf:10.49,fb:3.00,ct:null,wb:8.39,asc:null,fw:7.20,tg:6.39,co:null}},
-  {id:'fr17',n:'Ling Ling Potstickers',b:'Ling Ling',e:'🥟',c:'frozen',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:12.13,bjs:null,ss:12.99,kf:11.49,fb:9.29,ct:null,wb:11.89,asc:null,fw:6.65,tg:6.49,co:null}},
-  {id:'fr18',n:"Marie Callender's Chicken Pot Pie",b:"Marie Callender's",e:'🥧',c:'frozen',sz:'15 oz',p:{wf:null,tj:false,aldi:false,sr:5.66,bjs:null,ss:5.99,kf:7.29,fb:4.49,ct:null,wb:4.69,asc:null,fw:6.65,tg:2.99,co:null}},
-  // ── Condiments / NYC pantry staples ───────────────────────────────────────
-  {id:'co15',n:'Goya Sazon with Coriander',b:'Goya',e:'🌶️',c:'condiments',sz:'3.52 oz',p:{wf:null,tj:false,aldi:false,sr:6.23,bjs:null,ss:1.99,kf:6.59,fb:2.99,ct:null,wb:4.19,asc:null,fw:6.65,tg:1.99,co:null}},
-  {id:'co16',n:'Goya Adobo All Purpose',b:'Goya',e:'🌶️',c:'condiments',sz:'8 oz',p:{wf:null,tj:false,aldi:false,sr:2.26,bjs:null,ss:2.79,kf:2.69,fb:2.39,ct:3.00,wb:4.69,asc:null,fw:2.21,tg:2.69,co:null}},
-  {id:'co17',n:'La Choy Soy Sauce',b:'La Choy',e:'🫙',c:'condiments',sz:'10 oz',p:{wf:null,tj:false,aldi:false,sr:2.60,bjs:null,ss:3.59,kf:3.39,fb:2.29,ct:2.49,wb:3.09,asc:null,fw:3.32,tg:1.99,co:null}},
-  {id:'co18',n:'Wish-Bone Italian Dressing',b:'Wish-Bone',e:'🥗',c:'condiments',sz:'16 oz',p:{wf:null,tj:false,aldi:false,sr:3.40,bjs:null,ss:7.99,kf:5.19,fb:3.19,ct:null,wb:2.69,asc:null,fw:2.76,tg:3.59,co:null}},
-  // ── Personal care additions ────────────────────────────────────────────────
-  {id:'pc5', n:'Pantene Pro-V Shampoo',b:'Pantene',e:'🧴',c:'personal care',sz:'27.7 oz',p:{wf:null,tj:false,aldi:false,sr:11.91,bjs:null,ss:9.99,kf:2.39,fb:7.99,ct:null,wb:5.19,asc:null,fw:7.76,tg:6.19,co:null}},
-  {id:'pc6', n:'TRESemmé Moisture Rich Shampoo',b:'TRESemmé',e:'🧴',c:'personal care',sz:'28 oz',p:{wf:null,tj:false,aldi:false,sr:8.50,bjs:null,ss:8.99,kf:6.99,fb:5.99,ct:null,wb:2.39,asc:null,fw:7.76,tg:11.99,co:null}},
-  {id:'pc7', n:'Dove Body Wash',b:'Dove',e:'🧴',c:'personal care',sz:'22 oz',p:{wf:null,tj:false,aldi:false,sr:11.34,bjs:null,ss:10.99,kf:11.29,fb:10.49,ct:null,wb:13.59,asc:null,fw:15.53,tg:15.39,co:null}},
-  {id:'pc8', n:'Degree Original Deodorant',b:'Degree',e:'🧴',c:'personal care',sz:'2.7 oz',p:{wf:null,tj:false,aldi:false,sr:6.23,bjs:null,ss:6.99,kf:4.99,fb:10.49,ct:null,wb:7.29,asc:null,fw:7.76,tg:6.39,co:null}},
-  {id:'pc9', n:'Old Spice Deodorant',b:'Old Spice',e:'🧴',c:'personal care',sz:'3 oz',p:{wf:null,tj:false,aldi:false,sr:18.15,bjs:null,ss:11.99,kf:12.89,fb:10.49,ct:null,wb:4.19,asc:null,fw:23.30,tg:10.19,co:null}},
-  {id:'pc10',n:'Secret Antiperspirant',b:'Secret',e:'🧴',c:'personal care',sz:'2.6 oz',p:{wf:null,tj:false,aldi:false,sr:9.07,bjs:null,ss:11.99,kf:11.29,fb:6.99,ct:null,wb:3.09,asc:null,fw:16.64,tg:8.99,co:null}},
-  {id:'pc11',n:'Always Infinity Pads',b:'Always',e:'🩹',c:'personal care',sz:'18 ct',p:{wf:null,tj:false,aldi:false,sr:11.34,bjs:null,ss:11.99,kf:11.89,fb:10.49,ct:null,wb:5.59,asc:null,fw:6.43,tg:11.49,co:null}},
-  {id:'pc12',n:'Tampax Pearl Tampons',b:'Tampax',e:'🩹',c:'personal care',sz:'18 ct',p:{wf:null,tj:false,aldi:false,sr:7.37,bjs:null,ss:6.99,kf:12.39,fb:7.99,ct:null,wb:8.89,asc:null,fw:21.08,tg:11.29,co:null}},
-  {id:'pc13',n:'Gillette Mach3 Razors',b:'Gillette',e:'🪒',c:'personal care',sz:'4 ct',p:{wf:null,tj:false,aldi:false,sr:10.20,bjs:null,ss:10.99,kf:6.59,fb:12.49,ct:null,wb:1.59,asc:null,fw:14.42,tg:11.79,co:null}},
-  {id:'pc14',n:'Oral-B Toothbrush',b:'Oral-B',e:'🦷',c:'personal care',sz:'2 ct',p:{wf:null,tj:false,aldi:false,sr:1.69,bjs:null,ss:8.99,kf:13.99,fb:2.29,ct:null,wb:2.09,asc:null,fw:8.42,tg:3.79,co:null}},
-  // ── Household additions ────────────────────────────────────────────────────
-  {id:'hw11',n:'Clorox Regular Bleach',b:'Clorox',e:'🫧',c:'household',sz:'43 oz',p:{wf:null,tj:false,aldi:false,sr:4.19,bjs:null,ss:8.99,kf:1.89,fb:9.39,ct:null,wb:8.89,asc:null,fw:5.54,tg:5.79,co:null}},
-  {id:'hw12',n:'Pine-Sol Original',b:'Pine-Sol',e:'🫧',c:'household',sz:'48 oz',p:{wf:null,tj:false,aldi:false,sr:6.23,bjs:null,ss:6.99,kf:6.79,fb:5.99,ct:null,wb:6.09,asc:null,fw:4.21,tg:5.59,co:null}},
-  {id:'hw13',n:'Cascade Complete Dishwasher Pods',b:'Cascade',e:'🍽️',c:'household',sz:'43 ct',p:{wf:null,tj:false,aldi:false,sr:14.74,bjs:null,ss:14.99,kf:16.79,fb:27.99,ct:null,wb:19.89,asc:null,fw:14.42,tg:24.49,co:null}},
-  {id:'hw14',n:'Saran Premium Wrap',b:'Saran',e:'🛍️',c:'household',sz:'100 sq ft',p:{wf:null,tj:false,aldi:false,sr:4.07,bjs:null,ss:3.99,kf:3.89,fb:3.29,ct:null,wb:3.69,asc:null,fw:4.43,tg:2.79,co:null}},
-  {id:'hw15',n:'Dixie Everyday Plates',b:'Dixie',e:'🍽️',c:'household',sz:'44 ct',p:{wf:null,tj:false,aldi:false,sr:4.53,bjs:null,ss:5.99,kf:23.09,fb:17.99,ct:null,wb:null,asc:null,fw:4.77,tg:5.19,co:null}},
-  {id:'hw16',n:'Hefty Strong Trash Bags',b:'Hefty',e:'🗑️',c:'household',sz:'30 ct',p:{wf:null,tj:false,aldi:false,sr:10.21,bjs:null,ss:13.99,kf:11.49,fb:10.99,ct:null,wb:20.49,asc:null,fw:21.08,tg:13.99,co:null}},
-  // ── Baby additions ─────────────────────────────────────────────────────────
-  {id:'ba4',n:'Pampers Baby Wipes',b:'Pampers',e:'🧻',c:'baby',sz:'72 ct',p:{wf:null,tj:false,aldi:false,sr:22.69,bjs:null,ss:9.99,kf:10.49,fb:9.99,ct:null,wb:10.09,asc:null,fw:8.32,tg:2.69,co:null}},
-  {id:'ba5',n:'Huggies Simply Clean Wipes',b:'Huggies',e:'🧻',c:'baby',sz:'64 ct',p:{wf:null,tj:false,aldi:false,sr:3.39,bjs:null,ss:8.99,kf:3.69,fb:2.79,ct:null,wb:2.69,asc:null,fw:2.76,tg:5.77,co:null}},
-  {id:'ba6',n:'Similac Advance Formula',b:'Similac',e:'🍼',c:'baby',sz:'23.2 oz',p:{wf:null,tj:false,aldi:false,sr:27.23,bjs:null,ss:27.99,kf:24.09,fb:27.19,ct:null,wb:16.09,asc:null,fw:32.18,tg:12.89,co:null}},
-  {id:'ba7',n:'Enfamil NeuroPro Formula',b:'Enfamil',e:'🍼',c:'baby',sz:'20.7 oz',p:{wf:null,tj:false,aldi:false,sr:70.36,bjs:null,ss:53.99,kf:24.09,fb:39.89,ct:null,wb:54.39,asc:null,fw:32.18,tg:52.99,co:null}},
-];
-
-const PM={};P.forEach(p=>PM[p.id]=p);
-let aC='all';
-const basket=new Set();
-let rankMode='price';
-
-function minP(p){const seen=new Set();const v=activeStores.map(s=>{const k=s.dataKey||s.id;if(seen.has(k))return null;seen.add(k);return p.p[k];}).filter(x=>x>0);return v.length?Math.min(...v):null;}
-function stCt(p){const chains=new Set();activeStores.forEach(s=>{const k=s.dataKey||s.id;if(p.p[k]>0)chains.add(s.chain||s.id);});return chains.size;}
-
-function renderCats(){
-  document.getElementById('cats').innerHTML=CATS.map(c=>
-    `<button class="fb${aC===c?' on':''}" onclick="setC('${c}')">${CE[c]||''} ${c==='all'?'All':c.charAt(0).toUpperCase()+c.slice(1)}</button>`
-  ).join('');
+// ── Zip modal ─────────────────────────────────────────────────────────────
+async function submitZip() {
+  const zip = document.getElementById('zipInput').value.trim();
+  if (!/^\d{5}$/.test(zip)) { showZipErr('Please enter a valid 5-digit zip code.'); return; }
+  const btn = document.getElementById('zipGo');
+  btn.textContent = '…'; btn.disabled = true;
+  hideZipErr();
+  hideZipModal();
+  state.zip = zip;
+  localStorage.setItem('userZip', zip);
+  document.getElementById('locBtn').textContent = `📍 ${zip}`;
+  await loadData(zip);
+  btn.textContent = 'Go'; btn.disabled = false;
 }
-
-function cardHTML(p){
-  const sel=basket.has(p.id);
-  const mp=minP(p),sc=stCt(p);
-  const imgUrl=IMG[p.id]||'';
-  const imgContent=imgUrl?`<img src="${imgUrl}" alt="${p.n}" onerror="this.style.display='none'">`:`<span class="fe">${p.e}</span>`;
-  return `<div class="pc${sel?' sel':''}" onclick="tog('${p.id}')">
-    ${sel?`<span class="pck">✓</span>`:''}
-    <div class="img-wrap">${imgContent}</div>
-    <div class="pc-body">
-      <div class="pn">${p.n}</div>
-      <div class="pb">${p.b} · ${p.sz}</div>
-      <div class="pf">${mp!=null?'from $'+mp.toFixed(2)+' · ':''}${sc} store${sc!==1?'s':''}</div>
-    </div>
-  </div>`;
+function showZipModal() {
+  document.getElementById('zipOverlay').style.display = 'flex';
+  document.getElementById('zipInput').value = state.zip || localStorage.getItem('userZip') || '';
+  hideZipErr();
+  setTimeout(() => document.getElementById('zipInput').focus(), 50);
 }
+function hideZipModal()  { document.getElementById('zipOverlay').style.display = 'none'; }
+function showZipErr(m)   { const e=document.getElementById('zipErr');e.textContent=m;e.style.display='block'; }
+function hideZipErr()    { document.getElementById('zipErr').style.display='none'; }
 
-function render(){
-  const q=(document.getElementById('search').value||'').toLowerCase().trim();
-  const filt=P.filter(p=>{
-    const catOk=aC==='all'||p.c===aC;
-    const qOk=!q||p.n.toLowerCase().includes(q)||p.b.toLowerCase().includes(q)||p.c.toLowerCase().includes(q);
-    return catOk&&qOk;
-  });
-  document.getElementById('pcount').textContent=filt.length+' products';
-  const panel=document.getElementById('panel');
-  if(!filt.length){panel.innerHTML='<div class="no-d">No products found.</div>';return;}
-  if(aC==='all'&&!q){
-    const bc={};filt.forEach(p=>{if(!bc[p.c])bc[p.c]=[];bc[p.c].push(p);});
-    panel.innerHTML=Object.keys(bc).map(cat=>
-      `<div class="sh"><span style="font-size:15px">${CE[cat]||''}</span>${cat.charAt(0).toUpperCase()+cat.slice(1)}</div>
-       <div class="grid">${bc[cat].map(cardHTML).join('')}</div>`
-    ).join('');
-  } else {
-    panel.innerHTML=`<div class="grid">${filt.map(cardHTML).join('')}</div>`;
+// ── Data loading ──────────────────────────────────────────────────────────
+async function loadData(zip) {
+  showLoading(`Finding grocery deals near ${zip}…`);
+  try {
+    const res = await fetch(`/api/circulars?zip=${zip}`);
+    if (res.ok) {
+      const data = await res.json();
+      hideLoading();
+      applyData(data);
+      return;
+    }
+    if (res.status === 202) {
+      // Need to scrape — connect SSE
+      await runScrape(zip);
+      return;
+    }
+    throw new Error(`Server returned ${res.status}`);
+  } catch (e) {
+    hideLoading();
+    alert('Could not load deals: ' + e.message);
   }
 }
 
-function tog(id){
-  if(basket.has(id))basket.delete(id);else basket.add(id);
-  render();renderRight();
+function runScrape(zip) {
+  return new Promise((resolve, reject) => {
+    logToScreen(`🔍 Searching for grocery stores near ${zip}…`);
+    const es = new EventSource(`/api/scrape?zip=${zip}`);
+
+    es.addEventListener('log', e => {
+      const { message } = JSON.parse(e.data);
+      logToScreen(message);
+    });
+
+    es.addEventListener('done', async e => {
+      es.close();
+      logToScreen('✅ Done! Loading results…');
+      // Short pause so user sees the done message
+      await new Promise(r => setTimeout(r, 600));
+      try {
+        const res = await fetch(`/api/circulars?zip=${zip}`);
+        const data = await res.json();
+        hideLoading();
+        applyData(data);
+        resolve();
+      } catch (err) {
+        hideLoading();
+        reject(err);
+      }
+    });
+
+    es.addEventListener('error', e => {
+      es.close();
+      let msg = 'Unknown error';
+      try { msg = JSON.parse(e.data).message; } catch {}
+      hideLoading();
+      reject(new Error(msg));
+    });
+  });
 }
 
-function renderRight(){
-  const items=[...basket].map(id=>PM[id]);
-  const n=items.length;
-  document.getElementById('bcount').textContent=n?`· ${n} item${n!==1?'s':''}`:'' ;
-  document.getElementById('clrbtn').style.display=n?'block':'none';
-  if(!n){
-    document.getElementById('rsub').textContent='Add items to find your cheapest single store';
-    document.getElementById('bitems-area').innerHTML='<div class="bempty">Tap any product to add it to your basket.<br>We\'ll rank all stores by your total basket cost.</div>';
-    document.getElementById('results-area').innerHTML='';
+function applyData(data) {
+  state.stores = (data.stores || []).filter(s => s.item_count > 0);
+  state.zip    = data.zip;
+  document.getElementById('locBtn').textContent = `📍 ${data.zip}`;
+  renderApp();
+}
+
+// ── Loading screen ────────────────────────────────────────────────────────
+function showLoading(sub) {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('zipOverlay').style.display = 'none';
+  document.getElementById('loading-screen').style.display = 'flex';
+  document.getElementById('loadSub').textContent = sub || 'Loading…';
+  document.getElementById('loadLog').innerHTML = '';
+}
+function hideLoading() {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+}
+function logToScreen(msg) {
+  const log = document.getElementById('loadLog');
+  const p = document.createElement('p');
+  p.textContent = msg;
+  log.appendChild(p);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ── Sorting ───────────────────────────────────────────────────────────────
+function setSort(by) {
+  state.sortBy = by;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.id === 'sort-' + by));
+  renderStores();
+}
+
+function sortedStores(stores) {
+  const list = [...stores];
+  if (state.sortBy === 'deals') {
+    // Average discount across items (higher = better deals)
+    list.sort((a, b) => {
+      const avgDisc = s => {
+        const items = s.items.filter(i => i.discount_pct > 0);
+        if (!items.length) return 0;
+        return items.reduce((sum, i) => sum + i.discount_pct, 0) / items.length;
+      };
+      return avgDisc(b) - avgDisc(a);
+    });
+  } else if (state.sortBy === 'az') {
+    list.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return list;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────
+function onSearch() {
+  state.search = document.getElementById('searchInput').value.toLowerCase().trim();
+  renderStores();
+}
+
+function filteredItems(items) {
+  if (!state.search) return items;
+  return items.filter(i =>
+    i.name.toLowerCase().includes(state.search) ||
+    (i.brand || '').toLowerCase().includes(state.search)
+  );
+}
+
+// ── Basket ────────────────────────────────────────────────────────────────
+function getQty(storeId, itemId) {
+  return state.basket[storeId]?.get(itemId) || 0;
+}
+function setQty(storeId, itemId, qty) {
+  if (!state.basket[storeId]) state.basket[storeId] = new Map();
+  if (qty <= 0) state.basket[storeId].delete(itemId);
+  else          state.basket[storeId].set(itemId, qty);
+  refreshStoreTotal(storeId);
+  refreshCard(storeId, itemId);
+}
+function addItem(storeId, itemId) {
+  setQty(storeId, itemId, getQty(storeId, itemId) + 1);
+}
+function decItem(storeId, itemId) {
+  setQty(storeId, itemId, getQty(storeId, itemId) - 1);
+}
+function getStoreTotal(storeId) {
+  const store = state.stores.find(s => s.flyer_id === storeId);
+  if (!store || !state.basket[storeId]) return 0;
+  let total = 0;
+  state.basket[storeId].forEach((qty, itemId) => {
+    const item = store.items.find(i => String(i.id) === String(itemId));
+    if (item) total += item.current_price * qty;
+  });
+  return total;
+}
+function getBasketCount(storeId) {
+  if (!state.basket[storeId]) return 0;
+  let n = 0;
+  state.basket[storeId].forEach(qty => n += qty);
+  return n;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────
+function renderApp() {
+  document.getElementById('storesFound').textContent =
+    `${state.stores.length} store${state.stores.length !== 1 ? 's' : ''} near ${state.zip}`;
+  renderStores();
+}
+
+function renderStores() {
+  const sorted = sortedStores(state.stores);
+  const container = document.getElementById('storesContainer');
+
+  // Filter stores with matching items if searching
+  const visible = state.search
+    ? sorted.filter(s => filteredItems(s.items).length > 0)
+    : sorted;
+
+  if (!visible.length) {
+    container.innerHTML = `<div class="no-results">No results found for "<strong>${state.search}</strong>"</div>`;
     return;
   }
-  document.getElementById('rsub').textContent=rankMode==='price'?'Stores ranked cheapest → most expensive':'Stores ranked by most items available';
-  document.getElementById('bitems-area').innerHTML=`<div class="bitems">${items.map(p=>{
-    const img=IMG[p.id]||'';
-    const imgEl=img?`<img src="${img}" style="width:100%;height:100%;object-fit:contain;padding:2px;" onerror="this.style.display='none'">`:`<span style="font-size:16px">${p.e}</span>`;
-    return `<div class="bi">
-      <div class="bi-img">${imgEl}</div>
-      <div style="flex:1;min-width:0"><div class="bin">${p.n}</div><div class="bib">${p.b} · ${p.sz}</div></div>
-      <span class="birm" onclick="tog('${p.id}')">✕</span>
-    </div>`;
-  }).join('')}</div>`;
 
-  // Group stores by chain, score each location, keep cheapest per chain
-  const chainMap={};
-  activeStores.forEach(s=>{const c=s.chain||s.id;if(!chainMap[c])chainMap[c]=[];chainMap[c].push(s);});
-  const scored=Object.values(chainMap).map(locs=>{
-    const locScores=locs.map(s=>{
-      let total=0,covered=0,notSold=[],noPrice=[];
-      const k=s.dataKey||s.id;
-      items.forEach(p=>{
-        const pr=p.p[k];
-        if(pr>0){total+=pr;covered++;}
-        else if(pr===false)notSold.push(p);
-        else noPrice.push(p);
-      });
-      const projected=covered>0?(total/covered)*items.length:null;
-      return{s,total,covered,notSold,noPrice,pct:covered/items.length,projected};
-    });
-    locScores.sort((a,b)=>{
-      if(b.covered!==a.covered)return b.covered-a.covered;
-      if(a.projected===null&&b.projected===null)return 0;
-      if(a.projected===null)return 1;
-      if(b.projected===null)return -1;
-      return a.projected-b.projected;
-    });
-    return locScores[0];
-  });
+  container.innerHTML = visible.map(store => storeRowHTML(store)).join('');
+}
 
-  const results=[...scored].sort((a,b)=>{
-    if(rankMode==='selection'){
-      if(b.covered!==a.covered) return b.covered-a.covered;
-      if(a.total>0&&b.total>0) return a.total-b.total;
-      if(a.total>0) return -1;
-      if(b.total>0) return 1;
-      return 0;
-    }
-    if(a.projected===null&&b.projected===null)return 0;
-    if(a.projected===null)return 1;
-    if(b.projected===null)return -1;
-    return a.projected-b.projected;
-  });
+function storeRowHTML(store) {
+  const storeId = store.flyer_id;
+  const items   = filteredItems(store.items);
+  const total   = getStoreTotal(storeId);
+  const count   = getBasketCount(storeId);
+  const validTo = store.valid_to ? new Date(store.valid_to).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
 
-  const winner=results.find(r=>rankMode==='selection'?r.covered>0:r.projected!==null);
-  const winLabel=rankMode==='selection'?'★ Most items':'★ Best deal';
-  document.getElementById('results-area').innerHTML=`<div class="sres">
-    <div class="rank-tabs">
-      <button class="rtab${rankMode==='price'?' on':''}" onclick="setRank('price')">$ Price</button>
-      <button class="rtab${rankMode==='selection'?' on':''}" onclick="setRank('selection')">✓ Selection</button>
+  const logoHTML = store.logo_url
+    ? `<img class="store-logo" src="${store.logo_url}" alt="${store.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : '';
+  const fallbackHTML = `<div class="store-logo-fallback" style="${store.logo_url?'display:none':''}">${store.name.charAt(0)}</div>`;
+
+  const totalHTML = total > 0
+    ? `<div class="store-total">
+        <div class="total-pill">
+          <div class="total-amount">$${total.toFixed(2)}</div>
+          <div class="total-label">${count} item${count!==1?'s':''}</div>
+        </div>
+      </div>`
+    : '';
+
+  const itemsHTML = items.slice(0, 40).map(item => itemCardHTML(item, storeId)).join('');
+
+  return `<div class="store-row" id="store-${storeId}">
+    <div class="store-header">
+      ${logoHTML}${fallbackHTML}
+      <div class="store-info">
+        <div class="store-name">${store.name}</div>
+        <div class="store-meta">${store.item_count} deals${validTo ? ` · Valid until ${validTo}` : ''}</div>
+      </div>
+      ${totalHTML}
     </div>
-    ${results.map((r,i)=>{
-      const isW=winner&&r.s.id===winner.s.id;
-      const sc=r.s.color;
-      const k=r.s.dataKey||r.s.id;
-      const fullCoverage=r.covered===items.length;
-      const priceLabel=r.projected===null?'—':(fullCoverage?'$':'~$')+r.projected.toFixed(2);
-      const diff=rankMode==='price'&&!isW&&r.projected!==null&&winner?r.projected-winner.projected:null;
-      const displayName=r.s.location?`${r.s.name} <span style="font-size:10px;color:#888;font-weight:400">${r.s.location}</span>`:r.s.name;
-      return `<div class="sc${isW?' win':''}">
-        <div class="sct">
-          <span class="scd" style="background:${sc}"></span>
-          <span class="scn">${displayName}</span>
-          ${isW?`<span class="wb">${winLabel}</span>`:''}
-          <span class="scto" style="color:${rankMode==='selection'?(r.covered>0?isW?sc:'#222':'#ccc'):(r.projected===null?'#ccc':isW?sc:'#222')}">${rankMode==='selection'?`${r.covered}/${items.length}`:priceLabel}</span>
-        </div>
-        <div class="bar-bg"><div class="bar-fill" style="width:${(r.pct*100).toFixed(0)}%;background:${sc}"></div></div>
-        <div class="scd2">
-          ${rankMode==='selection'
-            ?`<span>${r.covered}/${items.length} items priced</span><span>${priceLabel}</span>`
-            :`<span>${r.covered}/${items.length} items priced${fullCoverage?'':' · projected total'}</span>${diff!==null?`<span style="color:#e74c3c">+$${diff.toFixed(2)}</span>`:''}`
-          }
-        </div>
-        ${r.notSold.length?`<div class="miss" style="color:#aaa">Not sold here: ${r.notSold.slice(0,4).map(p=>p.b).join(', ')}${r.notSold.length>4?' +'+(r.notSold.length-4)+' more':''}</div>`:''}
-        ${r.noPrice.length?`<div class="miss">Price unavailable: ${r.noPrice.slice(0,4).map(p=>p.b).join(', ')}${r.noPrice.length>4?' +'+(r.noPrice.length-4)+' more':''}</div>`:''}
-        ${r.covered>0?`<div class="ibd">${items.filter(p=>p.p[k]>0).map(p=>`
-          <div class="irow"><span class="iname">${p.e} ${p.n}</span><span class="iprice">$${p.p[k].toFixed(2)}</span></div>`).join('')}</div>`:''}
-      </div>`;
-    }).join('')}
+    <div class="items-scroll" id="scroll-${storeId}">
+      ${itemsHTML}
+    </div>
   </div>`;
 }
 
-function setRank(m){rankMode=m;renderRight();}
-function clearB(){basket.clear();render();renderRight();}
-function setC(c){aC=c;renderCats();render();}
-document.getElementById('search').addEventListener('input',render);
+function itemCardHTML(item, storeId) {
+  const itemId = String(item.id);
+  const qty    = getQty(storeId, itemId);
+  const inBasket = qty > 0;
 
-// ── Zip code / location ────────────────────────────────────────────────────
-function haversine(lat1,lng1,lat2,lng2){
-  const R=3958.8,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-async function geocodeZip(zip){
-  try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zip}&countrycodes=us&format=json&limit=1`);
-    const d=await r.json();
-    if(!d.length)return null;
-    return{lat:parseFloat(d[0].lat),lng:parseFloat(d[0].lon)};
-  }catch(e){return null;}
-}
-function applyLocation(zip,lat,lng){
-  const filtered=STORES.filter(s=>!s.lat||haversine(lat,lng,s.lat,s.lng)<=5);
-  activeStores=filtered.length?filtered:STORES;
-  const chip=document.getElementById('locChip');
-  chip.textContent=`📍 ${zip}`;
-  chip.style.display='block';
-  render();renderRight();
-}
-async function submitZip(){
-  const zip=document.getElementById('zipInput').value.trim();
-  if(!/^\d{5}$/.test(zip)){showZipErr('Please enter a valid 5-digit zip code.');return;}
-  const btn=document.getElementById('zipGo');
-  btn.textContent='…';btn.disabled=true;
-  const coords=await geocodeZip(zip);
-  btn.textContent='Go';btn.disabled=false;
-  if(!coords){showZipErr('Zip code not found. Please try again.');return;}
-  localStorage.setItem('userZip',zip);
-  localStorage.setItem('userLat',coords.lat);
-  localStorage.setItem('userLng',coords.lng);
-  applyLocation(zip,coords.lat,coords.lng);
-  hideZipModal();
-}
-function showZipModal(){
-  document.getElementById('zipOverlay').style.display='flex';
-  document.getElementById('zipInput').value=localStorage.getItem('userZip')||'';
-  document.getElementById('zipErr').style.display='none';
-  setTimeout(()=>document.getElementById('zipInput').focus(),50);
-}
-function hideZipModal(){document.getElementById('zipOverlay').style.display='none';}
-function showZipErr(msg){const e=document.getElementById('zipErr');e.textContent=msg;e.style.display='block';}
+  const imgHTML = item.image_url
+    ? `<img src="${item.image_url}" alt="${item.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">`
+    : '';
+  const fallbackEmoji = `<div class="item-img-fallback" style="${item.image_url?'display:none':''}">🛒</div>`;
 
-// Init
-const _zip=localStorage.getItem('userZip'),_lat=localStorage.getItem('userLat'),_lng=localStorage.getItem('userLng');
-if(_zip&&_lat&&_lng){applyLocation(_zip,parseFloat(_lat),parseFloat(_lng));hideZipModal();}
-else{document.getElementById('zipOverlay').style.display='flex';setTimeout(()=>document.getElementById('zipInput').focus(),50);}
-renderCats();render();renderRight();
+  const discHTML = item.discount_pct > 0
+    ? `<div class="disc-badge">${item.discount_pct}% OFF</div>`
+    : '';
+
+  const ctrlHTML = inBasket
+    ? `<div class="qty-ctrl">
+        <button class="qty-btn" onclick="event.stopPropagation();decItem('${storeId}','${itemId}')">−</button>
+        <span class="qty-num">${qty}</span>
+        <button class="qty-btn" onclick="event.stopPropagation();addItem('${storeId}','${itemId}')">+</button>
+      </div>`
+    : `<button class="add-btn" onclick="event.stopPropagation();addItem('${storeId}','${itemId}')">+</button>`;
+
+  const wasHTML = item.regular_price && item.regular_price > item.current_price
+    ? `<span class="item-was">$${item.regular_price.toFixed(2)}</span>`
+    : '';
+
+  return `<div class="item-card${inBasket?' in-basket':''}" id="card-${storeId}-${itemId}">
+    <div class="item-img-wrap">
+      ${imgHTML}${fallbackEmoji}
+      ${discHTML}
+      ${ctrlHTML}
+    </div>
+    <div class="item-body">
+      <div class="item-prices">
+        <span class="item-price">$${item.current_price.toFixed(2)}</span>
+        ${wasHTML}
+      </div>
+      <div class="item-name">${item.name}</div>
+      ${item.brand ? `<div class="item-brand">${item.brand}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── Targeted refresh (avoid full re-render on add/remove) ─────────────────
+function refreshCard(storeId, itemId) {
+  const el = document.getElementById(`card-${storeId}-${itemId}`);
+  if (!el) return;
+  const store = state.stores.find(s => s.flyer_id === storeId);
+  const item  = store?.items.find(i => String(i.id) === String(itemId));
+  if (!item) return;
+  el.outerHTML = itemCardHTML(item, storeId);
+}
+
+function refreshStoreTotal(storeId) {
+  const row = document.getElementById(`store-${storeId}`);
+  if (!row) return;
+  const header = row.querySelector('.store-header');
+  if (!header) return;
+
+  // Remove old total
+  const old = header.querySelector('.store-total');
+  if (old) old.remove();
+
+  const total = getStoreTotal(storeId);
+  const count = getBasketCount(storeId);
+  if (total > 0) {
+    const div = document.createElement('div');
+    div.className = 'store-total';
+    div.innerHTML = `<div class="total-pill">
+      <div class="total-amount">$${total.toFixed(2)}</div>
+      <div class="total-label">${count} item${count!==1?'s':''}</div>
+    </div>`;
+    header.appendChild(div);
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+(async () => {
+  const savedZip = localStorage.getItem('userZip');
+  if (savedZip) {
+    state.zip = savedZip;
+    document.getElementById('locBtn').textContent = `📍 ${savedZip}`;
+    document.getElementById('zipInput').value = savedZip;
+    await loadData(savedZip);
+  } else {
+    showZipModal();
+  }
+})();
 </script>
 </body>
 </html>
