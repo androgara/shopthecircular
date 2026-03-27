@@ -37,6 +37,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .load-progress-track{width:100%;height:8px;background:#e8e8e8;border-radius:4px;overflow:hidden;}
 .load-progress-fill{height:100%;width:0%;background:#22863a;border-radius:4px;transition:width 0.4s ease;}
 .load-progress-label{font-size:12px;color:#aaa;margin-top:6px;text-align:center;}
+.load-stores{width:100%;max-width:480px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px;}
+.load-store-chip{font-size:12px;padding:5px 10px;border-radius:16px;background:#f0f0f0;color:#999;transition:all 0.3s ease;}
+.load-store-chip.loaded{background:#e6f4ea;color:#22863a;font-weight:600;}
 .load-log{width:100%;max-width:480px;max-height:180px;overflow-y:auto;font-size:11px;color:#888;line-height:1.8;font-family:monospace;background:#f8f9f8;border-radius:10px;padding:12px 14px;}
 .load-log p{border-bottom:1px solid #eee;padding-bottom:3px;margin-bottom:3px;}
 .load-log p:last-child{border:none;margin:0;padding:0;color:#22863a;font-weight:600;}
@@ -193,6 +196,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="load-progress-track"><div class="load-progress-fill" id="loadProgressFill"></div></div>
     <div class="load-progress-label" id="loadProgressLabel"></div>
   </div>
+  <div class="load-stores" id="loadStores"></div>
   <div class="load-log" id="loadLog" style="display:none"></div>
 </div>
 
@@ -415,6 +419,9 @@ async function lookupAddresses(storeNames, center) {
   }
 
   // Individual fallback
+  if (missing.length) {
+    logToScreen(`Locating ${missing.length} stores…`);
+  }
   for (const name of missing) {
     await new Promise(r => setTimeout(r, 1100));
     const locs = await searchStoreNom(name, center);
@@ -487,24 +494,27 @@ async function scrapeFlipp(zip) {
   const groceryFlyers = allFlyers.filter(f => isGrocery(f.merchant_name || f.merchant || f.name || ''));
   if (!groceryFlyers.length) throw new Error('No grocery stores found');
 
-  // Addresses + deals in parallel
   const uniqueNames = [...new Set(groceryFlyers.map(f => f.merchant_name || f.merchant || f.name || 'Unknown'))];
+  logToScreen(`Found ${uniqueNames.length} grocery stores`);
+  logStoreList(uniqueNames);
+
+  // Addresses + deals in parallel
   const addrPromise = center ? lookupAddresses(uniqueNames, center) : Promise.resolve({});
 
-  logToScreen('Loading deals...');
   let done = 0;
   const itemsByFlyer = {};
   const [addressMap] = await Promise.all([
     addrPromise,
     mapConcurrent(groceryFlyers, 8, async (flyer) => {
       const fid = String(flyer.id || flyer.flyer_id || '');
+      const name = flyer.merchant_name || flyer.merchant || flyer.name || 'Unknown';
       if (!fid) { done++; return; }
       try {
         const data = await fetchJson(`https://backflipp.wishabi.com/flipp/flyers/${fid}?locale=en-us`);
         itemsByFlyer[fid] = data?.items || [];
       } catch { itemsByFlyer[fid] = []; }
       done++;
-      logToScreen(`${done}/${groceryFlyers.length} stores loaded`);
+      logStoreLoaded(name, done, groceryFlyers.length);
     }),
   ]);
 
@@ -661,6 +671,7 @@ function showLoading(sub) {
   document.getElementById('loading-screen').style.display = 'flex';
   document.getElementById('loadSub').textContent = sub || 'Loading…';
   document.getElementById('loadLog').innerHTML = '';
+  document.getElementById('loadStores').innerHTML = '';
   document.getElementById('loadProgressWrap').style.display = 'none';
   document.getElementById('loadProgressFill').style.width = '0%';
   document.getElementById('loadProgressLabel').textContent = '';
@@ -692,31 +703,42 @@ function updateCountdownDisplay() {
   }
 }
 
+// Show all store names as chips on loading screen
+function logStoreList(names) {
+  const container = document.getElementById('loadStores');
+  container.innerHTML = names.map(n =>
+    `<span class="load-store-chip" data-store="${n.replace(/"/g,'&quot;')}">${n}</span>`
+  ).join('');
+  document.getElementById('loadSub').textContent = `Found ${names.length} grocery stores — loading deals…`;
+  document.getElementById('loadProgressWrap').style.display = 'block';
+  startCountdown(Math.max(3, Math.ceil(names.length * 0.5)));
+}
+
+// Light up a store chip when its deals finish loading
+function logStoreLoaded(name, done, total) {
+  const chip = document.querySelector(`.load-store-chip[data-store="${CSS.escape(name)}"]`);
+  if (chip) chip.classList.add('loaded');
+  document.getElementById('loadProgressFill').style.width = Math.round(done / total * 100) + '%';
+  document.getElementById('loadProgressLabel').textContent = `${done} of ${total} stores`;
+  const left = total - done;
+  if (left > 0) startCountdown(Math.max(1, Math.ceil(left * 0.15)));
+}
+
 function logToScreen(msg) {
   // Update subtitle based on phase
   if (msg.includes('Finding grocery')) {
     document.getElementById('loadSub').textContent = 'Finding grocery stores near you…';
   } else if (msg.includes('Looking up store locations')) {
     document.getElementById('loadSub').textContent = 'Looking up store locations…';
-  } else if (msg.includes('Loading deals')) {
-    document.getElementById('loadSub').textContent = 'Loading deals…';
+  } else if (msg.startsWith('Found ')) {
+    document.getElementById('loadSub').textContent = msg;
   }
 
-  // When we see "Looking up N remaining", re-estimate countdown
-  const remainMatch = msg.match(/Looking up (\d+) remaining/);
-  if (remainMatch) {
-    startCountdown(parseInt(remainMatch[1]) * 1.2 + 2);
-  }
-
-  // Update progress bar when we see N/M pattern
-  const m = msg.match(/(\d+)\/(\d+) stores loaded/);
-  if (m) {
-    const n = parseInt(m[1]), total = parseInt(m[2]);
-    document.getElementById('loadProgressWrap').style.display = 'block';
-    document.getElementById('loadProgressFill').style.width = Math.round(n / total * 100) + '%';
-    document.getElementById('loadProgressLabel').textContent = `${n} of ${total} stores`;
-    const left = total - n;
-    if (left > 0) startCountdown(Math.max(1, Math.ceil(left * 0.15)));
+  // Locating N stores — re-estimate countdown for Nominatim lookups
+  const locMatch = msg.match(/Locating (\d+) stores/);
+  if (locMatch) {
+    document.getElementById('loadSub').textContent = msg;
+    startCountdown(parseInt(locMatch[1]) * 1.2 + 2);
   }
 }
 
