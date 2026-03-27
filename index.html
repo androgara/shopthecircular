@@ -234,6 +234,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
   <div class="filter-bar" id="filterBar"></div>
+  <div class="filter-bar" id="deptBar"></div>
   <div id="zipBanner"><span id="zipBannerText"></span><button onclick="hideBanner()">✕</button></div>
   <div id="scrapeProgress"><div id="scrapeProgressFill"></div></div>
   <div class="stores-container" id="storesContainer"></div>
@@ -248,10 +249,11 @@ let state = {
   sortBy:       'deals',
   search:       '',
   storeFilter:  new Set(),
+  deptFilter:   null,    // null = all, or a department name
   activeStore:  null,
   detailSearch: '',
   basket:       {},
-  userLatLng:   null,   // { lat, lng } of the user's zip
+  userLatLng:   null,
 };
 
 // ── Distance helpers ──────────────────────────────────────────────────────
@@ -418,10 +420,35 @@ function mapItem(raw) {
     current_price: currentPrice, regular_price: regularPrice, discount_pct: discount,
     sale_story: raw.sale_story || raw.cut_price_text || (discount ? `${discount}% off` : null),
     image_url: raw.cutout_image_url || raw.image_url || raw.thumb_url || null,
-    category: raw.category || raw.item_type || null,
+    category: classifyDept(name, brand),
     is_featured: !!(raw.is_featured || raw.featured || raw.display_type === 0),
     valid_from: raw.valid_from || null, valid_to: raw.valid_to || null,
   };
+}
+
+// ── Department classifier (keyword-based) ────────────────────────────────
+const DEPT_RULES = [
+  ['Produce', /\b(apple|banana|orange|grape|berr|strawberr|blueberr|raspberr|mango|pineapple|melon|watermelon|avocado|tomato|potato|onion|pepper|lettuce|spinach|kale|broccoli|carrot|celery|cucumber|corn|garlic|ginger|lemon|lime|pear|peach|plum|cherry|cantaloupe|squash|zucchini|mushroom|cabbage|asparagus|cilantro|parsley|romaine|arugula|salad mix|fruit|vegetable|produce|fresh herb|basil|mint|dill|plantain|yam|sweet potato|collard|green bean|snap pea|radish|beet|eggplant|artichoke|tangerine|clementine|nectarine|papaya|coconut|kiwi|fig|pomegranate)\b/i],
+  ['Meat', /\b(beef|steak|chicken|pork|turkey|lamb|ground|chuck|sirloin|rib ?eye|t-bone|roast|sausage|bacon|ham|hot dog|frank|brisket|tender|cutlet|chop|wing|thigh|drumstick|breast|patties?|burger|meatball|ribs?|loin|flank|salami|pepperoni|prosciutto|deli meat|corned|veal|organ|liver|oxtail|goat)\b/i],
+  ['Seafood', /\b(fish|salmon|shrimp|tuna|tilapia|cod|lobster|crab|clam|mussel|oyster|scallop|squid|calamari|sardine|anchov|catfish|trout|mahi|swordfish|bass|snapper|flounder|haddock|seafood|crawfish|octopus|pollock)\b/i],
+  ['Dairy & Eggs', /\b(milk|cheese|yogurt|butter|cream|egg|sour cream|cottage|ricotta|mozzarella|cheddar|parmesan|swiss|provolone|brie|gouda|cream cheese|half & half|half and half|whipped cream|creamer|kefir|margarine|goat cheese|feta|american cheese|string cheese)\b/i],
+  ['Bakery', /\b(bread|roll|bagel|muffin|croissant|cake|pie|donut|doughnut|cookie|brownie|pastry|biscuit|tortilla|pita|bun|loaf|danish|scone|cupcake|cheesecake|strudel|cornbread|naan|wrap|flatbread|ciabatta|sourdough|brioche)\b/i],
+  ['Frozen', /\b(frozen|ice cream|popsicle|pizza.*frozen|frozen.*pizza|waffle|french fries|tater tot|frozen.*vegetable|frozen.*fruit|gelato|sorbet|frozen.*dinner|frozen.*meal|ice pop|freezer|lean cuisine|hot pocket|stouffer|digiorno|totino|eggo)\b/i],
+  ['Beverages', /\b(water|juice|soda|cola|pepsi|coke|sprite|ginger ale|tea|coffee|lemonade|gatorade|powerade|energy drink|red bull|monster|beer|wine|liquor|sparkling|seltzer|kombucha|smoothie|drink|beverage|nestle pure|poland spring|dasani|smart ?water|vitamin ?water|snapple|arizona|ocean spray|tropicana|minute maid|v8|capri sun|kool.?aid)\b/i],
+  ['Snacks', /\b(chip|pretzel|popcorn|cracker|nut|almond|cashew|peanut|trail mix|granola bar|snack|doritos|cheetos|lay'?s|ruffles|pringles|tostitos|goldfish|cheez|ritz|oreo|nabisco|rice cake|jerky|slim jim|combos|chex mix|sun ?chip|pirate.?booty|skinny ?pop)\b/i],
+  ['Pantry', /\b(rice|pasta|noodle|cereal|oat|flour|sugar|oil|vinegar|sauce|soup|broth|stock|bean|lentil|can(ned)?|tomato sauce|salsa|ketchup|mustard|mayo|dressing|seasoning|spice|salt|pepper|honey|syrup|jam|jelly|peanut butter|nutella|canned|tuna can|spam|ramen|mac.?cheese|stuffing|gravy|condensed|evaporated|coconut milk|soy sauce|teriyaki|sriracha|hot sauce|bbq|barbecue|marinade|breadcrumb|cornstarch|baking)\b/i],
+  ['Deli', /\b(deli|hummus|guacamole|prepared|rotisserie|sub|sandwich|wrap|chicken salad|tuna salad|potato salad|coleslaw|olive|pickle|antipasto|charcuterie|smoked|sliced)\b/i],
+  ['Household', /\b(paper towel|toilet paper|tissue|napkin|trash bag|garbage bag|foil|plastic wrap|ziplock|ziploc|sponge|dish soap|laundry|detergent|bleach|cleaner|lysol|clorox|windex|mop|broom|light ?bulb|battery|charcoal|glad|hefty|bounty|scott|charmin|dawn)\b/i],
+  ['Personal Care', /\b(shampoo|conditioner|soap|body wash|deodorant|toothpaste|toothbrush|lotion|sunscreen|razor|shaving|dental|floss|mouthwash|vitamin|medicine|advil|tylenol|band.?aid|first aid|feminine|tampon|diaper|baby|wipe|cotton)\b/i],
+  ['Pet', /\b(dog food|cat food|pet|kibble|purina|pedigree|meow mix|friskies|iams|blue buffalo|cat litter)\b/i],
+];
+
+function classifyDept(itemName, brand) {
+  const text = ((itemName || '') + ' ' + (brand || '')).toLowerCase();
+  for (const [dept, re] of DEPT_RULES) {
+    if (re.test(text)) return dept;
+  }
+  return 'Other';
 }
 
 // Main scraper — runs entirely in the browser
@@ -469,11 +496,11 @@ async function scrapeFlipp(zip) {
     if (!loc && center) continue; // skip stores not in the borough
     const fid = String(flyer.id || flyer.flyer_id || '');
     const rawItems = itemsByFlyer[fid] || [];
-    const items = rawItems.map(mapItem).filter(i => i.name && i.current_price !== null);
+    const items = rawItems.map(mapItem).filter(i => i.name);
     items.sort((a, b) => {
       if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
-      const dA = a.regular_price ? (a.regular_price - a.current_price) / a.regular_price : 0;
-      const dB = b.regular_price ? (b.regular_price - b.current_price) / b.regular_price : 0;
+      const dA = a.regular_price && a.current_price ? (a.regular_price - a.current_price) / a.regular_price : 0;
+      const dB = b.regular_price && b.current_price ? (b.regular_price - b.current_price) / b.regular_price : 0;
       return dB - dA;
     });
     if (!items.length) continue;
@@ -669,8 +696,14 @@ function fuzzyMatch(query, text) {
 }
 
 function filteredItems(items) {
-  if (!state.search) return items;
-  return items.filter(i => fuzzyMatch(state.search, i.name) || fuzzyMatch(state.search, i.brand));
+  let result = items;
+  if (state.deptFilter) {
+    result = result.filter(i => i.category === state.deptFilter);
+  }
+  if (state.search) {
+    result = result.filter(i => fuzzyMatch(state.search, i.name) || fuzzyMatch(state.search, i.brand));
+  }
+  return result;
 }
 
 // ── Basket ────────────────────────────────────────────────────────────────
@@ -716,6 +749,7 @@ function renderApp() {
   document.getElementById('storesFound').textContent =
     `${state.stores.length} store${state.stores.length !== 1 ? 's' : ''} near ${state.zip}`;
   renderFilterBar();
+  renderDeptBar();
   renderStores();
 }
 
@@ -742,6 +776,41 @@ function setStoreFilter(id) {
     }
   }
   renderFilterBar();
+  renderStores();
+}
+
+function renderDeptBar() {
+  const bar = document.getElementById('deptBar');
+  if (!state.stores.length) { bar.innerHTML = ''; return; }
+  // Collect departments across all visible stores
+  const deptCounts = {};
+  let visibleStores = state.stores;
+  if (state.storeFilter.size > 0) {
+    visibleStores = visibleStores.filter(s => state.storeFilter.has(s.flyer_id));
+  }
+  for (const s of visibleStores) {
+    for (const item of s.items) {
+      const dept = item.category || 'Other';
+      deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+    }
+  }
+  // Sort by DEPT_RULES order, then Other last
+  const deptOrder = DEPT_RULES.map(([d]) => d).concat(['Other']);
+  const depts = deptOrder.filter(d => deptCounts[d]);
+
+  if (depts.length < 2) { bar.innerHTML = ''; return; }
+  const allActive = !state.deptFilter;
+  bar.innerHTML =
+    `<span class="filter-label">Department:</span>` +
+    `<button class="filter-chip${allActive?' active':''}" onclick="setDeptFilter(null)">All</button>` +
+    depts.map(d =>
+      `<button class="filter-chip${state.deptFilter===d?' active':''}" onclick="setDeptFilter('${d}')">${d} <small>(${deptCounts[d]})</small></button>`
+    ).join('');
+}
+
+function setDeptFilter(dept) {
+  state.deptFilter = (state.deptFilter === dept) ? null : dept;
+  renderDeptBar();
   renderStores();
 }
 
@@ -791,7 +860,7 @@ function storeRowHTML(store) {
       </div>`
     : '';
 
-  const itemsHTML = items.slice(0, 40).map(item => itemCardHTML(item, storeId)).join('');
+  const itemsHTML = items.map(item => itemCardHTML(item, storeId)).join('');
 
   return `<div class="store-row" id="store-${storeId}">
     <div class="store-header" onclick="openStore('${storeId}')">
@@ -843,7 +912,7 @@ function itemCardHTML(item, storeId) {
     </div>
     <div class="item-body">
       <div class="item-prices">
-        <span class="item-price">$${item.current_price.toFixed(2)}</span>
+        ${item.current_price !== null ? `<span class="item-price">$${item.current_price.toFixed(2)}</span>` : `<span class="item-price" style="font-size:12px;color:#888">${item.sale_story || 'See circular'}</span>`}
         ${wasHTML}
       </div>
       <div class="item-name">${item.name}</div>
@@ -917,9 +986,13 @@ function renderStoreDetail() {
   const distStr = dist !== null ? ` · ${dist.toFixed(1)} mi away` : '';
   document.getElementById('detailAddr').textContent = (store.address || '') + distStr;
 
-  const items = state.detailSearch
-    ? store.items.filter(i => fuzzyMatch(state.detailSearch, i.name) || fuzzyMatch(state.detailSearch, i.brand))
-    : store.items;
+  let items = store.items;
+  if (state.deptFilter) {
+    items = items.filter(i => i.category === state.deptFilter);
+  }
+  if (state.detailSearch) {
+    items = items.filter(i => fuzzyMatch(state.detailSearch, i.name) || fuzzyMatch(state.detailSearch, i.brand));
+  }
 
   document.getElementById('detailItemCount').textContent =
     `${items.length} deal${items.length !== 1 ? 's' : ''}${store.valid_to ? ' · Valid until ' + new Date(store.valid_to).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}`;
