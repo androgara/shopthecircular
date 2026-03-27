@@ -1,0 +1,701 @@
+{
+  "Bronx County::Bravo Supermarket": [
+    {
+      "lat": 40.8378969,
+      "lon": -73.8642383,
+      "addr": "Archer Street The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8383254,
+      "lon": -73.9132098,
+      "addr": "East 170th Street The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::C Town": [
+    {
+      "lat": 40.8540559,
+      "lon": -73.8857174,
+      "addr": "668 Crescent Avenue The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8374777,
+      "lon": -73.8879158,
+      "addr": "1761 Southern Boulevard The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8373055,
+      "lon": -73.8614639,
+      "addr": "1489 West Avenue The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.832515,
+      "lon": -73.8608265,
+      "addr": "100 Hugh J. Grant Circle The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8734854,
+      "lon": -73.8787629,
+      "addr": "283 East 204th Street The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8824122,
+      "lon": -73.8632298,
+      "addr": "3736 White Plains Road The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8123001,
+      "lon": -73.9030044,
+      "addr": "562 Southern Boulevard The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8300817,
+      "lon": -73.9177222,
+      "addr": "1040 Sherman Avenue The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Shop Compare Foods": [
+    {
+      "lat": 40.8283865,
+      "lon": -73.8793059,
+      "addr": "1516 Westchester Avenue The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8504392,
+      "lon": -73.9067214,
+      "addr": "East Tremont Avenue The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8820358,
+      "lon": -73.902095,
+      "addr": "5716 Broadway The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Food Dynasty": [
+    {
+      "lat": 40.8596226,
+      "lon": -73.9033837,
+      "addr": "North Street The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8830406,
+      "lon": -73.8931417,
+      "addr": "Sedgwick Avenue The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Met Foods": [
+    {
+      "lat": 40.8687588,
+      "lon": -73.8884103,
+      "addr": "277 East 198th Street The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Morton Williams Supermarket": [
+    {
+      "lat": 40.8674133,
+      "lon": -73.8967896,
+      "addr": "15 East Kingsbridge Road The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Pioneer Supermarket": [
+    {
+      "lat": 40.8459809,
+      "lon": -73.8632298,
+      "addr": "775 Morris Park Avenue The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Key Food": [
+    {
+      "lat": 40.8409173,
+      "lon": -73.8790736,
+      "addr": "2044 Boston Road The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8366561,
+      "lon": -73.8572761,
+      "addr": "1535 Unionport Road The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8247249,
+      "lon": -73.891264,
+      "addr": "1050 Westchester Avenue The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Stop & Shop": [
+    {
+      "lat": 40.8820358,
+      "lon": -73.902095,
+      "addr": "5716 Broadway The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Trade Fair Supermarket": [
+    {
+      "lat": 40.8370885,
+      "lon": -73.9103258,
+      "addr": "306 East 170th Street The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Associated Supermarkets": [
+    {
+      "lat": 40.8291989,
+      "lon": -73.8761976,
+      "addr": "1181 Westchester Avenue The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Kings Food Markets": [],
+  "Bronx County::Walmart": [],
+  "Bronx County::Acme Markets": [],
+  "Bronx County::Target": [
+    {
+      "lat": 40.8235205,
+      "lon": -73.8370616,
+      "addr": "815 Hutchinson River Parkway The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8624999,
+      "lon": -73.8962548,
+      "addr": "215 East Fordham Road The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8235013,
+      "lon": -73.930462,
+      "addr": "700 Exterior Street The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8328853,
+      "lon": -73.9271211,
+      "addr": "The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Food Universe": [
+    {
+      "lat": 40.8769119,
+      "lon": -73.8285778,
+      "addr": "111 Dreiser Loop The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Putnam Lake Market": [],
+  "Bronx County::Food Bazaar Supermarket": [
+    {
+      "lat": 40.8220705,
+      "lon": -73.9302848,
+      "addr": "610 Exterior Street The Bronx",
+      "county": "Bronx County"
+    },
+    {
+      "lat": 40.8253711,
+      "lon": -73.919787,
+      "addr": "238 East 161st Street The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "Bronx County::Supremo Foods Inc": [],
+  "Bronx County::Great Wall Supermarket": [],
+  "Bronx County::Mitsuwa Marketplace": [],
+  "Queens County::C Town": [
+    {
+      "lat": 40.7087003,
+      "lon": -73.8304291,
+      "addr": "81-29 Lefferts Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7191471,
+      "lon": -73.8396162,
+      "addr": "Queens Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7141103,
+      "lon": -73.8070978,
+      "addr": "Parsons Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7108214,
+      "lon": -73.8523456,
+      "addr": "100-27 Metropolitan Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.6946209,
+      "lon": -73.8473752,
+      "addr": "98-02 Jamaica Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.6912349,
+      "lon": -73.8119118,
+      "addr": "134-16 Liberty Avenue Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Food Universe": [
+    {
+      "lat": 40.7258817,
+      "lon": -73.8508143,
+      "addr": "102-21 Queens Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.6860754,
+      "lon": -73.8258216,
+      "addr": "Liberty Avenue Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Shop Compare Foods": [
+    {
+      "lat": 40.6987134,
+      "lon": -73.806974,
+      "addr": "Sutphin Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.705283,
+      "lon": -73.8024841,
+      "addr": "153-30 89th Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7070964,
+      "lon": -73.8547764,
+      "addr": "8989 Union Turnpike Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Trade Fair Supermarket": [
+    {
+      "lat": 40.7031244,
+      "lon": -73.8217586,
+      "addr": "131st Street Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7226474,
+      "lon": -73.848109,
+      "addr": "69-65 Yellowstone Boulevard Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Key Food": [
+    {
+      "lat": 40.7151547,
+      "lon": -73.8330068,
+      "addr": "116-34 Queens Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7184232,
+      "lon": -73.816887,
+      "addr": "146th Street Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.6989447,
+      "lon": -73.8302093,
+      "addr": "8725 Lefferts Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7212876,
+      "lon": -73.8428303,
+      "addr": "108-25 Queens Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.6908798,
+      "lon": -73.8222218,
+      "addr": "101st Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.732453,
+      "lon": -73.8502595,
+      "addr": "64th Avenue Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Stop & Shop": [
+    {
+      "lat": 40.7070964,
+      "lon": -73.8547764,
+      "addr": "8989 Union Turnpike Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Associated Supermarkets": [
+    {
+      "lat": 40.7285638,
+      "lon": -73.812922,
+      "addr": "155-15 Aguilar Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7307314,
+      "lon": -73.8102534,
+      "addr": "71st Avenue Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Bravo Supermarket": [
+    {
+      "lat": 40.6897332,
+      "lon": -73.8031122,
+      "addr": "144-28 Lakewood Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7612915,
+      "lon": -73.9310155,
+      "addr": "24-18 34th Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.748369,
+      "lon": -73.8754945,
+      "addr": "90-12 Roosevelt Avenue Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Acme Markets": [],
+  "Queens County::Walmart": [],
+  "Queens County::Kings Food Markets": [],
+  "Queens County::Target": [
+    {
+      "lat": 40.7836533,
+      "lon": -73.8332683,
+      "addr": "13505 20th Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.746946,
+      "lon": -73.8835329,
+      "addr": "40-25 82nd Street Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7572831,
+      "lon": -73.8361522,
+      "addr": "40-24 College Point Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7037971,
+      "lon": -73.7986324,
+      "addr": "160-08 Jamaica Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7473609,
+      "lon": -73.9444142,
+      "addr": "25-01 Jackson Avenue Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7209214,
+      "lon": -73.8471841,
+      "addr": "7000 Austin Street Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7356863,
+      "lon": -73.8748504,
+      "addr": "88-01 Queens Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.7756629,
+      "lon": -73.9109985,
+      "addr": "22-11 31st Street Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Food Dynasty": [
+    {
+      "lat": 40.7492216,
+      "lon": -73.8904716,
+      "addr": "75-07 37th Avenue Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Great Wall Supermarket": [
+    {
+      "lat": 40.7646808,
+      "lon": -73.8213865,
+      "addr": "144-50 Northern Boulevard Queens",
+      "county": "Queens County"
+    },
+    {
+      "lat": 40.73672,
+      "lon": -73.8594253,
+      "addr": "59-16 99th Street Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Cherry Valley Marketplace": [
+    {
+      "lat": 40.6832801,
+      "lon": -73.8556304,
+      "addr": "84-12 97th Avenue Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Met Foods": [],
+  "Queens County::Putnam Lake Market": [],
+  "Queens County::Pioneer Supermarket": [
+    {
+      "lat": 40.7577333,
+      "lon": -73.8661495,
+      "addr": "102-09 Northern Boulevard Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Food Bazaar Supermarket": [
+    {
+      "lat": 40.7007319,
+      "lon": -73.9106577,
+      "addr": "1590 Gates Avenue Queens",
+      "county": "Queens County"
+    }
+  ],
+  "Queens County::Morton Williams Supermarket": [],
+  "Bronx County::Cherry Valley Marketplace": [
+    {
+      "lat": 40.8604502,
+      "lon": -73.8917563,
+      "addr": "Fordham Plaza The Bronx",
+      "county": "Bronx County"
+    }
+  ],
+  "New York County::C Town": [
+    {
+      "lat": 40.7267665,
+      "lon": -73.9763921,
+      "addr": "188 Avenue C Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7790791,
+      "lon": -73.948009,
+      "addr": "1721 1st Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.835077,
+      "lon": -73.9395759,
+      "addr": "1016 Saint Nicholas Avenue Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::Bravo Supermarket": [],
+  "New York County::Weis Markets": [],
+  "New York County::Acme Markets": [],
+  "New York County::Walmart": [],
+  "New York County::Kings Food Markets": [],
+  "New York County::Target": [
+    {
+      "lat": 40.7413628,
+      "lon": -73.9779964,
+      "addr": "512 2nd Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7681631,
+      "lon": -73.9614552,
+      "addr": "1201 3rd Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7251658,
+      "lon": -73.9968171,
+      "addr": "600 Broadway Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7941384,
+      "lon": -73.9663387,
+      "addr": "795 Columbus Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7344922,
+      "lon": -73.9896245,
+      "addr": "10 Union Square East Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7700969,
+      "lon": -73.9824801,
+      "addr": "1863 Broadway Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::The Food Emporium": [
+    {
+      "lat": 40.8459905,
+      "lon": -73.9383114,
+      "addr": "4138 Broadway Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7598592,
+      "lon": -73.9943408,
+      "addr": "452 West 43rd Street Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::Shop Compare Foods": [],
+  "New York County::SuperFresh": [
+    {
+      "lat": 40.7109067,
+      "lon": -74.0002433,
+      "addr": "5 Saint James Place Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::Food Universe": [
+    {
+      "lat": 40.8706732,
+      "lon": -73.9153136,
+      "addr": "5069 Broadway Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7857835,
+      "lon": -73.9512112,
+      "addr": "1486 Lexington Avenue Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::Food Dynasty": [],
+  "New York County::Pioneer Supermarket": [
+    {
+      "lat": 40.7784303,
+      "lon": -73.9778128,
+      "addr": "289 Columbus Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.8104444,
+      "lon": -73.9431569,
+      "addr": "380 Malcolm X Boulevard Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::Trade Fair Supermarket": [],
+  "New York County::Supremo Foods Inc": [],
+  "New York County::Extra Supermarket": [
+    {
+      "lat": 40.8485701,
+      "lon": -73.9328367,
+      "addr": "312 Audubon Avenue Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::Great Wall Supermarket": [],
+  "New York County::Met Foods": [],
+  "New York County::Key Food": [
+    {
+      "lat": 40.8434076,
+      "lon": -73.9382743,
+      "addr": "1239 Saint Nicholas Avenue Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::Morton Williams Supermarket": [
+    {
+      "lat": 40.7643891,
+      "lon": -73.9647628,
+      "addr": "1066 3rd Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.8076459,
+      "lon": -73.9645252,
+      "addr": "2941 Broadway Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7760315,
+      "lon": -73.982458,
+      "addr": "2015 Broadway Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7394797,
+      "lon": -73.9871968,
+      "addr": "280 Park Avenue South Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7277598,
+      "lon": -73.9987159,
+      "addr": "130 Bleecker Street Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7738531,
+      "lon": -73.9518461,
+      "addr": "1565 1st Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7673529,
+      "lon": -73.9565664,
+      "addr": "1331 1st Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7538189,
+      "lon": -73.969016,
+      "addr": "908 2nd Avenue Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7377761,
+      "lon": -73.9800976,
+      "addr": "311 East 23rd Street Manhattan",
+      "county": "New York County"
+    },
+    {
+      "lat": 40.7579561,
+      "lon": -73.9633889,
+      "addr": "1031 1st Avenue Manhattan",
+      "county": "New York County"
+    }
+  ],
+  "New York County::Food Bazaar Supermarket": [],
+  "New York County::Fine Fare Supermarkets": [],
+  "New York County::Stop & Shop": [],
+  "New York County::Putnam Lake Market": [],
+  "New York County::Mitsuwa Marketplace": []
+}

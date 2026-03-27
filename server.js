@@ -22,18 +22,25 @@ const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
 // Track in-progress scrapes so we don't double-spawn
 const scraping = new Set();
 
+// Helper: is the data fresh enough?
+function isFresh(data) {
+  if (!data?.scraped_at) return false;
+  return Date.now() - new Date(data.scraped_at).getTime() < CACHE_TTL_MS;
+}
+
 // ── Static files ───────────────────────────────────────────────────────────
 app.use(express.static(__dirname));
 
 // ── GET /api/circulars?zip=XXXXX ───────────────────────────────────────────
-// Returns circular data if cached/on-disk, or 202 telling client to scrape.
+// Returns circular data if cached/on-disk and fresh, or 202 telling client to scrape.
+// If data exists but is stale, returns it with stale:true so client can display while re-scraping.
 app.get('/api/circulars', (req, res) => {
   const zip = (req.query.zip || '').trim();
   if (!/^\d{5}$/.test(zip)) return res.status(400).json({ error: 'Invalid zip code' });
 
-  // 1. In-memory cache
+  // 1. In-memory cache (only if fresh)
   const cached = cache.get(zip);
-  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+  if (cached && Date.now() - cached.ts < CACHE_TTL_MS && isFresh(cached.data)) {
     return res.json(cached.data);
   }
 
@@ -42,14 +49,21 @@ app.get('/api/circulars', (req, res) => {
   try {
     const data = JSON.parse(fs.readFileSync(file, 'utf8'));
     if (data.zip === zip) {
-      cache.set(zip, { data, ts: Date.now() });
-      return res.json(data);
+      if (isFresh(data)) {
+        cache.set(zip, { data, ts: Date.now() });
+        return res.json(data);
+      }
+      // Stale data — return it but tell client to re-scrape
+      return res.json({ ...data, stale: true });
     }
   } catch {}
 
   // 3. Need to scrape
   res.status(202).json({ status: 'needs_scrape', zip });
 });
+
+// ── HEAD /api/scrape — lets the client check if the server is running ──────
+app.head('/api/scrape', (req, res) => res.sendStatus(200));
 
 // ── GET /api/scrape?zip=XXXXX ──────────────────────────────────────────────
 // Server-Sent Events stream. Runs fetch-circulars.js and streams its output.
@@ -72,10 +86,9 @@ app.get('/api/scrape', (req, res) => {
     try { res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`); } catch {}
   };
 
-  // Don't double-scrape
+  // Don't double-scrape — attach to the in-progress scrape
   if (scraping.has(zip)) {
     send('log', { message: `Scrape for ${zip} already in progress — please wait...` });
-    // Poll until done
     const poll = setInterval(() => {
       if (!scraping.has(zip)) {
         clearInterval(poll);
@@ -95,6 +108,12 @@ app.get('/api/scrape', (req, res) => {
     env: { ...process.env },
   });
 
+  // Kill the scraper after 3 minutes if it hasn't finished
+  const killTimer = setTimeout(() => {
+    console.log(`[server] Scrape for ${zip} timed out — killing process`);
+    try { child.kill(); } catch {}
+  }, 3 * 60 * 1000);
+
   child.stdout.on('data', chunk => {
     chunk.toString().split('\n').filter(l => l.trim()).forEach(line => {
       send('log', { message: line });
@@ -108,25 +127,23 @@ app.get('/api/scrape', (req, res) => {
   });
 
   child.on('close', code => {
+    clearTimeout(killTimer);
     scraping.delete(zip);
     if (code === 0) {
-      // Bust the cache so /api/circulars re-reads the file
-      cache.delete(zip);
+      cache.delete(zip); // bust cache so /api/circulars re-reads the file
       send('done', { zip });
     } else {
-      send('error', { message: `Scrape exited with code ${code}. Check the server console.` });
+      send('error', { message: `Scrape exited with code ${code}.` });
     }
     res.end();
   });
 
-  req.on('close', () => {
-    scraping.delete(zip);
-    try { child.kill(); } catch {}
-  });
+  // Client disconnected — keep the scrape running in background, just stop streaming
+  req.on('close', () => { try { res.end(); } catch {} });
 });
 
 // ── Start ──────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`\n🛒  ShopTheCircular`);
+  console.log(`\n🛒  GroceryRun`);
   console.log(`    http://localhost:${PORT}\n`);
 });

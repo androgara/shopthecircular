@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShopTheCircular</title>
+<title>GroceryRun</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f3;min-height:100vh;color:#1a1a2e;}
@@ -26,11 +26,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #loading-screen{position:fixed;inset:0;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:24px;}
 .load-logo{font-size:26px;font-weight:800;color:#1a1a2e;margin-bottom:6px;}
 .load-logo span{color:#22863a;}
-.load-sub{font-size:14px;color:#888;margin-bottom:32px;}
-.load-spinner{width:48px;height:48px;border:4px solid #e8e8e8;border-top-color:#22863a;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:28px;}
+.load-sub{font-size:14px;color:#888;margin-bottom:24px;text-align:center;}
+.load-spinner{width:48px;height:48px;border:4px solid #e8e8e8;border-top-color:#22863a;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:8px;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.load-log{width:100%;max-width:480px;max-height:240px;overflow-y:auto;font-size:12px;color:#555;line-height:1.9;font-family:monospace;background:#f8f9f8;border-radius:10px;padding:14px 16px;}
-.load-log p{border-bottom:1px solid #eee;padding-bottom:4px;margin-bottom:4px;}
+.load-countdown{font-size:13px;font-weight:700;color:#22863a;margin-bottom:18px;font-variant-numeric:tabular-nums;}
+.load-progress-wrap{width:100%;max-width:480px;margin-bottom:20px;}
+.load-progress-track{width:100%;height:8px;background:#e8e8e8;border-radius:4px;overflow:hidden;}
+.load-progress-fill{height:100%;width:0%;background:#22863a;border-radius:4px;transition:width 0.4s ease;}
+.load-progress-label{font-size:12px;color:#aaa;margin-top:6px;text-align:center;}
+.load-log{width:100%;max-width:480px;max-height:180px;overflow-y:auto;font-size:11px;color:#888;line-height:1.8;font-family:monospace;background:#f8f9f8;border-radius:10px;padding:12px 14px;}
+.load-log p{border-bottom:1px solid #eee;padding-bottom:3px;margin-bottom:3px;}
 .load-log p:last-child{border:none;margin:0;padding:0;color:#22863a;font-weight:600;}
 
 /* ── App shell ───────────────────────────────────────────────────────────── */
@@ -107,11 +112,55 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── No results ──────────────────────────────────────────────────────────── */
 .no-results{text-align:center;padding:60px 20px;color:#aaa;font-size:15px;}
 
+/* ── Zip mismatch / scrape status banner ────────────────────────────────── */
+#zipBanner{background:#fffbea;border-bottom:1px solid #f6e05e;padding:8px 20px;font-size:12px;color:#744210;display:none;align-items:center;gap:8px;}
+#zipBanner span{flex:1;}
+#zipBanner button{background:none;border:none;font-size:11px;color:#744210;text-decoration:underline;cursor:pointer;padding:0;white-space:nowrap;}
+#scrapeProgress{height:3px;background:#f6e05e;width:100%;display:none;overflow:hidden;}
+#scrapeProgressFill{height:100%;background:#22863a;width:0%;transition:width 0.4s ease;}
+#scrapeProgress.indeterminate #scrapeProgressFill{width:35%;animation:prog-slide 1.4s ease-in-out infinite;}
+@keyframes prog-slide{0%{transform:translateX(-100%)}100%{transform:translateX(310%)}}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
+.scrape-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#d97706;margin-right:5px;animation:pulse-dot 1.2s ease-in-out infinite;vertical-align:middle;}
+
+/* ── Store filter bar ────────────────────────────────────────────────────── */
+.filter-bar{display:flex;gap:6px;padding:8px 20px;background:white;border-bottom:1px solid #e8e8e8;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:center;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.filter-label{font-size:11px;color:#aaa;font-weight:600;white-space:nowrap;flex-shrink:0;margin-right:2px;}
+.filter-chip{flex-shrink:0;padding:4px 11px;border-radius:20px;border:1.5px solid #ddd;background:white;font-size:11px;font-weight:600;color:#555;cursor:pointer;white-space:nowrap;transition:all 0.12s;}
+.filter-chip:hover{border-color:#999;}
+.filter-chip.active{background:#1a1a2e;color:white;border-color:#1a1a2e;}
+
+/* ── Store header (clickable) ────────────────────────────────────────────── */
+.store-header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #f2f2f2;cursor:pointer;transition:background 0.1s;}
+.store-header:hover{background:#fafafa;}
+.store-chevron{margin-left:4px;font-size:13px;color:#ccc;flex-shrink:0;}
+
+/* ── Store detail overlay ────────────────────────────────────────────────── */
+#storeDetail{position:fixed;inset:0;background:#f3f4f3;z-index:150;display:none;flex-direction:column;overflow:hidden;}
+.detail-topbar{background:#1a1a2e;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.detail-back{background:none;border:none;color:white;font-size:24px;line-height:1;cursor:pointer;padding:0 4px 0 0;opacity:0.8;flex-shrink:0;}
+.detail-back:hover{opacity:1;}
+.detail-store-info{flex:1;min-width:0;}
+.detail-store-name{color:white;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.detail-store-addr{color:rgba(255,255,255,0.55);font-size:11px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.detail-search-wrap{position:relative;flex-shrink:0;}
+.detail-search{padding:7px 12px 7px 30px;border-radius:18px;border:none;background:rgba(255,255,255,0.14);color:white;font-size:13px;width:170px;outline:none;}
+.detail-search::placeholder{color:rgba(255,255,255,0.45);}
+.detail-search:focus{background:rgba(255,255,255,0.22);}
+.detail-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;opacity:0.5;pointer-events:none;}
+.detail-meta{padding:9px 20px;background:white;border-bottom:1px solid #e8e8e8;font-size:12px;color:#888;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.detail-total-pill{display:inline-flex;align-items:center;gap:6px;background:#f0faf0;border:1.5px solid #22863a;border-radius:8px;padding:3px 10px;font-size:12px;font-weight:700;color:#22863a;margin-left:auto;}
+.detail-grid{flex:1;overflow-y:auto;padding:14px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;align-content:start;}
+.detail-no-results{text-align:center;padding:40px 20px;color:#aaa;font-size:14px;grid-column:1/-1;}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media(max-width:600px){
   .stores-container{padding:12px;}
   .header{padding:10px 14px;}
-  .sort-bar{padding:10px 14px;}
+  .sort-bar,.filter-bar{padding:8px 12px;}
+  .detail-search{width:130px;}
+  .detail-grid{padding:10px 12px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
 }
 </style>
 </head>
@@ -120,7 +169,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- ── Zip modal ─────────────────────────────────────────────────────────── -->
 <div class="zip-overlay" id="zipOverlay">
   <div class="zip-modal">
-    <div class="zip-logo">Shop<span>TheCircular</span></div>
+    <div class="zip-logo">Grocery<span>Run</span></div>
     <div class="zip-title">Enter your zip code to see this week's grocery deals near you.</div>
     <div class="zip-row">
       <input class="zip-input" id="zipInput" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 11435" onkeydown="if(event.key==='Enter')submitZip()">
@@ -132,16 +181,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- ── Loading / scraping screen ─────────────────────────────────────────── -->
 <div id="loading-screen" style="display:none">
-  <div class="load-logo">Shop<span>TheCircular</span></div>
+  <div class="load-logo">Grocery<span>Run</span></div>
   <div class="load-sub" id="loadSub">Finding grocery deals near you...</div>
   <div class="load-spinner"></div>
-  <div class="load-log" id="loadLog"></div>
+  <div class="load-countdown" id="loadCountdown"></div>
+  <div class="load-progress-wrap" id="loadProgressWrap" style="display:none">
+    <div class="load-progress-track"><div class="load-progress-fill" id="loadProgressFill"></div></div>
+    <div class="load-progress-label" id="loadProgressLabel"></div>
+  </div>
+  <div class="load-log" id="loadLog" style="display:none"></div>
+</div>
+
+<!-- ── Store detail overlay ───────────────────────────────────────────────── -->
+<div id="storeDetail">
+  <div class="detail-topbar">
+    <button class="detail-back" onclick="closeStore()">‹</button>
+    <div class="detail-store-info">
+      <div class="detail-store-name" id="detailName"></div>
+      <div class="detail-store-addr" id="detailAddr"></div>
+    </div>
+    <div class="detail-search-wrap">
+      <span class="detail-search-icon">🔍</span>
+      <input class="detail-search" id="detailSearch" type="text" placeholder="Search items…" oninput="onDetailSearch()">
+    </div>
+  </div>
+  <div class="detail-meta">
+    <span id="detailItemCount"></span>
+    <div class="detail-total-pill" id="detailTotal" style="display:none">
+      <span id="detailTotalAmt"></span>
+    </div>
+  </div>
+  <div class="detail-grid" id="detailGrid"></div>
 </div>
 
 <!-- ── Main app ───────────────────────────────────────────────────────────── -->
 <div id="app" style="display:none">
   <header class="header">
-    <div class="h-logo">Shop<span>TheCircular</span></div>
+    <div class="h-logo">Grocery<span>Run</span></div>
     <div class="h-search">
       <span class="h-search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder="Search items across all stores..." oninput="onSearch()">
@@ -151,23 +227,269 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <div class="sort-bar">
     <span class="sort-label">Sort by:</span>
-    <button class="sort-btn active" id="sort-deals"  onclick="setSort('deals')">🔥 Best Deals</button>
-    <button class="sort-btn"        id="sort-az"     onclick="setSort('az')">A–Z</button>
+    <button class="sort-btn active" id="sort-deals"    onclick="setSort('deals')">🔥 Best Deals</button>
+    <button class="sort-btn"        id="sort-nearest" onclick="setSort('nearest')">📍 Nearest</button>
+    <button class="sort-btn"        id="sort-az"      onclick="setSort('az')">A–Z</button>
     <span class="stores-found" id="storesFound"></span>
   </div>
 
+  <div class="filter-bar" id="filterBar"></div>
+  <div id="zipBanner"><span id="zipBannerText"></span><button onclick="hideBanner()">✕</button></div>
+  <div id="scrapeProgress"><div id="scrapeProgressFill"></div></div>
   <div class="stores-container" id="storesContainer"></div>
 </div>
 
 <script>
 // ── State ─────────────────────────────────────────────────────────────────
 let state = {
-  zip:     null,
-  stores:  [],          // full store+item data from API
-  sortBy:  'deals',
-  search:  '',
-  basket:  {},          // storeId (flyer_id) → Map(itemId → qty)
+  zip:          null,
+  cachedZip:    null,
+  stores:       [],
+  sortBy:       'deals',
+  search:       '',
+  storeFilter:  new Set(),
+  activeStore:  null,
+  detailSearch: '',
+  basket:       {},
+  userLatLng:   null,   // { lat, lng } of the user's zip
 };
+
+// ── Distance helpers ──────────────────────────────────────────────────────
+function haversineMiles(lat1, lng1, lat2, lng2) {
+  const R = 3958.8, toR = Math.PI / 180;
+  const dLat = (lat2 - lat1) * toR, dLng = (lng2 - lng1) * toR;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*toR)*Math.cos(lat2*toR)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function storeDist(store) {
+  if (!state.userLatLng || !store.lat || !store.lng) return null;
+  return haversineMiles(state.userLatLng.lat, state.userLatLng.lng, store.lat, store.lng);
+}
+
+// ── Flipp scraper (runs in-browser) ──────────────────────────────────────
+const GROCERY_TERMS = [
+  'food','market','grocery','supermarket','fresh','stop & shop','shoprite','shop rite',
+  'key food','c-town','ctown','associated','fairway','western beef','food bazaar',
+  'whole foods','target','walmart','king kullen','trade fair','bravo','ideal',
+  'met food','compare','pathmark','waldbaums','fine fare','c town',
+];
+const RADIUS_MILES = 10;
+
+function isGrocery(name = '') {
+  const n = name.toLowerCase();
+  return GROCERY_TERMS.some(t => n.includes(t));
+}
+
+function parsePrice(val) {
+  if (val === null || val === undefined) return null;
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string') { const m = val.replace(/[^\d.]/g, ''); return m ? parseFloat(m) : null; }
+  return null;
+}
+
+async function fetchJson(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
+async function mapConcurrent(items, limit, fn) {
+  const results = new Array(items.length);
+  let idx = 0;
+  async function worker() { while (idx < items.length) { const i = idx++; results[i] = await fn(items[i], i); } }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+function loadAddrCache() {
+  try { return JSON.parse(localStorage.getItem('addrCache') || '{}'); } catch { return {}; }
+}
+function saveAddrCache(c) {
+  try { localStorage.setItem('addrCache', JSON.stringify(c)); } catch {}
+}
+
+async function geocodeZipFull(zip) {
+  try {
+    const data = await fetchJson(`https://nominatim.openstreetmap.org/search?q=${zip}&format=json&limit=1&countrycodes=us&addressdetails=1`);
+    if (data?.[0]) {
+      const addr = data[0].address || {};
+      const locality = addr.county || addr.city || addr.town || addr.suburb || '';
+      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), locality };
+    }
+  } catch {}
+  return null;
+}
+
+function parseNomResult(r, center) {
+  const addr = r.address || {};
+  const county = addr.county || addr.city || addr.town || addr.suburb || '';
+  const shortAddr = [addr.house_number, addr.road, addr.suburb].filter(Boolean).join(' ');
+  return {
+    name: (addr.shop || addr.name || '').toLowerCase(),
+    lat: parseFloat(r.lat), lon: parseFloat(r.lon),
+    addr: shortAddr || null, county,
+    dist: haversineMiles(center.lat, center.lon, parseFloat(r.lat), parseFloat(r.lon)),
+  };
+}
+
+async function bulkFetchStores(center) {
+  const loc = (center.locality || '').replace(' County', '');
+  if (!loc) return [];
+  try {
+    const results = await fetchJson(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent('supermarket in ' + loc)}&format=json&limit=50&countrycodes=us&addressdetails=1`);
+    return (results || []).map(r => parseNomResult(r, center))
+      .filter(r => r.county === center.locality && r.dist <= RADIUS_MILES);
+  } catch { return []; }
+}
+
+async function searchStoreNom(storeName, center) {
+  const loc = (center.locality || '').replace(' County', '');
+  const q = loc ? `${storeName}, ${loc}` : storeName;
+  try {
+    const results = await fetchJson(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=10&countrycodes=us&addressdetails=1`);
+    return (results || []).map(r => parseNomResult(r, center))
+      .filter(r => !center.locality || r.county === center.locality)
+      .filter(r => r.dist <= RADIUS_MILES);
+  } catch { return []; }
+}
+
+function matchBulk(flippName, bulk) {
+  const fn = flippName.toLowerCase();
+  const words = fn.split(/\s+/).filter(w => w.length > 2);
+  const kw = words.find(w => !['the','and','inc','llc','supermarket','supermarkets','food','foods','market','markets','grocery','store'].includes(w)) || words[0] || '';
+  return bulk.filter(r => r.name && (r.name.includes(fn) || fn.includes(r.name) || (kw && r.name.includes(kw))));
+}
+
+async function lookupAddresses(storeNames, center) {
+  const cache = loadAddrCache();
+  const results = {};
+  const uncached = [];
+
+  for (const name of storeNames) {
+    const key = `${center.locality}::${name}`;
+    if (cache[key]) {
+      results[name] = cache[key].map(loc => ({
+        ...loc, dist: haversineMiles(center.lat, center.lon, loc.lat, loc.lon),
+      })).filter(r => r.dist <= RADIUS_MILES);
+    } else {
+      uncached.push(name);
+    }
+  }
+  if (!uncached.length) return results;
+
+  // Bulk query
+  logToScreen('Looking up store locations...');
+  const bulk = await bulkFetchStores(center);
+  const missing = [];
+  for (const name of uncached) {
+    const matches = matchBulk(name, bulk);
+    if (matches.length) {
+      results[name] = matches;
+      cache[`${center.locality}::${name}`] = matches.map(({ lat, lon, addr, county }) => ({ lat, lon, addr, county }));
+    } else {
+      missing.push(name);
+    }
+  }
+
+  // Individual fallback
+  for (const name of missing) {
+    await new Promise(r => setTimeout(r, 1100));
+    const locs = await searchStoreNom(name, center);
+    cache[`${center.locality}::${name}`] = locs.map(({ lat, lon, addr, county }) => ({ lat, lon, addr, county }));
+    results[name] = locs;
+  }
+  saveAddrCache(cache);
+  return results;
+}
+
+function mapItem(raw) {
+  const name = (raw.name || raw.short_name || '').trim();
+  const brand = (raw.brand || '').trim();
+  const currentPrice = parsePrice(raw.price ?? raw.current_price ?? raw.sale_price);
+  const discount = typeof raw.discount === 'number' ? raw.discount : null;
+  let regularPrice = null;
+  if (currentPrice && discount && discount > 0 && discount < 100) {
+    regularPrice = Math.round((currentPrice / (1 - discount / 100)) * 100) / 100;
+  } else {
+    regularPrice = parsePrice(raw.regular_price ?? raw.original_price ?? null);
+  }
+  return {
+    id: raw.id ?? null, name, brand: brand || null,
+    current_price: currentPrice, regular_price: regularPrice, discount_pct: discount,
+    sale_story: raw.sale_story || raw.cut_price_text || (discount ? `${discount}% off` : null),
+    image_url: raw.cutout_image_url || raw.image_url || raw.thumb_url || null,
+    category: raw.category || raw.item_type || null,
+    is_featured: !!(raw.is_featured || raw.featured || raw.display_type === 0),
+    valid_from: raw.valid_from || null, valid_to: raw.valid_to || null,
+  };
+}
+
+// Main scraper — runs entirely in the browser
+async function scrapeFlipp(zip) {
+  logToScreen('Finding grocery stores...');
+  const [flyerData, center] = await Promise.all([
+    fetchJson(`https://backflipp.wishabi.com/flipp/flyers?locale=en-us&postal_code=${zip}`),
+    geocodeZipFull(zip),
+  ]);
+  if (center) {
+    state.userLatLng = { lat: center.lat, lng: center.lon };
+  }
+
+  const allFlyers = flyerData?.flyers || [];
+  const groceryFlyers = allFlyers.filter(f => isGrocery(f.merchant_name || f.merchant || f.name || ''));
+  if (!groceryFlyers.length) throw new Error('No grocery stores found');
+
+  // Addresses + deals in parallel
+  const uniqueNames = [...new Set(groceryFlyers.map(f => f.merchant_name || f.merchant || f.name || 'Unknown'))];
+  const addrPromise = center ? lookupAddresses(uniqueNames, center) : Promise.resolve({});
+
+  logToScreen('Loading deals...');
+  let done = 0;
+  const itemsByFlyer = {};
+  const [addressMap] = await Promise.all([
+    addrPromise,
+    mapConcurrent(groceryFlyers, 8, async (flyer) => {
+      const fid = String(flyer.id || flyer.flyer_id || '');
+      if (!fid) { done++; return; }
+      try {
+        const data = await fetchJson(`https://backflipp.wishabi.com/flipp/flyers/${fid}?locale=en-us`);
+        itemsByFlyer[fid] = data?.items || [];
+      } catch { itemsByFlyer[fid] = []; }
+      done++;
+      logToScreen(`${done}/${groceryFlyers.length} stores loaded`);
+    }),
+  ]);
+
+  // Filter + build stores
+  const stores = [];
+  for (const flyer of groceryFlyers) {
+    const name = flyer.merchant_name || flyer.merchant || flyer.name || 'Unknown';
+    const locs = addressMap[name] || [];
+    const loc = locs.length ? locs.sort((a, b) => a.dist - b.dist)[0] : null;
+    if (!loc && center) continue; // skip stores not in the borough
+    const fid = String(flyer.id || flyer.flyer_id || '');
+    const rawItems = itemsByFlyer[fid] || [];
+    const items = rawItems.map(mapItem).filter(i => i.name && i.current_price !== null);
+    items.sort((a, b) => {
+      if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
+      const dA = a.regular_price ? (a.regular_price - a.current_price) / a.regular_price : 0;
+      const dB = b.regular_price ? (b.regular_price - b.current_price) / b.regular_price : 0;
+      return dB - dA;
+    });
+    if (!items.length) continue;
+    stores.push({
+      flyer_id: fid,
+      name: flyer.merchant || flyer.merchant_name || flyer.name || 'Unknown',
+      merchant: flyer.merchant || flyer.merchant_name || null,
+      logo_url: flyer.merchant_logo || flyer.logo_url || null,
+      valid_from: flyer.valid_from || null, valid_to: flyer.valid_to || null,
+      address: loc?.addr || null, lat: loc?.lat || null, lng: loc?.lon || null,
+      distance_mi: loc?.dist ? Math.round(loc.dist * 10) / 10 : null,
+      item_count: items.length, items,
+    });
+  }
+  return stores;
+}
 
 // ── Zip modal ─────────────────────────────────────────────────────────────
 async function submitZip() {
@@ -195,89 +517,91 @@ function hideZipErr()    { document.getElementById('zipErr').style.display='none
 
 // ── Data loading ──────────────────────────────────────────────────────────
 async function loadData(zip) {
-  showLoading(`Finding grocery deals near ${zip}…`);
+  showLoading(`Finding grocery deals near ${zip}...`);
   try {
-    const res = await fetch(`/api/circulars?zip=${zip}`);
-    if (res.ok) {
-      const data = await res.json();
-      hideLoading();
-      applyData(data);
-      return;
-    }
-    if (res.status === 202) {
-      // Need to scrape — connect SSE
-      await runScrape(zip);
-      return;
-    }
-    throw new Error(`Server returned ${res.status}`);
-  } catch (e) {
+    const stores = await scrapeFlipp(zip);
+    state.stores = stores;
+    state.zip = zip;
+    state.cachedZip = zip;
+    state.storeFilter.clear();
+    document.getElementById('locBtn').textContent = `📍 ${zip}`;
     hideLoading();
-    alert('Could not load deals: ' + e.message);
+    document.getElementById('app').style.display = 'flex';
+    renderApp();
+  } catch (err) {
+    hideLoading();
+    document.getElementById('app').style.display = 'flex';
+    setBannerText(`Could not load deals for ${zip}. Please try again.`, false);
   }
 }
 
-function runScrape(zip) {
-  return new Promise((resolve, reject) => {
-    logToScreen(`🔍 Searching for grocery stores near ${zip}…`);
-    const es = new EventSource(`/api/scrape?zip=${zip}`);
-
-    es.addEventListener('log', e => {
-      const { message } = JSON.parse(e.data);
-      logToScreen(message);
-    });
-
-    es.addEventListener('done', async e => {
-      es.close();
-      logToScreen('✅ Done! Loading results…');
-      // Short pause so user sees the done message
-      await new Promise(r => setTimeout(r, 600));
-      try {
-        const res = await fetch(`/api/circulars?zip=${zip}`);
-        const data = await res.json();
-        hideLoading();
-        applyData(data);
-        resolve();
-      } catch (err) {
-        hideLoading();
-        reject(err);
-      }
-    });
-
-    es.addEventListener('error', e => {
-      es.close();
-      let msg = 'Unknown error';
-      try { msg = JSON.parse(e.data).message; } catch {}
-      hideLoading();
-      reject(new Error(msg));
-    });
-  });
-}
-
-function applyData(data) {
-  state.stores = (data.stores || []).filter(s => s.item_count > 0);
-  state.zip    = data.zip;
-  document.getElementById('locBtn').textContent = `📍 ${data.zip}`;
-  renderApp();
-}
-
 // ── Loading screen ────────────────────────────────────────────────────────
+let countdownInterval = null;
+let countdownEnd = 0;
+
 function showLoading(sub) {
   document.getElementById('app').style.display = 'none';
   document.getElementById('zipOverlay').style.display = 'none';
   document.getElementById('loading-screen').style.display = 'flex';
   document.getElementById('loadSub').textContent = sub || 'Loading…';
   document.getElementById('loadLog').innerHTML = '';
+  document.getElementById('loadProgressWrap').style.display = 'none';
+  document.getElementById('loadProgressFill').style.width = '0%';
+  document.getElementById('loadProgressLabel').textContent = '';
+  startCountdown(3); // start optimistic — updates when we know the real estimate
 }
 function hideLoading() {
+  stopCountdown();
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
 }
+
+function startCountdown(seconds) {
+  stopCountdown();
+  countdownEnd = Date.now() + seconds * 1000;
+  updateCountdownDisplay();
+  countdownInterval = setInterval(updateCountdownDisplay, 200);
+}
+function stopCountdown() {
+  if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+  document.getElementById('loadCountdown').textContent = '';
+}
+function updateCountdownDisplay() {
+  const remaining = Math.max(0, Math.ceil((countdownEnd - Date.now()) / 1000));
+  const el = document.getElementById('loadCountdown');
+  if (remaining > 0) {
+    el.textContent = `~${remaining}s remaining`;
+  } else {
+    el.textContent = 'Almost done…';
+  }
+}
+
 function logToScreen(msg) {
-  const log = document.getElementById('loadLog');
-  const p = document.createElement('p');
-  p.textContent = msg;
-  log.appendChild(p);
-  log.scrollTop = log.scrollHeight;
+  // Update subtitle based on phase
+  if (msg.includes('Finding grocery')) {
+    document.getElementById('loadSub').textContent = 'Finding grocery stores near you…';
+  } else if (msg.includes('Looking up store locations')) {
+    document.getElementById('loadSub').textContent = 'Looking up store locations…';
+  } else if (msg.includes('Loading deals')) {
+    document.getElementById('loadSub').textContent = 'Loading deals…';
+  }
+
+  // When we see "Looking up N remaining", re-estimate countdown
+  const remainMatch = msg.match(/Looking up (\d+) remaining/);
+  if (remainMatch) {
+    startCountdown(parseInt(remainMatch[1]) * 1.2 + 2);
+  }
+
+  // Update progress bar when we see N/M pattern
+  const m = msg.match(/(\d+)\/(\d+) stores loaded/);
+  if (m) {
+    const n = parseInt(m[1]), total = parseInt(m[2]);
+    document.getElementById('loadProgressWrap').style.display = 'block';
+    document.getElementById('loadProgressFill').style.width = Math.round(n / total * 100) + '%';
+    document.getElementById('loadProgressLabel').textContent = `${n} of ${total} stores`;
+    const left = total - n;
+    if (left > 0) startCountdown(Math.max(1, Math.ceil(left * 0.15)));
+  }
 }
 
 // ── Sorting ───────────────────────────────────────────────────────────────
@@ -298,6 +622,12 @@ function sortedStores(stores) {
         return items.reduce((sum, i) => sum + i.discount_pct, 0) / items.length;
       };
       return avgDisc(b) - avgDisc(a);
+    });
+  } else if (state.sortBy === 'nearest') {
+    list.sort((a, b) => {
+      const dA = storeDist(a) ?? Infinity;
+      const dB = storeDist(b) ?? Infinity;
+      return dA - dB;
     });
   } else if (state.sortBy === 'az') {
     list.sort((a, b) => a.name.localeCompare(b.name));
@@ -351,8 +681,12 @@ function setQty(storeId, itemId, qty) {
   if (!state.basket[storeId]) state.basket[storeId] = new Map();
   if (qty <= 0) state.basket[storeId].delete(itemId);
   else          state.basket[storeId].set(itemId, qty);
-  refreshStoreTotal(storeId);
   refreshCard(storeId, itemId);
+  if (state.activeStore) {
+    renderStoreDetail(); // refresh total + basket count in detail header
+  } else {
+    refreshStoreTotal(storeId);
+  }
 }
 function addItem(storeId, itemId) {
   setQty(storeId, itemId, getQty(storeId, itemId) + 1);
@@ -381,20 +715,52 @@ function getBasketCount(storeId) {
 function renderApp() {
   document.getElementById('storesFound').textContent =
     `${state.stores.length} store${state.stores.length !== 1 ? 's' : ''} near ${state.zip}`;
+  renderFilterBar();
+  renderStores();
+}
+
+function renderFilterBar() {
+  const bar = document.getElementById('filterBar');
+  if (!state.stores.length) { bar.innerHTML = ''; return; }
+  const allActive = state.storeFilter.size === 0;
+  bar.innerHTML =
+    `<span class="filter-label">Stores:</span>` +
+    `<button class="filter-chip${allActive?' active':''}" onclick="setStoreFilter(null)">All</button>` +
+    state.stores.map(s =>
+      `<button class="filter-chip${state.storeFilter.has(s.flyer_id)?' active':''}" onclick="setStoreFilter('${s.flyer_id}')">${s.name}</button>`
+    ).join('');
+}
+
+function setStoreFilter(id) {
+  if (id === null) {
+    state.storeFilter.clear();
+  } else {
+    if (state.storeFilter.has(id)) {
+      state.storeFilter.delete(id);
+    } else {
+      state.storeFilter.add(id);
+    }
+  }
+  renderFilterBar();
   renderStores();
 }
 
 function renderStores() {
-  const sorted = sortedStores(state.stores);
+  let sorted = sortedStores(state.stores);
   const container = document.getElementById('storesContainer');
 
-  // Filter stores with matching items if searching
+  // Apply store filter chips
+  if (state.storeFilter.size > 0) {
+    sorted = sorted.filter(s => state.storeFilter.has(s.flyer_id));
+  }
+
+  // Apply item search filter
   const visible = state.search
     ? sorted.filter(s => filteredItems(s.items).length > 0)
     : sorted;
 
   if (!visible.length) {
-    container.innerHTML = `<div class="no-results">No results found for "<strong>${state.search}</strong>"</div>`;
+    container.innerHTML = `<div class="no-results">${state.search ? `No results for "<strong>${state.search}</strong>"` : 'No stores match the selected filter.'}</div>`;
     return;
   }
 
@@ -406,7 +772,10 @@ function storeRowHTML(store) {
   const items   = filteredItems(store.items);
   const total   = getStoreTotal(storeId);
   const count   = getBasketCount(storeId);
-  const validTo = store.valid_to ? new Date(store.valid_to).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
+  const validTo  = store.valid_to ? new Date(store.valid_to).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
+  const addrText = store.address || '';
+  const dist     = storeDist(store);
+  const distText = dist !== null ? `${dist.toFixed(1)} mi` : '';
 
   const logoHTML = store.logo_url
     ? `<img class="store-logo" src="${store.logo_url}" alt="${store.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
@@ -425,13 +794,14 @@ function storeRowHTML(store) {
   const itemsHTML = items.slice(0, 40).map(item => itemCardHTML(item, storeId)).join('');
 
   return `<div class="store-row" id="store-${storeId}">
-    <div class="store-header">
+    <div class="store-header" onclick="openStore('${storeId}')">
       ${logoHTML}${fallbackHTML}
       <div class="store-info">
         <div class="store-name">${store.name}</div>
-        <div class="store-meta">${store.item_count} deals${validTo ? ` · Valid until ${validTo}` : ''}</div>
+        <div class="store-meta">${distText ? `<strong>${distText}</strong> · ` : ''}${addrText ? `${addrText}` : ''}${addrText && validTo ? ' · ' : ''}${validTo ? `Valid until ${validTo}` : ''}</div>
       </div>
       ${totalHTML}
+      <span class="store-chevron">›</span>
     </div>
     <div class="items-scroll" id="scroll-${storeId}">
       ${itemsHTML}
@@ -515,6 +885,75 @@ function refreshStoreTotal(storeId) {
   }
 }
 
+// ── Store detail page ─────────────────────────────────────────────────────
+function openStore(storeId) {
+  state.activeStore  = storeId;
+  state.detailSearch = '';
+  document.getElementById('detailSearch').value = '';
+  document.getElementById('storeDetail').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  renderStoreDetail();
+}
+
+function closeStore() {
+  state.activeStore = null;
+  document.getElementById('storeDetail').style.display = 'none';
+  document.body.style.overflow = '';
+  // Refresh basket totals in main view in case user added items
+  renderStores();
+}
+
+function onDetailSearch() {
+  state.detailSearch = document.getElementById('detailSearch').value.toLowerCase().trim();
+  renderStoreDetail();
+}
+
+function renderStoreDetail() {
+  const store = state.stores.find(s => s.flyer_id === state.activeStore);
+  if (!store) return;
+
+  document.getElementById('detailName').textContent = store.name;
+  const dist = storeDist(store);
+  const distStr = dist !== null ? ` · ${dist.toFixed(1)} mi away` : '';
+  document.getElementById('detailAddr').textContent = (store.address || '') + distStr;
+
+  const items = state.detailSearch
+    ? store.items.filter(i => fuzzyMatch(state.detailSearch, i.name) || fuzzyMatch(state.detailSearch, i.brand))
+    : store.items;
+
+  document.getElementById('detailItemCount').textContent =
+    `${items.length} deal${items.length !== 1 ? 's' : ''}${store.valid_to ? ' · Valid until ' + new Date(store.valid_to).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}`;
+
+  const total = getStoreTotal(store.flyer_id);
+  const count = getBasketCount(store.flyer_id);
+  const totalEl = document.getElementById('detailTotal');
+  if (total > 0) {
+    document.getElementById('detailTotalAmt').textContent = `$${total.toFixed(2)} · ${count} item${count!==1?'s':''}`;
+    totalEl.style.display = 'inline-flex';
+  } else {
+    totalEl.style.display = 'none';
+  }
+
+  const grid = document.getElementById('detailGrid');
+  if (!items.length) {
+    grid.innerHTML = '<div class="detail-no-results">No items match your search.</div>';
+    return;
+  }
+  grid.innerHTML = items.map(item => itemCardHTML(item, store.flyer_id)).join('');
+}
+
+
+// ── Banner ────────────────────────────────────────────────────────────────
+function setBannerText(html, showSpinner) {
+  const b = document.getElementById('zipBanner');
+  document.getElementById('zipBannerText').innerHTML =
+    (showSpinner ? '<span class="scrape-dot"></span>' : '') + html;
+  b.style.display = 'flex';
+}
+function hideBanner() {
+  document.getElementById('zipBanner').style.display = 'none';
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────
 (async () => {
   const savedZip = localStorage.getItem('userZip');
@@ -524,6 +963,8 @@ function refreshStoreTotal(storeId) {
     document.getElementById('zipInput').value = savedZip;
     await loadData(savedZip);
   } else {
+    // First visit — show zip modal, hide loading screen
+    document.getElementById('loading-screen').style.display = 'none';
     showZipModal();
   }
 })();
