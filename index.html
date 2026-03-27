@@ -75,13 +75,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .rtab{flex:1;padding:5px 8px;border-radius:7px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer;color:#666;font-weight:500;text-align:center;}
 .rtab.on{background:#1a1a2e;color:white;border-color:#1a1a2e;}
 @media(max-width:700px){.layout{grid-template-columns:1fr;}.right{max-height:none;border-top:1px solid #e8e8e8;}.panel{max-height:400px;}}
+.zip-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.zip-modal{background:white;border-radius:14px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.zip-title{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px;}
+.zip-sub{font-size:13px;color:#888;margin-bottom:18px;line-height:1.5;}
+.zip-row{display:flex;gap:8px;}
+.zip-input{flex:1;padding:10px 14px;font-size:16px;border:1.5px solid #ddd;border-radius:8px;outline:none;min-width:0;}
+.zip-input:focus{border-color:#1a1a2e;}
+.zip-go{padding:10px 18px;background:#1a1a2e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.zip-go:hover{background:#2d2d4e;}
+.zip-go:disabled{opacity:0.5;cursor:default;}
+.zip-err{font-size:12px;color:#e74c3c;margin-top:8px;}
+.loc-chip{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;}
+.loc-chip:hover{background:rgba(255,255,255,0.22);}
 </style>
 </head>
 <body>
 <div class="app">
+  <div class="zip-overlay" id="zipOverlay">
+    <div class="zip-modal">
+      <div class="zip-title">What's your zip code?</div>
+      <div class="zip-sub">We'll show you grocery stores within 5 miles of you.</div>
+      <div class="zip-row">
+        <input class="zip-input" id="zipInput" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 11435" onkeydown="if(event.key==='Enter')submitZip()">
+        <button class="zip-go" id="zipGo" onclick="submitZip()">Go</button>
+      </div>
+      <div class="zip-err" id="zipErr" style="display:none"></div>
+    </div>
+  </div>
   <div class="topbar">
     <div><div class="app-title">NYC Best Store Finder</div><div class="app-sub">Real product images · build your basket · find your cheapest single store</div></div>
-    <span class="wk">Updated Mar 23, 2026</span>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="loc-chip" id="locChip" onclick="showZipModal()" style="display:none">📍 —</button>
+      <span class="wk">Updated Mar 23, 2026</span>
+    </div>
   </div>
   <div class="layout">
     <div class="left">
@@ -107,19 +134,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 const STORES=[
-  {id:'fb',name:'Food Bazaar',color:'#f26522'},
-  {id:'wb',name:'Western Beef',color:'#cc0000'},
-  {id:'kf',name:'Key Food',color:'#8b0000'},
-  {id:'ct',name:'C-Town',color:'#004b87'},
-  {id:'asc',name:'Associated',color:'#006633'},
-  {id:'fw',name:'Fairway Market',color:'#4a7c59'},
-  {id:'sr',name:'ShopRite',color:'#e31837'},
-  {id:'ss',name:'Stop & Shop',color:'#b00000'},
-  {id:'tg',name:'Target',color:'#cc0000'},
-  {id:'wf',name:'Whole Foods',color:'#00674b'},
-  {id:'tj',name:"Trader Joe's",color:'#c8102e'},
-  {id:'aldi',name:'ALDI',color:'#00529b'},
+  {id:'fb', name:'Food Bazaar',  color:'#f26522', lat:40.7064,lng:-73.7975},
+  {id:'wb', name:'Western Beef', color:'#cc0000', lat:40.7027,lng:-73.9049},
+  {id:'kf_bh',chain:'kf',name:'Key Food',location:'Briarwood',   dataKey:'kf',color:'#8b0000',lat:40.7063,lng:-73.8215},
+  {id:'kf_fh',chain:'kf',name:'Key Food',location:'Forest Hills', dataKey:'kf',color:'#8b0000',lat:40.7196,lng:-73.8383},
+  {id:'kf_fm',chain:'kf',name:'Key Food',location:'Fresh Meadows',dataKey:'kf',color:'#8b0000',lat:40.7344,lng:-73.7940},
+  {id:'kf_pk',chain:'kf',name:'Key Food',location:'Pomonok',      dataKey:'kf',color:'#8b0000',lat:40.7373,lng:-73.8063},
+  {id:'ct', name:'C-Town',       color:'#004b87', lat:40.8083,lng:-73.9262},
+  {id:'asc',name:'Associated',   color:'#006633', lat:40.7007,lng:-73.7997},
+  {id:'fw', name:'Fairway Market',color:'#4a7c59',lat:40.6736,lng:-74.0057},
+  {id:'sr', name:'ShopRite',     color:'#e31837', lat:40.7262,lng:-73.7918},
+  {id:'ss', name:'Stop & Shop',  color:'#b00000', lat:40.7261,lng:-73.8607},
+  {id:'tg', name:'Target',       color:'#cc0000', lat:40.7335,lng:-73.8790},
+  {id:'wf', name:'Whole Foods',  color:'#00674b', lat:40.7682,lng:-73.9817},
 ];
+let activeStores=STORES;
 const SM={};STORES.forEach(s=>SM[s.id]=s);
 const CATS=['all','cereal','bread','pasta & sauce','rice & grains','canned goods','condiments','ice cream','chips','coffee','juice','soda & water','dairy','milk','meat','produce','snacks','frozen','bakery','breakfast','personal care','household','baby','pet','vitamins','baking'];
 const CE={all:'🛒',cereal:'🥣',bread:'🍞','pasta & sauce':'🍝','rice & grains':'🍚','canned goods':'🥫',condiments:'🧂','ice cream':'🍦',chips:'🥔',coffee:'☕',juice:'🍊','soda & water':'🥤',dairy:'🧀',milk:'🥛',meat:'🥩',produce:'🥬',snacks:'🍿',frozen:'🧊',bakery:'🎂',breakfast:'🥞','personal care':'🧴',household:'🧹',baby:'👶',pet:'🐾',vitamins:'💊',baking:'🧁'};
@@ -627,8 +656,8 @@ let aC='all';
 const basket=new Set();
 let rankMode='price';
 
-function minP(p){const v=STORES.map(s=>p.p[s.id]).filter(x=>x>0);return v.length?Math.min(...v):null;}
-function stCt(p){return STORES.filter(s=>p.p[s.id]>0).length;}
+function minP(p){const seen=new Set();const v=activeStores.map(s=>{const k=s.dataKey||s.id;if(seen.has(k))return null;seen.add(k);return p.p[k];}).filter(x=>x>0);return v.length?Math.min(...v):null;}
+function stCt(p){const chains=new Set();activeStores.forEach(s=>{const k=s.dataKey||s.id;if(p.p[k]>0)chains.add(s.chain||s.id);});return chains.size;}
 
 function renderCats(){
   document.getElementById('cats').innerHTML=CATS.map(c=>
@@ -685,7 +714,7 @@ function renderRight(){
   document.getElementById('clrbtn').style.display=n?'block':'none';
   if(!n){
     document.getElementById('rsub').textContent='Add items to find your cheapest single store';
-    document.getElementById('bitems-area').innerHTML='<div class="bempty">Tap any product to add it to your basket.<br>We\'ll rank all 7 stores by your total basket cost.</div>';
+    document.getElementById('bitems-area').innerHTML='<div class="bempty">Tap any product to add it to your basket.<br>We\'ll rank all stores by your total basket cost.</div>';
     document.getElementById('results-area').innerHTML='';
     return;
   }
@@ -700,16 +729,30 @@ function renderRight(){
     </div>`;
   }).join('')}</div>`;
 
-  const scored=STORES.map(s=>{
-    let total=0,covered=0,notSold=[],noPrice=[];
-    items.forEach(p=>{
-      const pr=p.p[s.id];
-      if(pr>0){total+=pr;covered++;}
-      else if(pr===false) notSold.push(p);
-      else noPrice.push(p);
+  // Group stores by chain, score each location, keep cheapest per chain
+  const chainMap={};
+  activeStores.forEach(s=>{const c=s.chain||s.id;if(!chainMap[c])chainMap[c]=[];chainMap[c].push(s);});
+  const scored=Object.values(chainMap).map(locs=>{
+    const locScores=locs.map(s=>{
+      let total=0,covered=0,notSold=[],noPrice=[];
+      const k=s.dataKey||s.id;
+      items.forEach(p=>{
+        const pr=p.p[k];
+        if(pr>0){total+=pr;covered++;}
+        else if(pr===false)notSold.push(p);
+        else noPrice.push(p);
+      });
+      const projected=covered>0?(total/covered)*items.length:null;
+      return{s,total,covered,notSold,noPrice,pct:covered/items.length,projected};
     });
-    const projected=covered>0?(total/covered)*items.length:null;
-    return{s,total,covered,notSold,noPrice,pct:covered/items.length,projected};
+    locScores.sort((a,b)=>{
+      if(b.covered!==a.covered)return b.covered-a.covered;
+      if(a.projected===null&&b.projected===null)return 0;
+      if(a.projected===null)return 1;
+      if(b.projected===null)return -1;
+      return a.projected-b.projected;
+    });
+    return locScores[0];
   });
 
   const results=[...scored].sort((a,b)=>{
@@ -736,13 +779,15 @@ function renderRight(){
     ${results.map((r,i)=>{
       const isW=winner&&r.s.id===winner.s.id;
       const sc=r.s.color;
+      const k=r.s.dataKey||r.s.id;
       const fullCoverage=r.covered===items.length;
       const priceLabel=r.projected===null?'—':(fullCoverage?'$':'~$')+r.projected.toFixed(2);
       const diff=rankMode==='price'&&!isW&&r.projected!==null&&winner?r.projected-winner.projected:null;
+      const displayName=r.s.location?`${r.s.name} <span style="font-size:10px;color:#888;font-weight:400">${r.s.location}</span>`:r.s.name;
       return `<div class="sc${isW?' win':''}">
         <div class="sct">
           <span class="scd" style="background:${sc}"></span>
-          <span class="scn">${r.s.name}</span>
+          <span class="scn">${displayName}</span>
           ${isW?`<span class="wb">${winLabel}</span>`:''}
           <span class="scto" style="color:${rankMode==='selection'?(r.covered>0?isW?sc:'#222':'#ccc'):(r.projected===null?'#ccc':isW?sc:'#222')}">${rankMode==='selection'?`${r.covered}/${items.length}`:priceLabel}</span>
         </div>
@@ -755,8 +800,8 @@ function renderRight(){
         </div>
         ${r.notSold.length?`<div class="miss" style="color:#aaa">Not sold here: ${r.notSold.slice(0,4).map(p=>p.b).join(', ')}${r.notSold.length>4?' +'+(r.notSold.length-4)+' more':''}</div>`:''}
         ${r.noPrice.length?`<div class="miss">Price unavailable: ${r.noPrice.slice(0,4).map(p=>p.b).join(', ')}${r.noPrice.length>4?' +'+(r.noPrice.length-4)+' more':''}</div>`:''}
-        ${r.covered>0?`<div class="ibd">${items.filter(p=>p.p[r.s.id]>0).map(p=>`
-          <div class="irow"><span class="iname">${p.e} ${p.n}</span><span class="iprice">$${p.p[r.s.id].toFixed(2)}</span></div>`).join('')}</div>`:''}
+        ${r.covered>0?`<div class="ibd">${items.filter(p=>p.p[k]>0).map(p=>`
+          <div class="irow"><span class="iname">${p.e} ${p.n}</span><span class="iprice">$${p.p[k].toFixed(2)}</span></div>`).join('')}</div>`:''}
       </div>`;
     }).join('')}
   </div>`;
@@ -766,6 +811,56 @@ function setRank(m){rankMode=m;renderRight();}
 function clearB(){basket.clear();render();renderRight();}
 function setC(c){aC=c;renderCats();render();}
 document.getElementById('search').addEventListener('input',render);
+
+// ── Zip code / location ────────────────────────────────────────────────────
+function haversine(lat1,lng1,lat2,lng2){
+  const R=3958.8,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+async function geocodeZip(zip){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zip}&countrycodes=us&format=json&limit=1`);
+    const d=await r.json();
+    if(!d.length)return null;
+    return{lat:parseFloat(d[0].lat),lng:parseFloat(d[0].lon)};
+  }catch(e){return null;}
+}
+function applyLocation(zip,lat,lng){
+  const filtered=STORES.filter(s=>!s.lat||haversine(lat,lng,s.lat,s.lng)<=5);
+  activeStores=filtered.length?filtered:STORES;
+  const chip=document.getElementById('locChip');
+  chip.textContent=`📍 ${zip}`;
+  chip.style.display='block';
+  render();renderRight();
+}
+async function submitZip(){
+  const zip=document.getElementById('zipInput').value.trim();
+  if(!/^\d{5}$/.test(zip)){showZipErr('Please enter a valid 5-digit zip code.');return;}
+  const btn=document.getElementById('zipGo');
+  btn.textContent='…';btn.disabled=true;
+  const coords=await geocodeZip(zip);
+  btn.textContent='Go';btn.disabled=false;
+  if(!coords){showZipErr('Zip code not found. Please try again.');return;}
+  localStorage.setItem('userZip',zip);
+  localStorage.setItem('userLat',coords.lat);
+  localStorage.setItem('userLng',coords.lng);
+  applyLocation(zip,coords.lat,coords.lng);
+  hideZipModal();
+}
+function showZipModal(){
+  document.getElementById('zipOverlay').style.display='flex';
+  document.getElementById('zipInput').value=localStorage.getItem('userZip')||'';
+  document.getElementById('zipErr').style.display='none';
+  setTimeout(()=>document.getElementById('zipInput').focus(),50);
+}
+function hideZipModal(){document.getElementById('zipOverlay').style.display='none';}
+function showZipErr(msg){const e=document.getElementById('zipErr');e.textContent=msg;e.style.display='block';}
+
+// Init
+const _zip=localStorage.getItem('userZip'),_lat=localStorage.getItem('userLat'),_lng=localStorage.getItem('userLng');
+if(_zip&&_lat&&_lng){applyLocation(_zip,parseFloat(_lat),parseFloat(_lng));hideZipModal();}
+else{document.getElementById('zipOverlay').style.display='flex';setTimeout(()=>document.getElementById('zipInput').focus(),50);}
 renderCats();render();renderRight();
 </script>
 </body>
