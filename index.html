@@ -311,12 +311,36 @@ function onSearch() {
   renderStores();
 }
 
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const row = Array.from({length: b.length + 1}, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = i;
+    for (let j = 1; j <= b.length; j++) {
+      const val = a[i-1] === b[j-1] ? row[j-1] : 1 + Math.min(row[j-1], row[j], prev);
+      row[j-1] = prev;
+      prev = val;
+    }
+    row[b.length] = prev;
+  }
+  return row[b.length];
+}
+
+function fuzzyMatch(query, text) {
+  if (!text) return false;
+  const q = query.toLowerCase();
+  const t = text.toLowerCase();
+  if (t.includes(q)) return true;
+  // Token-level fuzzy: allow 1 edit for words ≤6 chars, 2 for longer (handles typos like brocolli→broccoli)
+  const maxDist = q.length <= 6 ? 1 : 2;
+  return t.split(/\s+/).some(w => levenshtein(q, w) <= maxDist);
+}
+
 function filteredItems(items) {
   if (!state.search) return items;
-  return items.filter(i =>
-    i.name.toLowerCase().includes(state.search) ||
-    (i.brand || '').toLowerCase().includes(state.search)
-  );
+  return items.filter(i => fuzzyMatch(state.search, i.name) || fuzzyMatch(state.search, i.brand));
 }
 
 // ── Basket ────────────────────────────────────────────────────────────────
