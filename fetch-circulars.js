@@ -20,11 +20,25 @@ const GROCERY_TERMS = [
   'shoprite', 'shop rite', 'key food', 'c-town', 'ctown', 'associated',
   'fairway', 'western beef', 'food bazaar', 'whole foods', 'target',
   'walmart', 'king kullen', 'trade fair', 'bravo', 'ideal', 'met food',
-  'compare', 'pathmark', 'waldbaums', 'fine fare', 'c town',
+  'compare', 'pathmark', 'waldbaums', 'fine fare', 'c town', 'aldi', 'lidl',
+  'h mart', 'hmart', 'wegman', 'costco', "sam's club", "bj's", 'trader joe',
+  'seasons kosher', 'decicco', 'supremo', 'mitsuwa', 'stew leonard', 'gristedes',
+  'morton williams', 'pioneer', 'price rite', 'price chopper', 'hannaford', 'publix',
+  'kroger', 'safeway', 'albertson', 'vons', 'ralphs', 'meijer', 'winco', 'sprouts',
+  'piggly wiggly', 'winn-dixie', 'bi-lo', 'food lion', 'giant', 'acme',
+  'restaurant depot', 'jetro',
+];
+const NOT_GROCERY = [
+  'dollar', 'pet', 'office', 'sporting', "victoria", 'jcpenney', 'showcase', 'bath & body',
+  'gamestop', 'belk', "dick's", 'cvs', 'best buy', 'health mart', 'home depot', "lowe's",
+  'nordstrom', 'ulta', 'marshall', 'kohl', 'harbor freight', 'five below', 'tj maxx',
+  'ikea', 'cabela', 'michael', 'hobby lobby', 'ace hardware', 'old navy', 'walgreen',
+  "boscov", 'tractor supply', 'ocean state', "ollie's", 'family dollar',
 ];
 
 function isGrocery(name = '') {
   const n = name.toLowerCase();
+  if (NOT_GROCERY.some(t => n.includes(t))) return false;
   return GROCERY_TERMS.some(t => n.includes(t));
 }
 

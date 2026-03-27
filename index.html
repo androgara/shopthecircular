@@ -21,6 +21,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .zip-go:hover{background:#2d2d4e;}
 .zip-go:disabled{opacity:0.5;cursor:default;}
 .zip-err{font-size:12px;color:#e53e3e;margin-top:8px;}
+.geo-btn{display:block;width:100%;margin-top:12px;padding:10px;background:none;border:1px solid #ddd;border-radius:10px;font-size:14px;color:#555;cursor:pointer;transition:background .15s;}
+.geo-btn:hover{background:#f5f5f5;}
+.geo-btn:disabled{opacity:0.5;cursor:default;}
 
 /* ── Loading screen ──────────────────────────────────────────────────────── */
 #loading-screen{position:fixed;inset:0;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:24px;}
@@ -167,7 +170,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 
 <!-- ── Zip modal ─────────────────────────────────────────────────────────── -->
-<div class="zip-overlay" id="zipOverlay">
+<div class="zip-overlay" id="zipOverlay" onclick="if(event.target===this)dismissZipModal()">
   <div class="zip-modal">
     <div class="zip-logo">Grocery<span>Run</span></div>
     <div class="zip-title">Enter your zip code to see this week's grocery deals near you.</div>
@@ -175,6 +178,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <input class="zip-input" id="zipInput" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 11435" onkeydown="if(event.key==='Enter')submitZip()">
       <button class="zip-go" id="zipGo" onclick="submitZip()">Go</button>
     </div>
+    <button class="geo-btn" id="geoBtn" onclick="useMyLocation()">📍 Use my location</button>
     <div class="zip-err" id="zipErr" style="display:none"></div>
   </div>
 </div>
@@ -270,16 +274,33 @@ function storeDist(store) {
 }
 
 // ── Flipp scraper (runs in-browser) ──────────────────────────────────────
+// Grocery inclusion: known grocery chains + generic terms
 const GROCERY_TERMS = [
   'food','market','grocery','supermarket','fresh','stop & shop','shoprite','shop rite',
   'key food','c-town','ctown','associated','fairway','western beef','food bazaar',
   'whole foods','target','walmart','king kullen','trade fair','bravo','ideal',
-  'met food','compare','pathmark','waldbaums','fine fare','c town',
+  'met food','compare','pathmark','waldbaums','fine fare','c town','aldi','lidl',
+  'h mart','hmart','wegman','costco','sam\'s club','bj\'s','trader joe',
+  'seasons kosher','decicco','supremo','mitsuwa','stew leonard','gristedes',
+  'morton williams','pioneer','price rite','price chopper','hannaford','publix',
+  'kroger','safeway','albertson','vons','ralphs','meijer','winco','sprouts',
+  'piggly wiggly','winn-dixie','bi-lo','food lion','giant','acme',
+  'restaurant depot','jetro',
+];
+// Non-grocery exclusion: stores that match generic terms but aren't grocery
+const NOT_GROCERY = [
+  'dollar','pet','office','sporting','victoria','jcpenney','showcase','bath & body',
+  'gamestop','belk','dick\'s','cvs','best buy','health mart','home depot','lowe\'s',
+  'nordstrom','ulta','marshall','kohl','harbor freight','five below','tj maxx',
+  'ikea','cabela','michael','hobby lobby','ace hardware','old navy','walgreen',
+  'boscov','tractor supply','ocean state','ollie\'s','family dollar',
 ];
 const RADIUS_MILES = 10;
 
 function isGrocery(name = '') {
   const n = name.toLowerCase();
+  // Exclude known non-grocery first
+  if (NOT_GROCERY.some(t => n.includes(t))) return false;
   return GROCERY_TERMS.some(t => n.includes(t));
 }
 
@@ -541,6 +562,74 @@ function showZipModal() {
 function hideZipModal()  { document.getElementById('zipOverlay').style.display = 'none'; }
 function showZipErr(m)   { const e=document.getElementById('zipErr');e.textContent=m;e.style.display='block'; }
 function hideZipErr()    { document.getElementById('zipErr').style.display='none'; }
+
+// Dismiss zip modal without entering zip — falls back to IP geolocation
+async function dismissZipModal() {
+  hideZipModal();
+  await autoLocate();
+}
+
+// Reverse-geocode lat/lng → US zip code via Nominatim
+async function reverseGeoZip(lat, lng) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&countrycodes=us`, {
+      headers: { 'User-Agent': 'GroceryRun/1.0' }
+    });
+    const data = await res.json();
+    const zip = data?.address?.postcode;
+    if (zip && /^\d{5}/.test(zip)) return zip.slice(0, 5);
+  } catch {}
+  return null;
+}
+
+// Use browser geolocation API
+async function useMyLocation() {
+  const btn = document.getElementById('geoBtn');
+  btn.textContent = '📍 Locating...'; btn.disabled = true;
+  hideZipErr();
+  try {
+    const pos = await new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
+    );
+    const zip = await reverseGeoZip(pos.coords.latitude, pos.coords.longitude);
+    if (zip) {
+      document.getElementById('zipInput').value = zip;
+      hideZipModal();
+      state.zip = zip;
+      localStorage.setItem('userZip', zip);
+      document.getElementById('locBtn').textContent = `📍 ${zip}`;
+      await loadData(zip);
+    } else {
+      showZipErr('Could not determine zip code from your location.');
+    }
+  } catch (err) {
+    showZipErr(err.code === 1 ? 'Location access denied. Please enter a zip code.' : 'Could not get your location. Please enter a zip code.');
+  }
+  btn.textContent = '📍 Use my location'; btn.disabled = false;
+}
+
+// IP-based geolocation fallback (no permission needed)
+async function autoLocate() {
+  showLoading('Detecting your location...');
+  try {
+    // ipapi.co works over HTTPS, no key needed, returns zip
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    const zip = data?.postal;
+    if (zip && /^\d{5}$/.test(zip)) {
+      state.zip = zip;
+      localStorage.setItem('userZip', zip);
+      document.getElementById('locBtn').textContent = `📍 ${zip}`;
+      document.getElementById('zipInput').value = zip;
+      await loadData(zip);
+      return;
+    }
+  } catch {}
+  // Fallback: just show the modal
+  hideLoading();
+  document.getElementById('app').style.display = 'flex';
+  showZipModal();
+}
 
 // ── Data loading ──────────────────────────────────────────────────────────
 async function loadData(zip) {
@@ -1036,9 +1125,8 @@ function hideBanner() {
     document.getElementById('zipInput').value = savedZip;
     await loadData(savedZip);
   } else {
-    // First visit — show zip modal, hide loading screen
-    document.getElementById('loading-screen').style.display = 'none';
-    showZipModal();
+    // First visit — try IP geolocation, fall back to zip modal
+    await autoLocate();
   }
 })();
 </script>
