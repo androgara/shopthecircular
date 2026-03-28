@@ -196,6 +196,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .list-share{margin-top:10px;width:100%;padding:10px;border-radius:10px;border:1.5px solid #22863a;background:white;color:#22863a;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.12s;}
 .list-share:hover{background:#22863a;color:white;}
 
+/* ── Shared list view ────────────────────────────────────────────────────── */
+#sharedListView{min-height:100vh;background:#f3f4f3;}
+.shared-list-wrap{max-width:540px;margin:0 auto;padding:16px;}
+.shared-list-header{text-align:center;padding:16px 0 8px;}
+.shared-list-header h2{font-size:20px;font-weight:800;color:#1a1a2e;margin:0 0 4px;}
+.shared-list-header p{font-size:13px;color:#888;margin:0;}
+.shared-list-footer{text-align:center;padding:20px 0;}
+.shared-list-footer .list-grand{background:white;border-radius:12px;padding:14px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:12px;}
+.shared-start-btn{display:inline-block;padding:12px 28px;background:#22863a;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;}
+.shared-start-btn:hover{background:#1a6e2e;}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media(max-width:600px){
   .stores-container{padding:12px;}
@@ -270,11 +281,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="list-panel">
     <div class="list-handle"></div>
     <div class="list-header">
-      <div class="list-title">My Grocery List</div>
+      <div class="list-title" id="listTitle">My Grocery List</div>
       <button class="list-clear" id="listClear" onclick="clearList()">Clear all</button>
     </div>
     <div class="list-body" id="listBody"></div>
     <div class="list-footer" id="listFooter"></div>
+  </div>
+</div>
+
+<!-- ── Shared list view (full-page, no scraping needed) ───────────────── -->
+<div id="sharedListView" style="display:none">
+  <header class="header">
+    <div class="h-logo">Grocery<span>Run</span></div>
+  </header>
+  <div class="shared-list-wrap">
+    <div class="shared-list-header" id="sharedListHeader"></div>
+    <div id="sharedListBody"></div>
+    <div class="shared-list-footer" id="sharedListFooter"></div>
   </div>
 </div>
 
@@ -1042,7 +1065,10 @@ function renderList() {
     <span>${totalItems} item${totalItems !== 1 ? 's' : ''}</span>
     <span class="list-grand-total">${grandTotal > 0 ? '$' + grandTotal.toFixed(2) : ''}</span>
   </div>
-  <button class="list-share" onclick="shareList()">📋 Copy list to clipboard</button>`;
+  <div style="display:flex;gap:8px;margin-top:10px;">
+    <button class="list-share" id="btnShareLink" onclick="shareListLink()" style="flex:1">🔗 Share link</button>
+    <button class="list-share" id="btnCopyText" onclick="shareListText()" style="flex:1">📋 Copy as text</button>
+  </div>`;
 }
 
 function listAdd(storeId, itemId) {
@@ -1055,7 +1081,7 @@ function listDec(storeId, itemId) {
   if (getTotalBasketCount() === 0) closeList();
 }
 
-function shareList() {
+function shareListText() {
   let text = '🛒 My Grocery List\n';
   for (const store of state.stores) {
     const map = state.basket[store.flyer_id];
@@ -1071,10 +1097,111 @@ function shareList() {
   const grand = getGrandTotal();
   if (grand > 0) text += `\nTotal: $${grand.toFixed(2)}`;
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.list-share');
+    const btn = document.getElementById('btnCopyText');
     btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = '📋 Copy list to clipboard', 2000);
+    setTimeout(() => btn.textContent = '📋 Copy as text', 2000);
   });
+}
+
+// Build a shareable URL with the list encoded in the hash
+function buildShareURL() {
+  const listData = [];
+  for (const store of state.stores) {
+    const map = state.basket[store.flyer_id];
+    if (!map || map.size === 0) continue;
+    const items = [];
+    map.forEach((qty, itemId) => {
+      const item = store.items.find(i => String(i.id) === String(itemId));
+      if (!item) return;
+      items.push({
+        n: item.name,
+        p: item.current_price,
+        q: qty,
+        img: item.image_url || undefined,
+        b: item.brand || undefined,
+        s: item.sale_story || undefined,
+      });
+    });
+    if (items.length) {
+      listData.push({ store: store.name, logo: store.logo_url || undefined, items });
+    }
+  }
+  const json = JSON.stringify(listData);
+  const encoded = btoa(unescape(encodeURIComponent(json)));
+  return window.location.origin + window.location.pathname + '#list=' + encoded;
+}
+
+function shareListLink() {
+  const url = buildShareURL();
+  // Use Web Share API on mobile if available
+  if (navigator.share) {
+    navigator.share({ title: 'My Grocery List', url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('btnShareLink');
+      btn.textContent = '✓ Link copied!';
+      setTimeout(() => btn.textContent = '🔗 Share link', 2000);
+    });
+  }
+}
+
+// Render a shared list from URL hash data
+function renderSharedList(data) {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('zipOverlay').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('sharedListView').style.display = 'block';
+
+  let totalItems = 0, grandTotal = 0;
+  let html = '';
+
+  for (const group of data) {
+    let storeTotal = 0;
+    let itemsHTML = '';
+
+    for (const item of group.items) {
+      const qty = item.q || 1;
+      totalItems += qty;
+      const lineTotal = item.p ? item.p * qty : 0;
+      storeTotal += lineTotal;
+
+      const imgHTML = item.img
+        ? `<img class="list-item-img" src="${item.img}" alt="${item.n}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : '';
+      const fallback = `<div class="list-item-img-fallback" style="${item.img?'display:none':''}">🛒</div>`;
+      const priceText = item.p ? `$${item.p.toFixed(2)}${qty > 1 ? ` × ${qty} = $${lineTotal.toFixed(2)}` : ''}` : (item.s || 'See circular');
+
+      itemsHTML += `<div class="list-item">
+        ${imgHTML}${fallback}
+        <div class="list-item-info">
+          <div class="list-item-name">${item.n}</div>
+          ${item.b ? `<div style="font-size:11px;color:#aaa">${item.b}</div>` : ''}
+          <div class="list-item-price">${priceText}</div>
+        </div>
+        <div style="font-size:13px;color:#888;flex-shrink:0">${qty > 1 ? '×' + qty : ''}</div>
+      </div>`;
+    }
+
+    grandTotal += storeTotal;
+    html += `<div class="list-store-group" style="background:white;border-radius:12px;padding:4px 16px 8px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+      <div class="list-store-name">
+        ${group.store}
+        <span class="list-store-total">${storeTotal > 0 ? '$' + storeTotal.toFixed(2) : ''}</span>
+      </div>
+      ${itemsHTML}
+    </div>`;
+  }
+
+  document.getElementById('sharedListHeader').innerHTML =
+    `<h2>🛒 Shared Grocery List</h2>
+     <p>${totalItems} item${totalItems !== 1 ? 's' : ''} from ${data.length} store${data.length !== 1 ? 's' : ''}</p>`;
+  document.getElementById('sharedListBody').innerHTML = html;
+  document.getElementById('sharedListFooter').innerHTML =
+    `<div class="list-grand">
+      <span>${totalItems} item${totalItems !== 1 ? 's' : ''}</span>
+      <span class="list-grand-total">${grandTotal > 0 ? '$' + grandTotal.toFixed(2) : ''}</span>
+    </div>
+    <a class="shared-start-btn" href="${window.location.origin + window.location.pathname}">Start my own list</a>`;
 }
 
 // ── Render ────────────────────────────────────────────────────────────────
@@ -1363,6 +1490,22 @@ function hideBanner() {
 
 // ── Init ──────────────────────────────────────────────────────────────────
 (async () => {
+  // Check for shared list in URL
+  const hash = window.location.hash;
+  if (hash.startsWith('#list=')) {
+    try {
+      const encoded = hash.slice(6);
+      const json = decodeURIComponent(escape(atob(encoded)));
+      const data = JSON.parse(json);
+      if (Array.isArray(data) && data.length) {
+        renderSharedList(data);
+        return;
+      }
+    } catch (e) {
+      console.error('Invalid shared list URL');
+    }
+  }
+
   loadBasket();
   const savedZip = localStorage.getItem('userZip');
   if (savedZip) {
