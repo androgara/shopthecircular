@@ -196,6 +196,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .list-share{margin-top:10px;width:100%;padding:10px;border-radius:10px;border:1.5px solid #22863a;background:white;color:#22863a;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.12s;}
 .list-share:hover{background:#22863a;color:white;}
 
+/* ── Cheaper-at hint ─────────────────────────────────────────────────────── */
+.cheaper-hint{font-size:10px;color:#d97706;font-weight:600;margin-top:2px;line-height:1.3;}
+
 /* ── Shared list view ────────────────────────────────────────────────────── */
 #sharedListView{min-height:100vh;background:#f3f4f3;}
 .shared-list-wrap{max-width:540px;margin:0 auto;padding:16px;}
@@ -736,7 +739,9 @@ async function loadData(zip) {
     state.zip = zip;
     state.cachedZip = zip;
     state.storeFilter.clear();
+    state.deptFilter = null;
     document.getElementById('locBtn').textContent = `📍 ${zip}`;
+    refreshPriceIndex();
     hideLoading();
     document.getElementById('app').style.display = 'flex';
     renderApp();
@@ -1036,11 +1041,17 @@ function renderList() {
       const fallback = `<div class="list-item-img-fallback" style="${item.image_url?'display:none':''}">🛒</div>`;
       const priceText = item.current_price ? `$${item.current_price.toFixed(2)}${qty > 1 ? ` × ${qty} = $${lineTotal.toFixed(2)}` : ''}` : (item.sale_story || 'See circular');
 
+      const cheaper = findCheaper(item.name, item.current_price, store.flyer_id);
+      const cheaperTip = cheaper
+        ? `<div class="cheaper-hint">💡 $${cheaper.price.toFixed(2)} at ${cheaper.storeName} — save $${cheaper.saving.toFixed(2)}</div>`
+        : '';
+
       itemsHTML += `<div class="list-item">
         ${imgHTML}${fallback}
         <div class="list-item-info">
           <div class="list-item-name">${item.name}</div>
           <div class="list-item-price">${priceText}</div>
+          ${cheaperTip}
         </div>
         <div class="list-item-qty">
           <button onclick="listDec('${store.flyer_id}','${itemId}')">−</button>
@@ -1204,6 +1215,60 @@ function renderSharedList(data) {
     <a class="shared-start-btn" href="${window.location.origin + window.location.pathname}">Start my own list</a>`;
 }
 
+// ── Price comparison across stores ─────────────────────────────────────
+// Build a lookup: normalized item name → [{storeName, storeId, price, itemName}]
+function buildPriceIndex() {
+  const index = {};
+  for (const store of state.stores) {
+    for (const item of store.items) {
+      if (!item.current_price) continue;
+      const key = normalizeItemName(item.name);
+      if (!key) continue;
+      if (!index[key]) index[key] = [];
+      index[key].push({
+        storeName: store.name,
+        storeId: store.flyer_id,
+        price: item.current_price,
+        itemName: item.name,
+      });
+    }
+  }
+  // Sort each entry by price
+  for (const key in index) {
+    index[key].sort((a, b) => a.price - b.price);
+  }
+  return index;
+}
+
+// Normalize an item name for comparison — strip brand fluff, sizes, quantities
+function normalizeItemName(name) {
+  return name.toLowerCase()
+    .replace(/\b\d+(\.\d+)?\s*(oz|lb|lbs|ct|pk|pack|pt|qt|gal|ml|l|kg|g|fl\.?\s*oz|count|each|ea)\b/gi, '')
+    .replace(/[®™©]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Find the cheapest alternative for an item at a different store
+function findCheaper(itemName, currentPrice, currentStoreId) {
+  if (!currentPrice || !state._priceIndex) return null;
+  const key = normalizeItemName(itemName);
+  const matches = state._priceIndex[key];
+  if (!matches) return null;
+  // Find cheapest at a DIFFERENT store
+  for (const m of matches) {
+    if (m.storeId !== currentStoreId && m.price < currentPrice) {
+      return { storeName: m.storeName, price: m.price, saving: currentPrice - m.price };
+    }
+  }
+  return null;
+}
+
+// Rebuild index whenever stores change
+function refreshPriceIndex() {
+  state._priceIndex = buildPriceIndex();
+}
+
 // ── Render ────────────────────────────────────────────────────────────────
 function renderApp() {
   document.getElementById('storesFound').textContent =
@@ -1364,6 +1429,11 @@ function itemCardHTML(item, storeId) {
     ? `<span class="item-was">$${item.regular_price.toFixed(2)}</span>`
     : '';
 
+  const cheaper = findCheaper(item.name, item.current_price, storeId);
+  const cheaperHTML = cheaper
+    ? `<div class="cheaper-hint">${cheaper.saving < 0.01 ? '' : `Save $${cheaper.saving.toFixed(2)} at `}${cheaper.storeName} — $${cheaper.price.toFixed(2)}</div>`
+    : '';
+
   return `<div class="item-card${inBasket?' in-basket':''}" id="card-${storeId}-${itemId}">
     <div class="item-img-wrap">
       ${imgHTML}${fallbackEmoji}
@@ -1377,6 +1447,7 @@ function itemCardHTML(item, storeId) {
       </div>
       <div class="item-name">${item.name}</div>
       ${item.brand ? `<div class="item-brand">${item.brand}</div>` : ''}
+      ${cheaperHTML}
     </div>
   </div>`;
 }
