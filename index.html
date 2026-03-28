@@ -385,6 +385,17 @@ const NOT_GROCERY = [
   'ikea','cabela','michael','hobby lobby','ace hardware','old navy','walgreen',
   'boscov','tractor supply','ocean state','ollie\'s','family dollar',
 ];
+// National chains that OSM often doesn't tag as "supermarket" —
+// always show these since they're ubiquitous and Flipp already filters by zip
+const NATIONAL_CHAINS = [
+  'costco','walmart','target','sam\'s club','bj\'s','aldi','lidl','trader joe',
+  'whole foods','wegman','kroger','safeway','publix','meijer','h mart','hmart',
+];
+function isNationalChain(name) {
+  const n = name.toLowerCase();
+  return NATIONAL_CHAINS.some(c => n.includes(c));
+}
+
 const RADIUS_MILES = 10;
 
 function isGrocery(name = '') {
@@ -600,6 +611,9 @@ async function scrapeFlipp(zip) {
     const name = flyer.merchant_name || flyer.merchant || flyer.name || 'Unknown';
     const locs = addressMap[name] || [];
     const loc = locs.length ? locs.sort((a, b) => a.dist - b.dist)[0] : null;
+    // If we searched and found nothing nearby, skip it — unless it's
+    // a national chain that OSM often doesn't tag as "supermarket"
+    if (center && name in addressMap && locs.length === 0 && !isNationalChain(name)) continue;
     const fid = String(flyer.id || flyer.flyer_id || '');
     const rawItems = itemsByFlyer[fid] || [];
 
