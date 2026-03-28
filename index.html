@@ -1438,7 +1438,7 @@ function storeRowHTML(store) {
 
   const bestCount = getBestDealCount(storeId);
   const bestBadge = bestCount > 0
-    ? `<span class="best-deals-badge">🏷️ ${bestCount} best price${bestCount !== 1 ? 's' : ''}</span>`
+    ? `<span class="best-deals-badge" onclick="event.stopPropagation();openStoreBestDeals('${storeId}')">🏷️ ${bestCount} best price${bestCount !== 1 ? 's' : ''}</span>`
     : '';
 
   return `<div class="store-row" id="store-${storeId}">
@@ -1548,6 +1548,17 @@ function refreshStoreTotal(storeId) {
 function openStore(storeId) {
   state.activeStore  = storeId;
   state.detailSearch = '';
+  state.detailBestOnly = false;
+  document.getElementById('detailSearch').value = '';
+  document.getElementById('storeDetail').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  renderStoreDetail();
+}
+
+function openStoreBestDeals(storeId) {
+  state.activeStore  = storeId;
+  state.detailSearch = '';
+  state.detailBestOnly = true;
   document.getElementById('detailSearch').value = '';
   document.getElementById('storeDetail').style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -1556,9 +1567,9 @@ function openStore(storeId) {
 
 function closeStore() {
   state.activeStore = null;
+  state.detailBestOnly = false;
   document.getElementById('storeDetail').style.display = 'none';
   document.body.style.overflow = '';
-  // Refresh basket totals in main view in case user added items
   renderStores();
 }
 
@@ -1577,6 +1588,9 @@ function renderStoreDetail() {
   document.getElementById('detailAddr').textContent = (store.address || '') + distStr;
 
   let items = store.items;
+  if (state.detailBestOnly) {
+    items = items.filter(i => isBestDeal(i.name, store.flyer_id));
+  }
   if (state.deptFilter) {
     items = items.filter(i => i.category === state.deptFilter);
   }
@@ -1585,9 +1599,13 @@ function renderStoreDetail() {
   }
 
   const bestCount = getBestDealCount(store.flyer_id);
-  const bestStr = bestCount > 0 ? ` · 🏷️ ${bestCount} best price${bestCount !== 1 ? 's' : ''}` : '';
-  document.getElementById('detailItemCount').textContent =
-    `${items.length} deal${items.length !== 1 ? 's' : ''}${bestStr}${store.valid_to ? ' · Valid until ' + new Date(store.valid_to).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}`;
+  const metaEl = document.getElementById('detailItemCount');
+  if (state.detailBestOnly) {
+    metaEl.innerHTML = `🏷️ ${items.length} best price${items.length !== 1 ? 's' : ''} <span style="color:#22863a;cursor:pointer;text-decoration:underline" onclick="state.detailBestOnly=false;renderStoreDetail()">Show all</span>`;
+  } else {
+    const bestStr = bestCount > 0 ? ` · <span style="color:#22863a;cursor:pointer" onclick="state.detailBestOnly=true;renderStoreDetail()">🏷️ ${bestCount} best price${bestCount !== 1 ? 's' : ''}</span>` : '';
+    metaEl.innerHTML = `${items.length} deal${items.length !== 1 ? 's' : ''}${bestStr}${store.valid_to ? ' · Valid until ' + new Date(store.valid_to).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}`;
+  }
 
   const total = getStoreTotal(store.flyer_id);
   const count = getBasketCount(store.flyer_id);
