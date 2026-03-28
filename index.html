@@ -564,16 +564,33 @@ async function scrapeFlipp(zip) {
     }),
   ]);
 
-  // Filter + build stores
-  const stores = [];
+  // Group flyers by merchant name, merge items, deduplicate
+  const merchantMap = {};
   for (const flyer of groceryFlyers) {
     const name = flyer.merchant_name || flyer.merchant || flyer.name || 'Unknown';
     const locs = addressMap[name] || [];
     const loc = locs.length ? locs.sort((a, b) => a.dist - b.dist)[0] : null;
-    if (!loc && center) continue; // skip stores not in the borough
+    if (!loc && center) continue;
     const fid = String(flyer.id || flyer.flyer_id || '');
     const rawItems = itemsByFlyer[fid] || [];
-    const items = rawItems.map(mapItem).filter(i => i.name);
+
+    if (!merchantMap[name]) {
+      merchantMap[name] = { flyer, loc, items: new Map() };
+    }
+    // Merge items — use item id to deduplicate, prefer newer flyer's version
+    for (const raw of rawItems) {
+      const item = mapItem(raw);
+      if (!item.name) continue;
+      const key = item.id != null ? String(item.id) : item.name;
+      if (!merchantMap[name].items.has(key)) {
+        merchantMap[name].items.set(key, item);
+      }
+    }
+  }
+
+  const stores = [];
+  for (const [name, { flyer, loc, items: itemMap }] of Object.entries(merchantMap)) {
+    const items = [...itemMap.values()];
     items.sort((a, b) => {
       if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
       const dA = a.regular_price && a.current_price ? (a.regular_price - a.current_price) / a.regular_price : 0;
@@ -581,6 +598,7 @@ async function scrapeFlipp(zip) {
       return dB - dA;
     });
     if (!items.length) continue;
+    const fid = String(flyer.id || flyer.flyer_id || '');
     stores.push({
       flyer_id: fid,
       name: flyer.merchant || flyer.merchant_name || flyer.name || 'Unknown',
