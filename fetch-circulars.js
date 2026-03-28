@@ -204,31 +204,16 @@ async function lookupAllAddresses(storeNames, center) {
   console.log(`   Searching for stores in ${localityShort || 'area'}...`);
   const bulkResults = await bulkFetchStores(center);
 
-  const stillMissing = [];
   for (const name of uncached) {
     const matches = matchBulkResults(name, bulkResults);
     if (matches.length) {
       results[name] = matches;
-      const key = `${center.locality}::${name}`;
-      cache[key] = matches.map(({ lat, lon, addr, county }) => ({ lat, lon, addr, county }));
+      cache[`${center.locality}::${name}`] = matches.map(({ lat, lon, addr, county }) => ({ lat, lon, addr, county }));
     } else {
-      stillMissing.push(name);
+      // No local location found — cache empty so we don't retry
+      cache[`${center.locality}::${name}`] = [];
+      results[name] = [];
     }
-  }
-
-  const bulkMatched = uncached.length - stillMissing.length;
-  if (bulkMatched) console.log(`   Found ${bulkMatched} stores`);
-
-  // 3. Individual lookup only for stores not found in bulk (typically 2-4 stores)
-  if (stillMissing.length) {
-    console.log(`   Looking up ${stillMissing.length} remaining store${stillMissing.length > 1 ? 's' : ''}...`);
-  }
-  for (const name of stillMissing) {
-    await new Promise(r => setTimeout(r, 1100));
-    const locations = await searchStoreLocation(name, center);
-    const key = `${center.locality}::${name}`;
-    cache[key] = locations.map(({ lat, lon, addr, county }) => ({ lat, lon, addr, county }));
-    results[name] = locations;
   }
 
   saveAddressCache(cache);

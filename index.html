@@ -460,29 +460,19 @@ async function lookupAddresses(storeNames, center) {
   }
   if (!uncached.length) return results;
 
-  // Bulk query
+  // Bulk query — one request gets ~50 supermarkets in the area
   logToScreen('Looking up store locations...');
   const bulk = await bulkFetchStores(center);
-  const missing = [];
   for (const name of uncached) {
     const matches = matchBulk(name, bulk);
     if (matches.length) {
       results[name] = matches;
       cache[`${center.locality}::${name}`] = matches.map(({ lat, lon, addr, county }) => ({ lat, lon, addr, county }));
     } else {
-      missing.push(name);
+      // No local location found — cache empty so we don't retry
+      cache[`${center.locality}::${name}`] = [];
+      results[name] = [];
     }
-  }
-
-  // Individual fallback
-  if (missing.length) {
-    logToScreen(`Locating ${missing.length} stores…`);
-  }
-  for (const name of missing) {
-    await new Promise(r => setTimeout(r, 1100));
-    const locs = await searchStoreNom(name, center);
-    cache[`${center.locality}::${name}`] = locs.map(({ lat, lon, addr, county }) => ({ lat, lon, addr, county }));
-    results[name] = locs;
   }
   saveAddrCache(cache);
   return results;
@@ -781,20 +771,12 @@ function logStoreLoaded(name, done, total) {
 }
 
 function logToScreen(msg) {
-  // Update subtitle based on phase
   if (msg.includes('Finding grocery')) {
     document.getElementById('loadSub').textContent = 'Finding grocery stores near you…';
   } else if (msg.includes('Looking up store locations')) {
     document.getElementById('loadSub').textContent = 'Looking up store locations…';
   } else if (msg.startsWith('Found ')) {
     document.getElementById('loadSub').textContent = msg;
-  }
-
-  // Locating N stores — re-estimate countdown for Nominatim lookups
-  const locMatch = msg.match(/Locating (\d+) stores/);
-  if (locMatch) {
-    document.getElementById('loadSub').textContent = msg;
-    startCountdown(parseInt(locMatch[1]) * 1.2 + 2);
   }
 }
 
