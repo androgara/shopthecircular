@@ -160,6 +160,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .detail-grid{flex:1;overflow-y:auto;padding:14px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;align-content:start;}
 .detail-no-results{text-align:center;padding:40px 20px;color:#aaa;font-size:14px;grid-column:1/-1;}
 
+/* ── Floating cart button ────────────────────────────────────────────────── */
+.cart-fab{position:fixed;bottom:24px;right:24px;z-index:100;width:56px;height:56px;border-radius:50%;background:#22863a;color:white;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:none;align-items:center;justify-content:center;transition:transform 0.15s;}
+.cart-fab:hover{transform:scale(1.08);}
+.cart-fab:active{transform:scale(0.95);}
+.cart-fab .fab-badge{position:absolute;top:-2px;right:-2px;background:#e53e3e;color:white;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;}
+
+/* ── Grocery list panel ─────────────────────────────────────────────────── */
+.list-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:180;display:none;align-items:flex-end;justify-content:center;}
+.list-panel{background:white;border-radius:20px 20px 0 0;width:100%;max-width:540px;max-height:85vh;display:flex;flex-direction:column;animation:slideUp 0.25s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.list-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 4px;}
+.list-header{display:flex;align-items:center;padding:12px 20px 8px;border-bottom:1px solid #eee;}
+.list-title{font-size:17px;font-weight:800;color:#1a1a2e;flex:1;}
+.list-clear{background:none;border:none;font-size:12px;color:#e53e3e;cursor:pointer;font-weight:600;padding:4px 8px;}
+.list-clear:hover{text-decoration:underline;}
+.list-body{flex:1;overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;}
+.list-store-group{padding:0 20px;margin-bottom:12px;}
+.list-store-name{font-size:13px;font-weight:700;color:#1a1a2e;padding:8px 0 6px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;}
+.list-store-name .list-store-total{margin-left:auto;font-size:12px;font-weight:700;color:#22863a;}
+.list-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8f8f8;}
+.list-item-img{width:40px;height:40px;border-radius:6px;object-fit:contain;background:#f8f8f8;flex-shrink:0;}
+.list-item-img-fallback{width:40px;height:40px;border-radius:6px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.list-item-info{flex:1;min-width:0;}
+.list-item-name{font-size:13px;font-weight:600;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.list-item-price{font-size:12px;color:#22863a;font-weight:700;}
+.list-item-qty{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.list-item-qty button{width:26px;height:26px;border-radius:50%;border:1.5px solid #ddd;background:white;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555;transition:all 0.1s;}
+.list-item-qty button:hover{border-color:#22863a;color:#22863a;}
+.list-item-qty span{font-size:14px;font-weight:700;color:#1a1a2e;min-width:18px;text-align:center;}
+.list-footer{padding:14px 20px;border-top:1px solid #eee;background:#fafafa;border-radius:0 0 0 0;}
+.list-grand{display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:800;color:#1a1a2e;}
+.list-grand-total{color:#22863a;}
+.list-empty{text-align:center;padding:40px 20px;color:#aaa;font-size:14px;}
+.list-share{margin-top:10px;width:100%;padding:10px;border-radius:10px;border:1.5px solid #22863a;background:white;color:#22863a;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.12s;}
+.list-share:hover{background:#22863a;color:white;}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media(max-width:600px){
   .stores-container{padding:12px;}
@@ -167,6 +203,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .sort-bar,.filter-bar{padding:8px 12px;}
   .detail-search{width:130px;}
   .detail-grid{padding:10px 12px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+  .cart-fab{bottom:16px;right:16px;width:52px;height:52px;}
+  .list-panel{max-height:92vh;}
 }
 </style>
 </head>
@@ -220,6 +258,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
   <div class="detail-grid" id="detailGrid"></div>
+</div>
+
+<!-- ── Floating cart button ────────────────────────────────────────────── -->
+<button class="cart-fab" id="cartFab" onclick="openList()">
+  🛒 <span class="fab-badge" id="fabBadge">0</span>
+</button>
+
+<!-- ── Grocery list panel ─────────────────────────────────────────────── -->
+<div class="list-overlay" id="listOverlay" onclick="if(event.target===this)closeList()">
+  <div class="list-panel">
+    <div class="list-handle"></div>
+    <div class="list-header">
+      <div class="list-title">My Grocery List</div>
+      <button class="list-clear" id="listClear" onclick="clearList()">Clear all</button>
+    </div>
+    <div class="list-body" id="listBody"></div>
+    <div class="list-footer" id="listFooter"></div>
+  </div>
 </div>
 
 <!-- ── Main app ───────────────────────────────────────────────────────────── -->
@@ -827,10 +883,12 @@ function setQty(storeId, itemId, qty) {
   else          state.basket[storeId].set(itemId, qty);
   refreshCard(storeId, itemId);
   if (state.activeStore) {
-    renderStoreDetail(); // refresh total + basket count in detail header
+    renderStoreDetail();
   } else {
     refreshStoreTotal(storeId);
   }
+  updateCartFab();
+  saveBasket();
 }
 function addItem(storeId, itemId) {
   setQty(storeId, itemId, getQty(storeId, itemId) + 1);
@@ -853,6 +911,171 @@ function getBasketCount(storeId) {
   let n = 0;
   state.basket[storeId].forEach(qty => n += qty);
   return n;
+}
+
+// Total items across all stores
+function getTotalBasketCount() {
+  let n = 0;
+  for (const storeId in state.basket) {
+    state.basket[storeId].forEach(qty => n += qty);
+  }
+  return n;
+}
+function getGrandTotal() {
+  let total = 0;
+  for (const store of state.stores) {
+    total += getStoreTotal(store.flyer_id);
+  }
+  return total;
+}
+
+// Persist basket to localStorage
+function saveBasket() {
+  const data = {};
+  for (const storeId in state.basket) {
+    const map = state.basket[storeId];
+    if (map.size > 0) {
+      data[storeId] = Object.fromEntries(map);
+    }
+  }
+  localStorage.setItem('groceryList', JSON.stringify(data));
+}
+function loadBasket() {
+  try {
+    const data = JSON.parse(localStorage.getItem('groceryList') || '{}');
+    for (const storeId in data) {
+      state.basket[storeId] = new Map(Object.entries(data[storeId]).map(([k,v]) => [k, Number(v)]));
+    }
+  } catch {}
+}
+
+// Cart FAB
+function updateCartFab() {
+  const count = getTotalBasketCount();
+  const fab = document.getElementById('cartFab');
+  fab.style.display = count > 0 ? 'flex' : 'none';
+  document.getElementById('fabBadge').textContent = count;
+}
+
+// Grocery list panel
+function openList() {
+  renderList();
+  document.getElementById('listOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeList() {
+  document.getElementById('listOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function clearList() {
+  if (!confirm('Remove all items from your grocery list?')) return;
+  state.basket = {};
+  saveBasket();
+  updateCartFab();
+  closeList();
+  if (state.activeStore) renderStoreDetail();
+  else renderStores();
+}
+
+function renderList() {
+  const body = document.getElementById('listBody');
+  const footer = document.getElementById('listFooter');
+  const totalCount = getTotalBasketCount();
+
+  if (totalCount === 0) {
+    body.innerHTML = '<div class="list-empty">Your grocery list is empty.<br>Tap + on any item to add it.</div>';
+    footer.innerHTML = '';
+    document.getElementById('listClear').style.display = 'none';
+    return;
+  }
+  document.getElementById('listClear').style.display = 'block';
+
+  let html = '';
+  let grandTotal = 0;
+  let totalItems = 0;
+
+  for (const store of state.stores) {
+    const map = state.basket[store.flyer_id];
+    if (!map || map.size === 0) continue;
+
+    let storeTotal = 0;
+    let itemsHTML = '';
+
+    map.forEach((qty, itemId) => {
+      const item = store.items.find(i => String(i.id) === String(itemId));
+      if (!item) return;
+      totalItems += qty;
+      const lineTotal = item.current_price ? item.current_price * qty : 0;
+      storeTotal += lineTotal;
+
+      const imgHTML = item.image_url
+        ? `<img class="list-item-img" src="${item.image_url}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : '';
+      const fallback = `<div class="list-item-img-fallback" style="${item.image_url?'display:none':''}">🛒</div>`;
+      const priceText = item.current_price ? `$${item.current_price.toFixed(2)}${qty > 1 ? ` × ${qty} = $${lineTotal.toFixed(2)}` : ''}` : (item.sale_story || 'See circular');
+
+      itemsHTML += `<div class="list-item">
+        ${imgHTML}${fallback}
+        <div class="list-item-info">
+          <div class="list-item-name">${item.name}</div>
+          <div class="list-item-price">${priceText}</div>
+        </div>
+        <div class="list-item-qty">
+          <button onclick="listDec('${store.flyer_id}','${itemId}')">−</button>
+          <span>${qty}</span>
+          <button onclick="listAdd('${store.flyer_id}','${itemId}')">+</button>
+        </div>
+      </div>`;
+    });
+
+    grandTotal += storeTotal;
+    html += `<div class="list-store-group">
+      <div class="list-store-name">
+        ${store.name}
+        <span class="list-store-total">${storeTotal > 0 ? '$' + storeTotal.toFixed(2) : ''}</span>
+      </div>
+      ${itemsHTML}
+    </div>`;
+  }
+
+  body.innerHTML = html;
+  footer.innerHTML = `<div class="list-grand">
+    <span>${totalItems} item${totalItems !== 1 ? 's' : ''}</span>
+    <span class="list-grand-total">${grandTotal > 0 ? '$' + grandTotal.toFixed(2) : ''}</span>
+  </div>
+  <button class="list-share" onclick="shareList()">📋 Copy list to clipboard</button>`;
+}
+
+function listAdd(storeId, itemId) {
+  setQty(storeId, itemId, getQty(storeId, itemId) + 1);
+  renderList();
+}
+function listDec(storeId, itemId) {
+  setQty(storeId, itemId, getQty(storeId, itemId) - 1);
+  renderList();
+  if (getTotalBasketCount() === 0) closeList();
+}
+
+function shareList() {
+  let text = '🛒 My Grocery List\n';
+  for (const store of state.stores) {
+    const map = state.basket[store.flyer_id];
+    if (!map || map.size === 0) continue;
+    text += `\n📍 ${store.name}\n`;
+    map.forEach((qty, itemId) => {
+      const item = store.items.find(i => String(i.id) === String(itemId));
+      if (!item) return;
+      const price = item.current_price ? ` — $${item.current_price.toFixed(2)}` : '';
+      text += `  ${qty > 1 ? qty + '× ' : ''}${item.name}${price}\n`;
+    });
+  }
+  const grand = getGrandTotal();
+  if (grand > 0) text += `\nTotal: $${grand.toFixed(2)}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.list-share');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy list to clipboard', 2000);
+  });
 }
 
 // ── Render ────────────────────────────────────────────────────────────────
@@ -1140,6 +1363,7 @@ function hideBanner() {
 
 // ── Init ──────────────────────────────────────────────────────────────────
 (async () => {
+  loadBasket();
   const savedZip = localStorage.getItem('userZip');
   if (savedZip) {
     state.zip = savedZip;
@@ -1147,9 +1371,9 @@ function hideBanner() {
     document.getElementById('zipInput').value = savedZip;
     await loadData(savedZip);
   } else {
-    // First visit — try IP geolocation, fall back to zip modal
     await autoLocate();
   }
+  updateCartFab();
 })();
 </script>
 </body>
