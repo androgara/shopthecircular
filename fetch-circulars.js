@@ -317,7 +317,7 @@ async function main() {
     if (locations.length > 0) {
       locations.sort((a, b) => a.dist - b.dist);
       nearbyFlyers.push({ flyer, location: locations[0] });
-    } else if (!center) {
+    } else {
       nearbyFlyers.push({ flyer, location: null });
     }
   }

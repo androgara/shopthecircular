@@ -570,7 +570,6 @@ async function scrapeFlipp(zip) {
     const name = flyer.merchant_name || flyer.merchant || flyer.name || 'Unknown';
     const locs = addressMap[name] || [];
     const loc = locs.length ? locs.sort((a, b) => a.dist - b.dist)[0] : null;
-    if (!loc && center) continue;
     const fid = String(flyer.id || flyer.flyer_id || '');
     const rawItems = itemsByFlyer[fid] || [];
 
