@@ -801,7 +801,7 @@ async function scrapeFlipp(zip) {
 // ── Zip modal ─────────────────────────────────────────────────────────────
 async function submitZip() {
   const zip = document.getElementById('zipInput').value.trim();
-  if (!/^\d{5}$/.test(zip)) { showZipErr('Please enter a valid 5-digit zip code.'); return; }
+  if (!/^\d{5}$/.test(zip)) { showZipErr('Please enter a valid US zip code (5 digits).'); return; }
   const btn = document.getElementById('zipGo');
   btn.textContent = '…'; btn.disabled = true;
   hideZipErr();
@@ -810,7 +810,7 @@ async function submitZip() {
   localStorage.setItem('userZip', zip);
   document.getElementById('locBtn').textContent = `📍 ${zip}`;
   await loadData(zip);
-  btn.textContent = 'Go'; btn.disabled = false;
+  btn.textContent = 'Search'; btn.disabled = false;
 }
 function showZipModal() {
   const el = document.getElementById('zipOverlay');
@@ -825,9 +825,10 @@ function showZipErr(m)   { const e=document.getElementById('zipErr');e.textConte
 function hideZipErr()    { document.getElementById('zipErr').style.display='none'; }
 
 // Dismiss zip modal without entering zip — falls back to IP geolocation
-async function dismissZipModal() {
+function dismissZipModal() {
+  // Don't dismiss if no zip entered — user must search or use geolocation
+  if (!state.zip) return;
   hideZipModal();
-  await autoLocate();
 }
 
 // Reverse-geocode lat/lng → US zip code via Nominatim
@@ -861,21 +862,28 @@ async function useMyLocation() {
       document.getElementById('locBtn').textContent = `📍 ${zip}`;
       await loadData(zip);
     } else {
-      showZipErr('Could not determine zip code from your location.');
+      showZipErr('GroceryRun is currently available in the United States only.');
     }
   } catch (err) {
     showZipErr(err.code === 1 ? 'Location access denied. Please enter a zip code.' : 'Could not get your location. Please enter a zip code.');
   }
-  btn.textContent = '📍 Use my location'; btn.disabled = false;
+  btn.textContent = '📍 Use my location instead'; btn.disabled = false;
 }
 
 // IP-based geolocation fallback (no permission needed)
 async function autoLocate() {
   showLoading('Detecting your location...');
   try {
-    // ipapi.co works over HTTPS, no key needed, returns zip
     const res = await fetch('https://ipapi.co/json/');
     const data = await res.json();
+    // USA only
+    if (data?.country_code !== 'US') {
+      hideLoading();
+      document.getElementById('app').style.display = 'flex';
+      showZipModal();
+      showZipErr('GroceryRun is currently available in the United States only.');
+      return;
+    }
     const zip = data?.postal;
     if (zip && /^\d{5}$/.test(zip)) {
       state.zip = zip;
@@ -886,7 +894,6 @@ async function autoLocate() {
       return;
     }
   } catch {}
-  // Fallback: just show the modal
   hideLoading();
   document.getElementById('app').style.display = 'flex';
   showZipModal();
@@ -1817,7 +1824,8 @@ function hideBanner() {
     document.getElementById('zipInput').value = savedZip;
     await loadData(savedZip);
   } else {
-    await autoLocate();
+    // Always show landing page — user must enter zip or use geolocation
+    showZipModal();
   }
   updateCartFab();
 })();
