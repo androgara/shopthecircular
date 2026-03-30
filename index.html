@@ -915,7 +915,8 @@ function fuzzyMatch(query, text) {
   const q = query.toLowerCase();
   const t = text.toLowerCase();
   if (t.includes(q)) return true;
-  // Token-level fuzzy: allow 1 edit for words ≤6 chars, 2 for longer (handles typos like brocolli→broccoli)
+  // Only use fuzzy matching for queries longer than 4 chars (short words like "tuna" get too many false positives)
+  if (q.length <= 4) return false;
   const maxDist = q.length <= 6 ? 1 : 2;
   return t.split(/\s+/).some(w => levenshtein(q, w) <= maxDist);
 }
