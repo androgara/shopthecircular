@@ -9,21 +9,29 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f3;min-height:100vh;color:#1a1a2e;}
 
 /* ── Zip modal ───────────────────────────────────────────────────────────── */
-.zip-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
-.zip-modal{background:white;border-radius:16px;padding:32px 28px;width:100%;max-width:380px;box-shadow:0 12px 40px rgba(0,0,0,0.2);}
-.zip-logo{font-size:22px;font-weight:800;color:#1a1a2e;margin-bottom:4px;}
+.zip-overlay{position:fixed;inset:0;background:#fafbfc;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.zip-modal{background:white;border-radius:20px;padding:40px 28px 32px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,0.08);text-align:center;}
+.zip-hero-icon{font-size:48px;margin-bottom:12px;}
+.zip-logo{font-size:28px;font-weight:800;color:#1a1a2e;margin-bottom:6px;letter-spacing:-0.5px;}
 .zip-logo span{color:#22863a;}
-.zip-title{font-size:16px;color:#555;margin-bottom:20px;line-height:1.5;}
+.zip-tagline{font-size:15px;color:#888;margin-bottom:24px;line-height:1.5;}
+.zip-features{display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap;}
+.zip-feature{display:flex;align-items:center;gap:6px;font-size:12px;color:#666;background:#f5f7f5;padding:6px 12px;border-radius:20px;white-space:nowrap;}
+.zip-feature-icon{font-size:14px;}
+.zip-title{font-size:14px;color:#555;margin-bottom:14px;line-height:1.5;}
 .zip-row{display:flex;gap:8px;}
-.zip-input{flex:1;padding:12px 14px;font-size:16px;border:1.5px solid #ddd;border-radius:10px;outline:none;min-width:0;}
-.zip-input:focus{border-color:#1a1a2e;}
-.zip-go{padding:12px 20px;background:#1a1a2e;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;}
-.zip-go:hover{background:#2d2d4e;}
+.zip-input{flex:1;padding:14px 16px;font-size:16px;border:1.5px solid #ddd;border-radius:12px;outline:none;min-width:0;text-align:center;}
+.zip-input:focus{border-color:#22863a;box-shadow:0 0 0 3px rgba(34,134,58,0.1);}
+.zip-go{padding:14px 24px;background:#22863a;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;}
+.zip-go:hover{background:#1a6e2e;}
 .zip-go:disabled{opacity:0.5;cursor:default;}
 .zip-err{font-size:12px;color:#e53e3e;margin-top:8px;}
-.geo-btn{display:block;width:100%;margin-top:12px;padding:10px;background:none;border:1px solid #ddd;border-radius:10px;font-size:14px;color:#555;cursor:pointer;transition:background .15s;}
-.geo-btn:hover{background:#f5f5f5;}
+.geo-btn{display:block;width:100%;margin-top:12px;padding:12px;background:none;border:1.5px solid #e0e0e0;border-radius:12px;font-size:14px;color:#555;cursor:pointer;transition:all .15s;}
+.geo-btn:hover{background:#f5f7f5;border-color:#22863a;color:#22863a;}
 .geo-btn:disabled{opacity:0.5;cursor:default;}
+.zip-legal{margin-top:20px;font-size:11px;color:#bbb;}
+.zip-legal a{color:#aaa;text-decoration:none;}
+.zip-legal a:hover{color:#22863a;text-decoration:underline;}
 
 /* ── Loading screen ──────────────────────────────────────────────────────── */
 #loading-screen{position:fixed;inset:0;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:24px;}
@@ -240,14 +248,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- ── Zip modal ─────────────────────────────────────────────────────────── -->
 <div class="zip-overlay" id="zipOverlay" onclick="if(event.target===this)dismissZipModal()">
   <div class="zip-modal">
+    <div class="zip-hero-icon">🛒</div>
     <div class="zip-logo">Grocery<span>Run</span></div>
-    <div class="zip-title">Enter your zip code to see this week's grocery deals near you.</div>
+    <div class="zip-tagline">Compare weekly deals from every grocery store near you — in&nbsp;one&nbsp;place.</div>
+    <div class="zip-features">
+      <div class="zip-feature"><span class="zip-feature-icon">🏷️</span> Best prices</div>
+      <div class="zip-feature"><span class="zip-feature-icon">🏪</span> All local stores</div>
+      <div class="zip-feature"><span class="zip-feature-icon">📋</span> Build a list</div>
+    </div>
+    <div class="zip-title">Enter your zip code to get started</div>
     <div class="zip-row">
       <input class="zip-input" id="zipInput" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 11435" onkeydown="if(event.key==='Enter')submitZip()">
-      <button class="zip-go" id="zipGo" onclick="submitZip()">Go</button>
+      <button class="zip-go" id="zipGo" onclick="submitZip()">Search</button>
     </div>
     <button class="geo-btn" id="geoBtn" onclick="useMyLocation()">📍 Use my location</button>
     <div class="zip-err" id="zipErr" style="display:none"></div>
+    <div class="zip-legal"><a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></div>
   </div>
 </div>
 
