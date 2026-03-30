@@ -223,21 +223,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .header{padding:10px 14px;}
   .sort-bar,.filter-bar{padding:8px 12px;}
   .detail-search{width:130px;}
-  .detail-grid{padding:10px;grid-template-columns:1fr;gap:8px;}
-  .detail-grid .item-card{width:auto !important;min-width:0;flex-direction:row;border-radius:10px;}
-  .detail-grid .item-img-wrap{width:120px;min-width:120px;height:auto;aspect-ratio:1;flex-shrink:0;border-radius:10px 0 0 10px;}
-  .detail-grid .item-img-wrap img{padding:6px;width:100%;height:100%;object-fit:contain;}
-  .detail-grid .item-body{padding:10px 12px;justify-content:flex-start;overflow:visible;min-height:auto;}
-  .detail-grid .item-name{font-size:14px;-webkit-line-clamp:3;line-height:1.4;overflow:visible;display:block;}
-  .detail-grid .item-prices{margin-bottom:2px;}
-  .detail-grid .item-price{font-size:18px;}
-  .detail-grid .item-brand{font-size:11px;}
-  .detail-grid .best-deal-tag{font-size:11px;}
-  .detail-grid .cheaper-hint{font-size:11px;}
-  .detail-grid .add-btn{bottom:6px;right:6px;width:30px;height:30px;font-size:20px;}
-  .detail-grid .qty-ctrl{bottom:6px;right:4px;}
-  .detail-grid .disc-badge{top:4px;left:4px;font-size:8px;}
-  .detail-grid .best-deal-ribbon{top:4px;left:4px;font-size:12px;}
+  .detail-grid{padding:8px;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .detail-grid .item-card{width:auto !important;min-width:0;flex-direction:column;}
+  .detail-grid .item-img-wrap{width:100% !important;min-width:auto;height:140px !important;aspect-ratio:auto;border-radius:0;}
+  .detail-grid .item-img-wrap img{padding:8px;width:100%;height:100%;object-fit:contain;}
+  .detail-grid .item-body{padding:8px 10px 10px;}
+  .detail-grid .item-name{font-size:12px;-webkit-line-clamp:2;-webkit-box-orient:vertical;display:-webkit-box;overflow:hidden;line-height:1.35;}
+  .detail-grid .item-price{font-size:15px;}
+  .detail-grid .best-deal-tag{font-size:10px;}
+  .detail-grid .cheaper-hint{font-size:10px;}
   .cart-fab{bottom:16px;right:16px;width:52px;height:52px;}
   .list-panel{max-height:92vh;}
 }
