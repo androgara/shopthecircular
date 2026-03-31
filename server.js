@@ -29,7 +29,13 @@ function isFresh(data) {
 }
 
 // ── Static files ───────────────────────────────────────────────────────────
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, {
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // ── GET /api/circulars?zip=XXXXX ───────────────────────────────────────────
 // Returns circular data if cached/on-disk and fresh, or 202 telling client to scrape.
