@@ -60,6 +60,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .h-search input::placeholder{color:rgba(255,255,255,0.45);}
 .h-search input:focus{background:rgba(255,255,255,0.2);}
 .h-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;opacity:0.5;pointer-events:none;color:white;}
+.h-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.2);border:none;color:white;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;opacity:0.8;}
+.h-search-clear:hover{opacity:1;background:rgba(255,255,255,0.3);}
 .alert-set-btn{background:#065f46;color:white;border:none;padding:5px 14px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .alert-set-btn.active{background:#16a34a;}
 .alert-set-btn:hover{opacity:0.85;}
@@ -455,6 +457,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="h-search">
       <span class="h-search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder='Try "milk"…' oninput="onSearch()" autocomplete="off">
+      <button class="h-search-clear" id="searchClear" onclick="clearSearch()" style="display:none" aria-label="Clear search">✕</button>
     </div>
     <button class="h-loc" id="locBtn" onclick="showZipModal()">📍 —</button>
   </header>
@@ -728,12 +731,14 @@ function mapItem(raw) {
   } else {
     regularPrice = parsePrice(raw.regular_price ?? raw.original_price ?? null);
   }
+  const category = classifyDept(name, brand);
+  if (category === 'Household' || category === 'Personal Care' || category === 'Pet') return null;
   return {
     id: raw.id ?? null, name, brand: brand || null,
     current_price: currentPrice, regular_price: regularPrice, discount_pct: discount,
     sale_story: raw.sale_story || raw.cut_price_text || (discount ? `${discount}% off` : null),
     image_url: raw.cutout_image_url || raw.image_url || raw.thumb_url || null,
-    category: classifyDept(name, brand),
+    category,
     is_featured: !!(raw.is_featured || raw.featured || raw.display_type === 0),
     valid_from: raw.valid_from || null, valid_to: raw.valid_to || null,
   };
@@ -826,7 +831,7 @@ async function scrapeFlipp(zip) {
     // Merge items — use item id to deduplicate, prefer newer flyer's version
     for (const raw of rawItems) {
       const item = mapItem(raw);
-      if (!item.name) continue;
+      if (!item || !item.name) continue;
       const key = item.id != null ? String(item.id) : item.name;
       if (!merchantMap[name].items.has(key)) {
         merchantMap[name].items.set(key, item);
@@ -1077,6 +1082,14 @@ function sortedStores(stores) {
 // ── Search ────────────────────────────────────────────────────────────────
 function onSearch() {
   state.search = document.getElementById('searchInput').value.toLowerCase().trim();
+  document.getElementById('searchClear').style.display = state.search ? 'flex' : 'none';
+  renderStores();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  state.search = '';
   renderStores();
 }
 
