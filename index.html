@@ -123,9 +123,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .total-label{font-size:9px;color:#16a34a;opacity:0.8;margin-top:2px;text-transform:uppercase;letter-spacing:0.04em;}
 
 /* ── Item scroll container ───────────────────────────────────────────────── */
-.items-scroll{display:flex;gap:10px;padding:12px 18px 14px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#ddd transparent;-webkit-overflow-scrolling:touch;}
-.items-scroll::-webkit-scrollbar{height:4px;}
-.items-scroll::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px;}
+.items-wrap{position:relative;}
+.items-scroll{display:flex;gap:10px;padding:12px 18px 14px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.items-scroll::-webkit-scrollbar{display:none;}
+.isc-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:5;
+  background:white;border:1.5px solid #e8e8e8;border-radius:50%;
+  width:34px;height:34px;font-size:18px;color:#065f46;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:box-shadow 0.12s,opacity 0.2s;
+  line-height:1;padding:0;}
+.isc-btn:hover{box-shadow:0 3px 14px rgba(0,0,0,0.18);}
+.isc-btn-l{left:4px;}
+.isc-btn-r{right:4px;}
 .ipn-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0;}
 .ipn-btn{background:none;border:1.5px solid rgba(255,255,255,0.25);border-radius:50%;width:26px;height:26px;font-size:14px;font-weight:700;color:rgba(255,255,255,0.8);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.12s;line-height:1;padding:0;}
 .ipn-btn:hover:not(:disabled){border-color:white;color:white;}
@@ -1075,6 +1084,11 @@ function onSearch() {
 const STORE_PAGE_SIZE = 8;
 const _storePages = {}; // storeId → current page index
 
+function scrollItemRow(storeId, dir) {
+  const el = document.getElementById(`scroll-${storeId}`);
+  if (el) el.scrollBy({ left: dir * 340, behavior: 'smooth' });
+}
+
 function scrollStores(dir) {
   const c = document.getElementById('storesContainer');
   c.scrollBy({ left: dir * 420, behavior: 'smooth' });
@@ -1844,8 +1858,12 @@ function storeRowHTML(store) {
       ${navHTML}
       <span class="store-chevron">›</span>
     </div>
-    <div class="items-scroll" id="scroll-${storeId}">
-      ${itemsHTML}
+    <div class="items-wrap">
+      <button class="isc-btn isc-btn-l" onclick="event.stopPropagation();scrollItemRow('${storeId}',-1)" aria-label="Scroll left">&#8249;</button>
+      <div class="items-scroll" id="scroll-${storeId}">
+        ${itemsHTML}
+      </div>
+      <button class="isc-btn isc-btn-r" onclick="event.stopPropagation();scrollItemRow('${storeId}',1)" aria-label="Scroll right">&#8250;</button>
     </div>
   </div>`;
 }
