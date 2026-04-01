@@ -453,7 +453,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- ── Main app ───────────────────────────────────────────────────────────── -->
 <div id="app" style="display:none">
   <header class="header">
-    <div class="h-logo">Grocery<span>Run</span></div>
+    <div class="h-logo" onclick="goHome()" style="cursor:pointer">Grocery<span>Run</span></div>
     <div class="h-search">
       <span class="h-search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder='Try "milk"…' oninput="onSearch()" autocomplete="off">
@@ -1091,6 +1091,11 @@ function clearSearch() {
   document.getElementById('searchClear').style.display = 'none';
   state.search = '';
   renderStores();
+}
+
+function goHome() {
+  closeStore();
+  clearSearch();
 }
 
 // ── Store item pagination ──────────────────────────────────────────────────
