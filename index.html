@@ -322,8 +322,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <div class="sort-bar">
     <span class="sort-label">Sort by:</span>
-    <button class="sort-btn active" id="sort-deals"    onclick="setSort('deals')">🔥 Best Deals</button>
-    <button class="sort-btn"        id="sort-nearest" onclick="setSort('nearest')">📍 Nearest</button>
+    <button class="sort-btn active" id="sort-nearest" onclick="setSort('nearest')">📍 Nearest</button>
     <button class="sort-btn"        id="sort-az"      onclick="setSort('az')">A–Z</button>
     <span class="stores-found" id="storesFound"></span>
   </div>
@@ -341,7 +340,7 @@ let state = {
   zip:          null,
   cachedZip:    null,
   stores:       [],
-  sortBy:       'deals',
+  sortBy:       'nearest',
   search:       '',
   storeFilter:  new Set(),
   deptFilter:   null,    // null = all, or a department name
@@ -579,7 +578,12 @@ async function scrapeFlipp(zip) {
   }
 
   const allFlyers = flyerData?.flyers || [];
-  const groceryFlyers = allFlyers.filter(f => isGrocery(f.merchant_name || f.merchant || f.name || ''));
+  const now = new Date();
+  const groceryFlyers = allFlyers.filter(f => {
+    if (!isGrocery(f.merchant_name || f.merchant || f.name || '')) return false;
+    if (f.valid_to && new Date(f.valid_to) < now) return false; // skip expired circulars
+    return true;
+  });
   if (!groceryFlyers.length) throw new Error('No grocery stores found');
 
   const uniqueNames = [...new Set(groceryFlyers.map(f => f.merchant_name || f.merchant || f.name || 'Unknown'))];
@@ -860,16 +864,7 @@ function setSort(by) {
 
 function sortedStores(stores) {
   const list = [...stores];
-  if (state.sortBy === 'deals') {
-    list.sort((a, b) => {
-      const avgDisc = s => {
-        const items = s.items.filter(i => i.discount_pct > 0);
-        if (!items.length) return 0;
-        return items.reduce((sum, i) => sum + i.discount_pct, 0) / items.length;
-      };
-      return avgDisc(b) - avgDisc(a);
-    });
-  } else if (state.sortBy === 'nearest') {
+  if (state.sortBy === 'nearest') {
     list.sort((a, b) => {
       const dA = storeDist(a) ?? Infinity;
       const dB = storeDist(b) ?? Infinity;
