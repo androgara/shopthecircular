@@ -1608,7 +1608,7 @@ function renderSearchResults() {
 
   const workerReady = WORKER_URL && !WORKER_URL.includes('YOUR_SUBDOMAIN');
   const already = workerReady && _myAlerts.some(a => a.keyword === q && a.zip === state.zip);
-  const alertHTML = workerReady
+  const alertHTML = workerReady && q.length >= 4
     ? `<div class="search-alert-banner">
         <span>🔔 Notify me when <strong>${q}</strong> goes on sale</span>
         <button class="alert-set-btn${already ? ' active' : ''}" onclick="toggleAlert()">
