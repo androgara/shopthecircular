@@ -1,0 +1,10 @@
+name = "groceryrun-alerts"
+main = "index.js"
+compatibility_date = "2024-09-01"
+
+kv_namespaces = [
+  { binding = "ALERTS_KV", id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID" }
+]
+
+[triggers]
+crons = ["0 13 * * *"]  # 9am ET (1pm UTC) daily

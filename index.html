@@ -58,6 +58,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .search-bar-inner input{width:100%;padding:11px 16px 11px 42px;border-radius:24px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:15px;outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;}
 .search-bar-inner input:focus{border-color:#1a1a2e;background:white;}
 .search-bar-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;opacity:0.45;pointer-events:none;}
+.alert-prompt{display:none;align-items:center;gap:10px;padding:8px 4px 2px;max-width:640px;margin:0 auto;font-size:13px;color:#555;}
+.alert-prompt-text{flex:1;}
+.alert-prompt-text strong{color:#1a1a2e;}
+.alert-set-btn{background:#1a1a2e;color:white;border:none;padding:5px 14px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.alert-set-btn.active{background:#22863a;}
+.alert-set-btn:hover{opacity:0.85;}
+.alerts-fab{position:fixed;bottom:90px;right:20px;background:#1a1a2e;color:white;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.25);display:none;align-items:center;justify-content:center;z-index:60;}
+.alerts-fab .badge{position:absolute;top:-4px;right:-4px;background:#22863a;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.alerts-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:150;display:none;align-items:flex-end;justify-content:center;}
+.alerts-modal{background:white;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:20px;max-height:70vh;overflow-y:auto;}
+.alerts-modal h3{margin:0 0 14px;font-size:16px;font-weight:700;color:#1a1a2e;}
+.alert-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;gap:10px;}
+.alert-row:last-child{border-bottom:none;}
+.alert-row-info{flex:1;font-size:14px;}
+.alert-row-info span{font-size:11px;color:#888;display:block;margin-top:1px;}
+.alert-del{background:none;border:none;color:#dc2626;font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;}
+.alerts-empty{color:#888;font-size:13px;text-align:center;padding:20px 0;}
 
 /* ── Sort bar ────────────────────────────────────────────────────────────── */
 .sort-bar{display:flex;align-items:center;gap:8px;padding:12px 20px;background:white;border-bottom:1px solid #e8e8e8;flex-wrap:wrap;}
@@ -318,7 +335,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <span class="search-bar-icon">🔍</span>
       <input type="text" id="searchInput" placeholder='Try "milk"…' oninput="onSearch()" autocomplete="off">
     </div>
+    <div class="alert-prompt" id="alertPrompt">
+      <span class="alert-prompt-text">🔔 Notify me when <strong id="alertKeyword"></strong> goes on sale</span>
+      <button class="alert-set-btn" id="alertSetBtn" onclick="toggleAlert()">Set alert</button>
+    </div>
   </div>
+
+  <!-- Alerts modal -->
+  <div class="alerts-overlay" id="alertsOverlay" onclick="if(event.target===this)closeAlertsModal()">
+    <div class="alerts-modal">
+      <h3>🔔 My Deal Alerts</h3>
+      <div id="alertsList"></div>
+    </div>
+  </div>
+  <button class="alerts-fab" id="alertsFab" onclick="showAlertsModal()" title="My alerts">
+    🔔<span class="badge" id="alertsFabBadge"></span>
+  </button>
 
   <div class="sort-bar">
     <span class="sort-label">Sort by:</span>
@@ -335,6 +367,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
+// ── Config ────────────────────────────────────────────────────────────────
+// After deploying the Cloudflare Worker, replace these two values:
+const WORKER_URL    = 'https://groceryrun-alerts.YOUR_SUBDOMAIN.workers.dev';
+const VAPID_PUB_KEY = 'REPLACE_WITH_YOUR_VAPID_PUBLIC_KEY';
+
 // ── State ─────────────────────────────────────────────────────────────────
 let state = {
   zip:          null,
@@ -880,6 +917,155 @@ function sortedStores(stores) {
 function onSearch() {
   state.search = document.getElementById('searchInput').value.toLowerCase().trim();
   renderStores();
+  updateAlertPrompt();
+}
+
+// ── Deal Alerts ───────────────────────────────────────────────────────────
+let _pushSubscription = null;
+let _myAlerts = []; // [{id, keyword, zip}]
+
+async function registerServiceWorker() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    navigator.serviceWorker.addEventListener('message', e => {
+      if (e.data?.type === 'OPEN_SEARCH') {
+        const params = new URLSearchParams(new URL(e.data.url, location.href).search);
+        const q = params.get('search');
+        if (q) {
+          document.getElementById('searchInput').value = q;
+          state.search = q.toLowerCase();
+          renderStores();
+          updateAlertPrompt();
+        }
+      }
+    });
+    // Try to restore existing subscription silently
+    _pushSubscription = await reg.pushManager.getSubscription();
+    if (_pushSubscription) await loadMyAlerts();
+    updateAlertsFab();
+  } catch {}
+}
+
+async function getPushSubscription() {
+  if (_pushSubscription) return _pushSubscription;
+  const reg = await navigator.serviceWorker.ready;
+  _pushSubscription = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlB64ToUint8Array(VAPID_PUB_KEY),
+  });
+  return _pushSubscription;
+}
+
+function urlB64ToUint8Array(b64) {
+  const raw = atob(b64.replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+
+function updateAlertPrompt() {
+  const prompt = document.getElementById('alertPrompt');
+  const q = state.search.trim();
+  if (!q || !WORKER_URL.includes('workers.dev')) { prompt.style.display = 'none'; return; }
+  document.getElementById('alertKeyword').textContent = q;
+  const already = _myAlerts.some(a => a.keyword === q && a.zip === state.zip);
+  const btn = document.getElementById('alertSetBtn');
+  btn.textContent = already ? '✓ Alert set' : 'Set alert';
+  btn.classList.toggle('active', already);
+  prompt.style.display = 'flex';
+}
+
+async function toggleAlert() {
+  const q = state.search.trim();
+  if (!q || !state.zip) return;
+  const already = _myAlerts.find(a => a.keyword === q && a.zip === state.zip);
+  if (already) {
+    await deleteAlert(already.id);
+  } else {
+    await subscribeAlert(q);
+  }
+}
+
+async function subscribeAlert(keyword) {
+  if (!('serviceWorker' in navigator)) { alert('Push notifications are not supported in this browser.'); return; }
+  const btn = document.getElementById('alertSetBtn');
+  btn.textContent = '…'; btn.disabled = true;
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') { btn.textContent = 'Set alert'; btn.disabled = false; return; }
+    const sub = await getPushSubscription();
+    const res = await fetch(`${WORKER_URL}/api/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subscription: sub.toJSON(), zip: state.zip, keyword }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      _myAlerts.push({ id: data.id, keyword, zip: state.zip });
+      updateAlertPrompt();
+      updateAlertsFab();
+    }
+  } catch (e) { console.error(e); }
+  btn.disabled = false;
+}
+
+async function deleteAlert(id) {
+  if (!_pushSubscription) return;
+  try {
+    await fetch(`${WORKER_URL}/api/unsubscribe`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: _pushSubscription.endpoint, id }),
+    });
+    _myAlerts = _myAlerts.filter(a => a.id !== id);
+    updateAlertPrompt();
+    updateAlertsFab();
+    renderAlertsList();
+  } catch {}
+}
+
+async function loadMyAlerts() {
+  if (!_pushSubscription) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/alerts?endpoint=${encodeURIComponent(_pushSubscription.endpoint)}`);
+    const data = await res.json();
+    _myAlerts = data.alerts ?? [];
+  } catch {}
+}
+
+function updateAlertsFab() {
+  const fab = document.getElementById('alertsFab');
+  const badge = document.getElementById('alertsFabBadge');
+  if (_myAlerts.length > 0) {
+    fab.style.display = 'flex';
+    badge.textContent = _myAlerts.length;
+  } else {
+    fab.style.display = 'none';
+  }
+}
+
+function showAlertsModal() {
+  renderAlertsList();
+  document.getElementById('alertsOverlay').style.display = 'flex';
+}
+
+function closeAlertsModal() {
+  document.getElementById('alertsOverlay').style.display = 'none';
+}
+
+function renderAlertsList() {
+  const el = document.getElementById('alertsList');
+  if (!_myAlerts.length) {
+    el.innerHTML = '<div class="alerts-empty">No alerts set yet.<br>Search for a product and tap "Set alert".</div>';
+    return;
+  }
+  el.innerHTML = _myAlerts.map(a => `
+    <div class="alert-row">
+      <div class="alert-row-info">
+        <strong>${a.keyword}</strong>
+        <span>📍 Near ${a.zip}</span>
+      </div>
+      <button class="alert-del" onclick="deleteAlert('${a.id}')" title="Remove alert">×</button>
+    </div>`).join('');
 }
 
 const PLACEHOLDER_ITEMS = [
@@ -1578,6 +1764,7 @@ function hideBanner() {
   }
 
   startPlaceholderCycle();
+  registerServiceWorker();
   loadBasket();
   const savedZip = localStorage.getItem('userZip');
   if (savedZip) {
@@ -1588,6 +1775,14 @@ function hideBanner() {
   } else {
     // Always show zip modal — user must enter zip or use geolocation
     showZipModal();
+  }
+  // Handle URL params from notification click (e.g. ?search=chicken)
+  const urlSearch = new URLSearchParams(location.search).get('search');
+  if (urlSearch && state.zip) {
+    document.getElementById('searchInput').value = urlSearch;
+    state.search = urlSearch.toLowerCase();
+    renderStores();
+    updateAlertPrompt();
   }
   updateCartFab();
 })();
