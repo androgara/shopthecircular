@@ -346,13 +346,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .sln-initial{width:44px;height:44px;border-radius:8px;background:#065f46;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;}
   .sln-name{font-size:10px;font-weight:600;color:#555;text-align:center;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-  /* Stores: single column, centered */
-  .stores-container{
-    max-width:860px;
-    margin:0 auto;
-    padding:20px 24px;
-    gap:16px;
+  /* Stores: full width, single column */
+  .stores-container{padding:16px 20px;gap:16px;}
+
+  /* Item rows: wrap grid that fills available width */
+  .items-scroll{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(158px,1fr));
+    overflow-x:visible;
+    gap:10px;
+    padding:12px 16px 14px;
   }
+  .item-card{width:auto;}
+  /* Hide scroll arrows when items wrap into a grid */
+  .isc-btn{display:none;}
 
   /* Store detail: centered panel, not full-screen */
   #storeDetail{align-items:center;justify-content:center;background:rgba(0,0,0,0.5);}
@@ -510,8 +517,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="filter-bar" id="filterBar"></div>
     </aside>
     <div class="main-area">
-      <div class="store-logo-nav" id="storeLogoNav"></div>
       <div class="filter-bar" id="deptBar"></div>
+      <div class="store-logo-nav" id="storeLogoNav"></div>
       <div id="zipBanner"><span id="zipBannerText"></span><button onclick="hideBanner()">✕</button></div>
       <div id="scrapeProgress"><div id="scrapeProgressFill"></div></div>
       <div class="stores-wrap">
@@ -1125,7 +1132,7 @@ function goHome() {
 }
 
 // ── Store item pagination ──────────────────────────────────────────────────
-const STORE_PAGE_SIZE = 8;
+const STORE_PAGE_SIZE = window.innerWidth >= 768 ? 16 : 8;
 const _storePages = {}; // storeId → current page index
 
 function scrollItemRow(storeId, dir) {
