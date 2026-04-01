@@ -1728,6 +1728,7 @@ function renderSearchResults() {
   const q = state.search;
   const results = [];
   for (const store of state.stores) {
+    if (state.storeFilter.size > 0 && !state.storeFilter.has(store.flyer_id)) continue;
     for (const item of store.items) {
       if (fuzzyMatch(q, item.name) || fuzzyMatch(q, item.brand)) {
         results.push({ item, store });
