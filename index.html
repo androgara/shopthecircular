@@ -48,16 +48,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #app{display:flex;flex-direction:column;min-height:100vh;}
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
-.header{background:#1a1a2e;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;flex-wrap:wrap;}
-.h-logo{font-size:18px;font-weight:800;color:white;white-space:nowrap;flex-shrink:0;}
+.header{background:#1a1a2e;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+.h-logo{font-size:18px;font-weight:800;color:white;white-space:nowrap;flex:1;}
 .h-logo span{color:#4ade80;}
-.h-search{flex:1;min-width:160px;position:relative;}
-.h-search input{width:100%;padding:9px 14px 9px 36px;border-radius:22px;border:none;background:rgba(255,255,255,0.12);color:white;font-size:14px;outline:none;}
-.h-search input::placeholder{color:rgba(255,255,255,0.45);}
-.h-search input:focus{background:rgba(255,255,255,0.2);}
-.h-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;opacity:0.6;}
 .h-loc{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;flex-shrink:0;}
 .h-loc:hover{background:rgba(255,255,255,0.22);}
+.search-bar-wrap{background:white;padding:10px 16px;border-bottom:1px solid #e8e8e8;position:sticky;top:50px;z-index:49;}
+.search-bar-inner{position:relative;max-width:640px;margin:0 auto;}
+.search-bar-inner input{width:100%;padding:11px 16px 11px 42px;border-radius:24px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:15px;outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;}
+.search-bar-inner input:focus{border-color:#1a1a2e;background:white;}
+.search-bar-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;opacity:0.45;pointer-events:none;}
 
 /* ── Sort bar ────────────────────────────────────────────────────────────── */
 .sort-bar{display:flex;align-items:center;gap:8px;padding:12px 20px;background:white;border-bottom:1px solid #e8e8e8;flex-wrap:wrap;}
@@ -215,6 +215,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 @media(max-width:600px){
   .stores-container{padding:12px;}
   .header{padding:10px 14px;}
+  .search-bar-wrap{top:44px;padding:8px 12px;}
+  .search-bar-inner input{font-size:14px;padding:10px 14px 10px 38px;}
   .sort-bar,.filter-bar{padding:8px 12px;}
   .detail-search{width:130px;}
   .detail-grid{padding:10px 12px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
@@ -309,12 +311,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app" style="display:none">
   <header class="header">
     <div class="h-logo">Grocery<span>Run</span></div>
-    <div class="h-search">
-      <span class="h-search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="Search items across all stores..." oninput="onSearch()">
-    </div>
     <button class="h-loc" id="locBtn" onclick="showZipModal()">📍 —</button>
   </header>
+  <div class="search-bar-wrap">
+    <div class="search-bar-inner">
+      <span class="search-bar-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder='Try "milk"…' oninput="onSearch()" autocomplete="off">
+    </div>
+  </div>
 
   <div class="sort-bar">
     <span class="sort-label">Sort by:</span>
@@ -766,6 +770,7 @@ async function loadData(zip) {
     hideLoading();
     document.getElementById('app').style.display = 'flex';
     renderApp();
+    enrichPlaceholderFromCircular();
   } catch (err) {
     hideLoading();
     document.getElementById('app').style.display = 'flex';
@@ -887,6 +892,51 @@ function onSearch() {
   renderStores();
 }
 
+const PLACEHOLDER_ITEMS = [
+  'milk','eggs','chicken','ground beef','bread','bananas','apples',
+  'butter','cheese','yogurt','orange juice','pasta','rice','cereal',
+  'coffee','strawberries','broccoli','salmon','avocado','shrimp'
+];
+let _phPool = [...PLACEHOLDER_ITEMS];
+let _phIdx = 0;
+let _phTimer = null;
+
+function startPlaceholderCycle() {
+  const input = document.getElementById('searchInput');
+  if (!input) return;
+  _phPool = [...PLACEHOLDER_ITEMS].sort(() => Math.random() - 0.5);
+  _phIdx = 0;
+  input.placeholder = `Try "${_phPool[0]}"…`;
+  clearInterval(_phTimer);
+  _phTimer = setInterval(() => {
+    if (document.activeElement === input) return;
+    _phIdx = (_phIdx + 1) % _phPool.length;
+    input.placeholder = `Try "${_phPool[_phIdx]}"…`;
+  }, 3000);
+}
+
+function enrichPlaceholderFromCircular() {
+  const counts = {};
+  for (const store of state.stores) {
+    const seen = new Set();
+    for (const item of store.items) {
+      const key = item.name?.toLowerCase().trim();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      counts[key] = (counts[key] || 0) + 1;
+    }
+  }
+  const popular = Object.entries(counts)
+    .filter(([, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([name]) => name);
+  if (popular.length > 0) {
+    _phPool = [...popular, ...PLACEHOLDER_ITEMS].slice(0, 20);
+    _phIdx = 0;
+  }
+}
+
 function levenshtein(a, b) {
   if (a === b) return 0;
   if (!a.length) return b.length;
@@ -909,8 +959,9 @@ function fuzzyMatch(query, text) {
   const q = query.toLowerCase();
   const t = text.toLowerCase();
   if (t.includes(q)) return true;
-  // Token-level fuzzy: allow 1 edit for words ≤6 chars, 2 for longer (handles typos like brocolli→broccoli)
-  const maxDist = q.length <= 6 ? 1 : 2;
+  // Only apply fuzzy (typo tolerance) for queries of 5+ chars — prevents "beer" matching "beef"
+  if (q.length < 5) return false;
+  const maxDist = q.length <= 7 ? 1 : 2;
   return t.split(/\s+/).some(w => levenshtein(q, w) <= maxDist);
 }
 
@@ -1536,6 +1587,7 @@ function hideBanner() {
     }
   }
 
+  startPlaceholderCycle();
   loadBasket();
   const savedZip = localStorage.getItem('userZip');
   if (savedZip) {
