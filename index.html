@@ -48,16 +48,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #app{display:flex;flex-direction:column;min-height:100vh;}
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
-.header{background:#1a1a2e;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
-.h-logo{font-size:18px;font-weight:800;color:white;white-space:nowrap;flex:1;}
-.h-logo span{color:#4ade80;}
-.h-loc{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;flex-shrink:0;}
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.header{background:#1a1a2e;padding:10px 16px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:50;}
+.h-logo{font-size:18px;font-weight:800;color:white;white-space:nowrap;order:1;}
+.h-loc{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;flex-shrink:0;order:2;margin-left:auto;}
 .h-loc:hover{background:rgba(255,255,255,0.22);}
-.search-bar-wrap{background:white;padding:10px 16px;border-bottom:1px solid #e8e8e8;position:sticky;top:50px;z-index:49;}
-.search-bar-inner{position:relative;max-width:640px;margin:0 auto;}
-.search-bar-inner input{width:100%;padding:11px 16px 11px 42px;border-radius:24px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:16px;outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;}
-.search-bar-inner input:focus{border-color:#1a1a2e;background:white;}
-.search-bar-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;opacity:0.45;pointer-events:none;}
+.h-logo span{color:#4ade80;}
+/* Search: full-width second row on mobile */
+.h-search{order:3;width:100%;position:relative;}
+.h-search input{width:100%;padding:10px 16px 10px 40px;border-radius:22px;border:none;background:rgba(255,255,255,0.12);color:white;font-size:16px;outline:none;box-sizing:border-box;}
+.h-search input::placeholder{color:rgba(255,255,255,0.45);}
+.h-search input:focus{background:rgba(255,255,255,0.2);}
+.h-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;opacity:0.5;pointer-events:none;color:white;}
 .alert-set-btn{background:#1a1a2e;color:white;border:none;padding:5px 14px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .alert-set-btn.active{background:#22863a;}
 .alert-set-btn:hover{opacity:0.85;}
@@ -173,6 +175,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── Store detail overlay ────────────────────────────────────────────────── */
 #storeDetail{position:fixed;inset:0;background:#f3f4f3;z-index:150;display:none;flex-direction:column;overflow:hidden;}
+.detail-panel{display:flex;flex-direction:column;flex:1;overflow:hidden;}
 .detail-topbar{background:#1a1a2e;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .detail-back{background:none;border:none;color:white;font-size:24px;line-height:1;cursor:pointer;padding:0 4px 0 0;opacity:0.8;flex-shrink:0;}
 .detail-back:hover{opacity:1;}
@@ -240,17 +243,78 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .shared-start-btn{display:inline-block;padding:12px 28px;background:#22863a;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;}
 .shared-start-btn:hover{background:#1a6e2e;}
 
-/* ── Responsive ──────────────────────────────────────────────────────────── */
+/* ── Mobile tweaks ───────────────────────────────────────────────────────── */
 @media(max-width:600px){
-  .stores-container{padding:12px;}
-  .header{padding:10px 14px;}
-  .search-bar-wrap{top:44px;padding:8px 12px;}
-  .search-bar-inner input{font-size:14px;padding:10px 14px 10px 38px;}
+  .stores-container{padding:10px;}
   .sort-bar,.filter-bar{padding:8px 12px;}
   .detail-search{width:130px;}
   .detail-grid{padding:10px 12px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
   .cart-fab{bottom:16px;right:16px;width:52px;height:52px;}
   .list-panel{max-height:92vh;}
+}
+
+/* ── Desktop layout ──────────────────────────────────────────────────────── */
+@media(min-width:768px){
+  /* Header: single row, search in center */
+  .header{flex-wrap:nowrap;padding:0 32px;height:64px;gap:16px;}
+  .h-logo{font-size:20px;}
+  .h-search{order:2;width:auto;flex:1;max-width:580px;margin:0 8px;}
+  .h-search input{background:rgba(255,255,255,0.12);font-size:15px;padding:9px 16px 9px 40px;}
+  .h-loc{order:3;margin-left:0;}
+
+  /* Sort bar: sticky below 64px header */
+  .sort-bar{top:64px;position:sticky;z-index:48;}
+
+  /* Centered content wrapper */
+  .stores-container{
+    max-width:1280px;
+    margin:0 auto;
+    padding:24px 32px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+    align-items:start;
+  }
+
+  /* Items: wrap grid instead of horizontal scroll */
+  .items-scroll{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(148px,1fr));
+    overflow-x:visible;
+    gap:8px;
+    padding:12px 14px 14px;
+  }
+  .item-card{width:auto;}
+
+  /* Store detail: centered panel, not full-screen */
+  #storeDetail{align-items:center;justify-content:center;background:rgba(0,0,0,0.5);}
+  .detail-panel{
+    width:90%;
+    max-width:900px;
+    max-height:88vh;
+    border-radius:16px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    background:#f3f4f3;
+  }
+
+  /* Search results: 2-column grid */
+  .search-results{
+    max-width:1280px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    padding:20px 32px;
+    gap:10px;
+  }
+  .search-alert-banner{grid-column:1/-1;}
+
+  /* List panel: centered */
+  .list-panel{max-width:560px;border-radius:16px;margin-bottom:40px;}
+
+  /* Alerts FAB: slightly higher on desktop */
+  .alerts-fab{bottom:30px;right:30px;}
 }
 </style>
 </head>
@@ -286,6 +350,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- ── Store detail overlay ───────────────────────────────────────────────── -->
 <div id="storeDetail">
+  <div class="detail-panel">
   <div class="detail-topbar">
     <button class="detail-back" onclick="closeStore()">‹</button>
     <div class="detail-store-info">
@@ -304,6 +369,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
   <div class="detail-grid" id="detailGrid"></div>
+  </div>
 </div>
 
 <!-- ── Floating cart button ────────────────────────────────────────────── -->
@@ -340,14 +406,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app" style="display:none">
   <header class="header">
     <div class="h-logo">Grocery<span>Run</span></div>
-    <button class="h-loc" id="locBtn" onclick="showZipModal()">📍 —</button>
-  </header>
-  <div class="search-bar-wrap">
-    <div class="search-bar-inner">
-      <span class="search-bar-icon">🔍</span>
+    <div class="h-search">
+      <span class="h-search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder='Try "milk"…' oninput="onSearch()" autocomplete="off">
     </div>
-  </div>
+    <button class="h-loc" id="locBtn" onclick="showZipModal()">📍 —</button>
+  </header>
 
   <!-- Alerts modal -->
   <div class="alerts-overlay" id="alertsOverlay" onclick="if(event.target===this)closeAlertsModal()">
