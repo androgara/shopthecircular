@@ -6,7 +6,7 @@
 <title>GroceryRun</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f3;min-height:100vh;color:#1a1a2e;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f3;min-height:100vh;color:#1a1a2e;overflow-x:hidden;}
 
 /* ── Zip modal ───────────────────────────────────────────────────────────── */
 .zip-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
@@ -55,15 +55,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .h-loc:hover{background:rgba(255,255,255,0.22);}
 .search-bar-wrap{background:white;padding:10px 16px;border-bottom:1px solid #e8e8e8;position:sticky;top:50px;z-index:49;}
 .search-bar-inner{position:relative;max-width:640px;margin:0 auto;}
-.search-bar-inner input{width:100%;padding:11px 16px 11px 42px;border-radius:24px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:15px;outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;}
+.search-bar-inner input{width:100%;padding:11px 16px 11px 42px;border-radius:24px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:16px;outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;}
 .search-bar-inner input:focus{border-color:#1a1a2e;background:white;}
 .search-bar-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;opacity:0.45;pointer-events:none;}
-.alert-prompt{display:none;align-items:center;gap:10px;padding:8px 4px 2px;max-width:640px;margin:0 auto;font-size:13px;color:#555;}
-.alert-prompt-text{flex:1;}
-.alert-prompt-text strong{color:#1a1a2e;}
-.alert-set-btn{background:#1a1a2e;color:white;border:none;padding:5px 14px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.alert-set-btn{background:#1a1a2e;color:white;border:none;padding:5px 14px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .alert-set-btn.active{background:#22863a;}
 .alert-set-btn:hover{opacity:0.85;}
+.search-results{padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+.search-alert-banner{display:flex;align-items:center;gap:10px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:11px 14px;}
+.search-alert-banner span{flex:1;font-size:13px;color:#166534;}
+.sr-row{display:flex;align-items:center;gap:12px;background:white;border-radius:12px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;overflow:hidden;}
+.sr-row:active{background:#fafafa;}
+.sr-img{width:52px;height:52px;border-radius:8px;object-fit:contain;background:#f5f5f5;flex-shrink:0;}
+.sr-img-fallback{width:52px;height:52px;border-radius:8px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.sr-info{flex:1;min-width:0;}
+.sr-name{font-size:13px;font-weight:600;color:#1a1a2e;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.sr-meta{font-size:11px;color:#888;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sr-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.sr-price{font-size:15px;font-weight:800;color:#1a1a2e;}
+.sr-was{font-size:10px;color:#bbb;text-decoration:line-through;}
+.sr-row .add-btn{position:static;width:32px;height:32px;}
+.sr-row .qty-ctrl{position:static;}
 .alerts-fab{position:fixed;bottom:90px;right:20px;background:#1a1a2e;color:white;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.25);display:none;align-items:center;justify-content:center;z-index:60;}
 .alerts-fab .badge{position:absolute;top:-4px;right:-4px;background:#22863a;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 .alerts-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:150;display:none;align-items:flex-end;justify-content:center;}
@@ -334,10 +346,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="search-bar-inner">
       <span class="search-bar-icon">🔍</span>
       <input type="text" id="searchInput" placeholder='Try "milk"…' oninput="onSearch()" autocomplete="off">
-    </div>
-    <div class="alert-prompt" id="alertPrompt">
-      <span class="alert-prompt-text">🔔 Notify me when <strong id="alertKeyword"></strong> goes on sale</span>
-      <button class="alert-set-btn" id="alertSetBtn" onclick="toggleAlert()">Set alert</button>
     </div>
   </div>
 
@@ -917,7 +925,6 @@ function sortedStores(stores) {
 function onSearch() {
   state.search = document.getElementById('searchInput').value.toLowerCase().trim();
   renderStores();
-  updateAlertPrompt();
 }
 
 // ── Deal Alerts ───────────────────────────────────────────────────────────
@@ -936,7 +943,6 @@ async function registerServiceWorker() {
           document.getElementById('searchInput').value = q;
           state.search = q.toLowerCase();
           renderStores();
-          updateAlertPrompt();
         }
       }
     });
@@ -962,18 +968,6 @@ function urlB64ToUint8Array(b64) {
   return Uint8Array.from(raw, c => c.charCodeAt(0));
 }
 
-function updateAlertPrompt() {
-  const prompt = document.getElementById('alertPrompt');
-  const q = state.search.trim();
-  if (!q || !WORKER_URL.includes('workers.dev')) { prompt.style.display = 'none'; return; }
-  document.getElementById('alertKeyword').textContent = q;
-  const already = _myAlerts.some(a => a.keyword === q && a.zip === state.zip);
-  const btn = document.getElementById('alertSetBtn');
-  btn.textContent = already ? '✓ Alert set' : 'Set alert';
-  btn.classList.toggle('active', already);
-  prompt.style.display = 'flex';
-}
-
 async function toggleAlert() {
   const q = state.search.trim();
   if (!q || !state.zip) return;
@@ -987,11 +981,9 @@ async function toggleAlert() {
 
 async function subscribeAlert(keyword) {
   if (!('serviceWorker' in navigator)) { alert('Push notifications are not supported in this browser.'); return; }
-  const btn = document.getElementById('alertSetBtn');
-  btn.textContent = '…'; btn.disabled = true;
   try {
     const permission = await Notification.requestPermission();
-    if (permission !== 'granted') { btn.textContent = 'Set alert'; btn.disabled = false; return; }
+    if (permission !== 'granted') return;
     const sub = await getPushSubscription();
     const res = await fetch(`${WORKER_URL}/api/subscribe`, {
       method: 'POST',
@@ -1001,11 +993,10 @@ async function subscribeAlert(keyword) {
     const data = await res.json();
     if (data.success) {
       _myAlerts.push({ id: data.id, keyword, zip: state.zip });
-      updateAlertPrompt();
+      renderStores();
       updateAlertsFab();
     }
   } catch (e) { console.error(e); }
-  btn.disabled = false;
 }
 
 async function deleteAlert(id) {
@@ -1017,7 +1008,7 @@ async function deleteAlert(id) {
       body: JSON.stringify({ endpoint: _pushSubscription.endpoint, id }),
     });
     _myAlerts = _myAlerts.filter(a => a.id !== id);
-    updateAlertPrompt();
+    renderStores();
     updateAlertsFab();
     renderAlertsList();
   } catch {}
@@ -1160,10 +1151,12 @@ function setQty(storeId, itemId, qty) {
   if (!state.basket[storeId]) state.basket[storeId] = new Map();
   if (qty <= 0) state.basket[storeId].delete(itemId);
   else          state.basket[storeId].set(itemId, qty);
-  refreshCard(storeId, itemId);
-  if (state.activeStore) {
+  if (state.search) {
+    renderSearchResults();
+  } else if (state.activeStore) {
     renderStoreDetail();
   } else {
+    refreshCard(storeId, itemId);
     refreshStoreTotal(storeId);
   }
   updateCartFab();
@@ -1532,7 +1525,71 @@ function setDeptFilter(dept) {
   renderStores();
 }
 
+function renderSearchResults() {
+  const container = document.getElementById('storesContainer');
+  const q = state.search;
+  const results = [];
+  for (const store of state.stores) {
+    for (const item of store.items) {
+      if (fuzzyMatch(q, item.name) || fuzzyMatch(q, item.brand)) {
+        results.push({ item, store });
+      }
+    }
+  }
+
+  if (!results.length) {
+    container.innerHTML = `<div class="no-results">No results for "<strong>${q}</strong>"</div>`;
+    return;
+  }
+
+  const workerReady = WORKER_URL && !WORKER_URL.includes('YOUR_SUBDOMAIN');
+  const already = workerReady && _myAlerts.some(a => a.keyword === q && a.zip === state.zip);
+  const alertHTML = workerReady
+    ? `<div class="search-alert-banner">
+        <span>🔔 Notify me when <strong>${q}</strong> goes on sale</span>
+        <button class="alert-set-btn${already ? ' active' : ''}" onclick="toggleAlert()">
+          ${already ? '✓ Alert set' : 'Set alert'}
+        </button>
+       </div>`
+    : '';
+
+  const rowsHTML = results.map(({ item, store }) => {
+    const storeId = store.flyer_id;
+    const itemId  = String(item.id);
+    const qty     = getQty(storeId, itemId);
+    const dist    = storeDist(store);
+    const distText = dist !== null ? ` · ${dist.toFixed(1)} mi` : '';
+    const discText = item.discount_pct > 0 ? ` · ${item.discount_pct}% off` : '';
+
+    const imgHTML = item.image_url
+      ? `<img class="sr-img" src="${item.image_url}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    const fallback = `<div class="sr-img-fallback" style="${item.image_url ? 'display:none' : ''}">🛒</div>`;
+
+    const priceHTML = item.current_price != null
+      ? `<span class="sr-price">$${item.current_price.toFixed(2)}</span>` : '';
+    const wasHTML = item.regular_price && item.regular_price > item.current_price
+      ? `<span class="sr-was">$${item.regular_price.toFixed(2)}</span>` : '';
+
+    const ctrlHTML = qty > 0
+      ? `<div class="qty-ctrl"><button class="qty-btn" onclick="event.stopPropagation();decItem('${storeId}','${itemId}')">−</button><span class="qty-num">${qty}</span><button class="qty-btn" onclick="event.stopPropagation();addItem('${storeId}','${itemId}')">+</button></div>`
+      : `<button class="add-btn" onclick="event.stopPropagation();addItem('${storeId}','${itemId}')">+</button>`;
+
+    return `<div class="sr-row" onclick="openStore('${storeId}')">
+      ${imgHTML}${fallback}
+      <div class="sr-info">
+        <div class="sr-name">${item.name}</div>
+        <div class="sr-meta">${store.name}${distText}${discText}</div>
+      </div>
+      <div class="sr-right">${priceHTML}${wasHTML}${ctrlHTML}</div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `<div class="search-results">${alertHTML}${rowsHTML}</div>`;
+}
+
 function renderStores() {
+  if (state.search) { renderSearchResults(); return; }
   let sorted = sortedStores(state.stores);
   const container = document.getElementById('storesContainer');
 
@@ -1782,7 +1839,6 @@ function hideBanner() {
     document.getElementById('searchInput').value = urlSearch;
     state.search = urlSearch.toLowerCase();
     renderStores();
-    updateAlertPrompt();
   }
   updateCartFab();
 })();
