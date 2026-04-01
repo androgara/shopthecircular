@@ -861,12 +861,7 @@ function setSort(by) {
 function sortedStores(stores) {
   const list = [...stores];
   if (state.sortBy === 'deals') {
-    // Rank by best-deal wins (most "cheapest price" items first)
     list.sort((a, b) => {
-      const wA = getBestDealCount(a.flyer_id);
-      const wB = getBestDealCount(b.flyer_id);
-      if (wA !== wB) return wB - wA;
-      // Tie-break by average discount
       const avgDisc = s => {
         const items = s.items.filter(i => i.discount_pct > 0);
         if (!items.length) return 0;
