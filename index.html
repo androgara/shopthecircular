@@ -199,12 +199,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .list-share{margin-top:10px;width:100%;padding:10px;border-radius:10px;border:1.5px solid #22863a;background:white;color:#22863a;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.12s;}
 .list-share:hover{background:#22863a;color:white;}
 
-/* ── Best deal + cheaper-at hints ─────────────────────────────────────── */
-.best-deals-badge{font-size:10px;font-weight:700;color:#22863a;background:#e6f4ea;padding:2px 7px;border-radius:8px;white-space:nowrap;vertical-align:middle;margin-left:6px;}
-.best-deal-ribbon{position:absolute;top:6px;left:6px;font-size:14px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.15));z-index:2;pointer-events:none;}
-.best-deal-tag{font-size:10px;font-weight:700;color:#22863a;margin-top:1px;}
-.item-card.is-best-deal{border-color:#22863a;background:#fafffa;}
-.cheaper-hint{font-size:10px;color:#d97706;font-weight:600;margin-top:2px;line-height:1.3;}
 
 /* ── Shared list view ────────────────────────────────────────────────────── */
 #sharedListView{min-height:100vh;background:#f3f4f3;}
@@ -769,7 +763,6 @@ async function loadData(zip) {
     state.storeFilter.clear();
     state.deptFilter = null;
     document.getElementById('locBtn').textContent = `📍 ${zip}`;
-    refreshPriceIndex();
     hideLoading();
     document.getElementById('app').style.display = 'flex';
     renderApp();
@@ -1073,17 +1066,11 @@ function renderList() {
       const fallback = `<div class="list-item-img-fallback" style="${item.image_url?'display:none':''}">🛒</div>`;
       const priceText = item.current_price ? `$${item.current_price.toFixed(2)}${qty > 1 ? ` × ${qty} = $${lineTotal.toFixed(2)}` : ''}` : (item.sale_story || 'See circular');
 
-      const cheaper = findCheaper(item.name, item.current_price, store.flyer_id);
-      const cheaperTip = cheaper
-        ? `<div class="cheaper-hint">💡 $${cheaper.price.toFixed(2)} at ${cheaper.storeName} — save $${cheaper.saving.toFixed(2)}</div>`
-        : '';
-
       itemsHTML += `<div class="list-item">
         ${imgHTML}${fallback}
         <div class="list-item-info">
           <div class="list-item-name">${item.name}</div>
           <div class="list-item-price">${priceText}</div>
-          ${cheaperTip}
         </div>
         <div class="list-item-qty">
           <button onclick="listDec('${store.flyer_id}','${itemId}')">−</button>
@@ -1247,86 +1234,6 @@ function renderSharedList(data) {
     <a class="shared-start-btn" href="${window.location.origin + window.location.pathname}">Start my own list</a>`;
 }
 
-// ── Price comparison across stores ─────────────────────────────────────
-// Build a lookup: normalized item name → [{storeName, storeId, price, itemName}]
-function buildPriceIndex() {
-  const index = {};
-  for (const store of state.stores) {
-    for (const item of store.items) {
-      if (!item.current_price) continue;
-      const key = normalizeItemName(item.name);
-      if (!key) continue;
-      if (!index[key]) index[key] = [];
-      index[key].push({
-        storeName: store.name,
-        storeId: store.flyer_id,
-        price: item.current_price,
-        itemName: item.name,
-      });
-    }
-  }
-  // Sort each entry by price
-  for (const key in index) {
-    index[key].sort((a, b) => a.price - b.price);
-  }
-  return index;
-}
-
-// Normalize an item name for comparison — strip brand fluff, sizes, quantities
-function normalizeItemName(name) {
-  return name.toLowerCase()
-    .replace(/\b\d+(\.\d+)?\s*(oz|lb|lbs|ct|pk|pack|pt|qt|gal|ml|l|kg|g|fl\.?\s*oz|count|each|ea)\b/gi, '')
-    .replace(/[®™©]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-// Find the cheapest alternative for an item at a different store
-function findCheaper(itemName, currentPrice, currentStoreId) {
-  if (!currentPrice || !state._priceIndex) return null;
-  const key = normalizeItemName(itemName);
-  const matches = state._priceIndex[key];
-  if (!matches) return null;
-  // Find cheapest at a DIFFERENT store
-  for (const m of matches) {
-    if (m.storeId !== currentStoreId && m.price < currentPrice) {
-      return { storeName: m.storeName, price: m.price, saving: currentPrice - m.price };
-    }
-  }
-  return null;
-}
-
-// Rebuild index + best deals whenever stores change
-function refreshPriceIndex() {
-  state._priceIndex = buildPriceIndex();
-
-  // Compute best-deal wins per store: for each item at 2+ stores,
-  // the store with the lowest price wins
-  const wins = {};  // storeId → Set of normalized item keys
-  for (const store of state.stores) {
-    wins[store.flyer_id] = new Set();
-  }
-  for (const key in state._priceIndex) {
-    const entries = state._priceIndex[key];
-    if (entries.length < 2) continue; // need 2+ stores to compare
-    const best = entries[0]; // already sorted cheapest first
-    // Only count as a win if it's strictly cheaper than the next
-    if (best.price < entries[1].price) {
-      wins[best.storeId]?.add(key);
-    }
-  }
-  state._bestDeals = wins;
-}
-
-// Check if this item is the best deal across all stores
-function isBestDeal(itemName, storeId) {
-  if (!state._bestDeals?.[storeId]) return false;
-  return state._bestDeals[storeId].has(normalizeItemName(itemName));
-}
-
-function getBestDealCount(storeId) {
-  return state._bestDeals?.[storeId]?.size || 0;
-}
 
 // ── Render ────────────────────────────────────────────────────────────────
 function renderApp() {
@@ -1446,16 +1353,11 @@ function storeRowHTML(store) {
 
   const itemsHTML = items.map(item => itemCardHTML(item, storeId)).join('');
 
-  const bestCount = getBestDealCount(storeId);
-  const bestBadge = bestCount > 0
-    ? `<span class="best-deals-badge" onclick="event.stopPropagation();openStoreBestDeals('${storeId}')">🏷️ ${bestCount} best price${bestCount !== 1 ? 's' : ''}</span>`
-    : '';
-
   return `<div class="store-row" id="store-${storeId}">
     <div class="store-header" onclick="openStore('${storeId}')">
       ${logoHTML}${fallbackHTML}
       <div class="store-info">
-        <div class="store-name">${store.name} ${bestBadge}</div>
+        <div class="store-name">${store.name}</div>
         <div class="store-meta">${distText ? `<strong>${distText}</strong> · ` : ''}${addrText ? `${addrText}` : ''}${addrText && validTo ? ' · ' : ''}${validTo ? `Valid until ${validTo}` : ''}</div>
       </div>
       ${totalHTML}
@@ -1493,18 +1395,10 @@ function itemCardHTML(item, storeId) {
     ? `<span class="item-was">$${item.regular_price.toFixed(2)}</span>`
     : '';
 
-  const bestDeal = isBestDeal(item.name, storeId);
-  const cheaper = !bestDeal ? findCheaper(item.name, item.current_price, storeId) : null;
-  const cheaperHTML = cheaper
-    ? `<div class="cheaper-hint">$${cheaper.price.toFixed(2)} at ${cheaper.storeName}</div>`
-    : '';
-  const bestHTML = bestDeal ? `<div class="best-deal-tag">Best price</div>` : '';
-
-  return `<div class="item-card${inBasket?' in-basket':''}${bestDeal?' is-best-deal':''}" id="card-${storeId}-${itemId}">
+  return `<div class="item-card${inBasket?' in-basket':''}" id="card-${storeId}-${itemId}">
     <div class="item-img-wrap">
       ${imgHTML}${fallbackEmoji}
       ${discHTML}
-      ${bestDeal ? '<div class="best-deal-ribbon">🏷️</div>' : ''}
       ${ctrlHTML}
     </div>
     <div class="item-body">
@@ -1514,8 +1408,6 @@ function itemCardHTML(item, storeId) {
       </div>
       <div class="item-name">${item.name}</div>
       ${item.brand ? `<div class="item-brand">${item.brand}</div>` : ''}
-      ${bestHTML}
-      ${cheaperHTML}
     </div>
   </div>`;
 }
@@ -1558,17 +1450,6 @@ function refreshStoreTotal(storeId) {
 function openStore(storeId) {
   state.activeStore  = storeId;
   state.detailSearch = '';
-  state.detailBestOnly = false;
-  document.getElementById('detailSearch').value = '';
-  document.getElementById('storeDetail').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  renderStoreDetail();
-}
-
-function openStoreBestDeals(storeId) {
-  state.activeStore  = storeId;
-  state.detailSearch = '';
-  state.detailBestOnly = true;
   document.getElementById('detailSearch').value = '';
   document.getElementById('storeDetail').style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -1577,7 +1458,6 @@ function openStoreBestDeals(storeId) {
 
 function closeStore() {
   state.activeStore = null;
-  state.detailBestOnly = false;
   document.getElementById('storeDetail').style.display = 'none';
   document.body.style.overflow = '';
   renderStores();
@@ -1598,9 +1478,6 @@ function renderStoreDetail() {
   document.getElementById('detailAddr').textContent = (store.address || '') + distStr;
 
   let items = store.items;
-  if (state.detailBestOnly) {
-    items = items.filter(i => isBestDeal(i.name, store.flyer_id));
-  }
   if (state.deptFilter) {
     items = items.filter(i => i.category === state.deptFilter);
   }
@@ -1608,14 +1485,8 @@ function renderStoreDetail() {
     items = items.filter(i => fuzzyMatch(state.detailSearch, i.name) || fuzzyMatch(state.detailSearch, i.brand));
   }
 
-  const bestCount = getBestDealCount(store.flyer_id);
   const metaEl = document.getElementById('detailItemCount');
-  if (state.detailBestOnly) {
-    metaEl.innerHTML = `🏷️ ${items.length} best price${items.length !== 1 ? 's' : ''} <span style="color:#22863a;cursor:pointer;text-decoration:underline" onclick="state.detailBestOnly=false;renderStoreDetail()">Show all</span>`;
-  } else {
-    const bestStr = bestCount > 0 ? ` · <span style="color:#22863a;cursor:pointer" onclick="state.detailBestOnly=true;renderStoreDetail()">🏷️ ${bestCount} best price${bestCount !== 1 ? 's' : ''}</span>` : '';
-    metaEl.innerHTML = `${items.length} deal${items.length !== 1 ? 's' : ''}${bestStr}${store.valid_to ? ' · Valid until ' + new Date(store.valid_to).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}`;
-  }
+  metaEl.innerHTML = `${items.length} deal${items.length !== 1 ? 's' : ''}${store.valid_to ? ' · Valid until ' + new Date(store.valid_to).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}`;
 
   const total = getStoreTotal(store.flyer_id);
   const count = getBasketCount(store.flyer_id);
