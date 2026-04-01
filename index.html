@@ -98,6 +98,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sort-btn.active{background:#065f46;color:white;border-color:#065f46;}
 .stores-found{margin-left:auto;font-size:12px;color:#888;}
 
+/* ── App body (sidebar + main) ───────────────────────────────────────────── */
+.app-body{display:flex;flex-direction:column;flex:1;}
+.sidebar{display:flex;flex-direction:column;}
+.main-area{flex:1;display:flex;flex-direction:column;}
+
 /* ── Store rows ──────────────────────────────────────────────────────────── */
 .stores-wrap{position:relative;}
 .stores-arrow{display:none;} /* hidden on mobile */
@@ -274,6 +279,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   /* Sort bar: sticky below 64px header */
   .sort-bar{top:64px;position:sticky;z-index:48;}
+
+  /* Sidebar + main layout */
+  .app-body{flex-direction:row;align-items:stretch;}
+  .sidebar{
+    width:200px;flex-shrink:0;
+    background:white;border-right:1px solid #e8e8e8;
+    position:sticky;top:calc(64px + 49px);
+    height:calc(100vh - 113px);
+    overflow-y:auto;overflow-x:hidden;
+    scrollbar-width:thin;scrollbar-color:#ddd transparent;
+    padding:12px 0 24px;
+  }
+  .sidebar .filter-bar{
+    flex-direction:column;overflow-x:visible;
+    border-bottom:none;background:none;
+    padding:0 0 8px;gap:2px;
+  }
+  .sidebar .filter-label{
+    display:block;font-size:10px;text-transform:uppercase;
+    letter-spacing:0.07em;color:#aaa;font-weight:700;
+    padding:12px 16px 6px;
+  }
+  .sidebar .filter-chip{
+    width:100%;border-radius:0;border:none;
+    border-left:3px solid transparent;
+    padding:8px 14px;justify-content:flex-start;
+    background:none;color:#555;font-size:12px;
+  }
+  .sidebar .filter-chip:hover{background:#f0fdf4;border-color:transparent;}
+  .sidebar .filter-chip.active{
+    background:#f0fdf4;color:#065f46;
+    border-left-color:#065f46;font-weight:700;
+  }
+  .sidebar .fc-logo{width:16px;height:16px;}
+  .main-area{flex:1;min-width:0;}
 
   /* Stores: horizontal carousel */
   .stores-wrap{position:relative;}
@@ -456,14 +496,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <span class="stores-found" id="storesFound"></span>
   </div>
 
-  <div class="filter-bar" id="filterBar"></div>
-  <div class="filter-bar" id="deptBar"></div>
-  <div id="zipBanner"><span id="zipBannerText"></span><button onclick="hideBanner()">✕</button></div>
-  <div id="scrapeProgress"><div id="scrapeProgressFill"></div></div>
-  <div class="stores-wrap">
-    <button class="stores-arrow stores-arrow-l" id="storesArrowL" onclick="scrollStores(-1)" aria-label="Previous stores">&#8249;</button>
-    <div class="stores-container" id="storesContainer"></div>
-    <button class="stores-arrow stores-arrow-r" id="storesArrowR" onclick="scrollStores(1)" aria-label="Next stores">&#8250;</button>
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="filter-bar" id="deptBar"></div>
+    </aside>
+    <div class="main-area">
+      <div id="zipBanner"><span id="zipBannerText"></span><button onclick="hideBanner()">✕</button></div>
+      <div id="scrapeProgress"><div id="scrapeProgressFill"></div></div>
+      <div class="stores-wrap">
+        <button class="stores-arrow stores-arrow-l" id="storesArrowL" onclick="scrollStores(-1)" aria-label="Previous stores">&#8249;</button>
+        <div class="stores-container" id="storesContainer"></div>
+        <button class="stores-arrow stores-arrow-r" id="storesArrowR" onclick="scrollStores(1)" aria-label="Next stores">&#8250;</button>
+      </div>
+    </div>
   </div>
 </div>
 
