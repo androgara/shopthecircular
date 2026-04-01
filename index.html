@@ -100,6 +100,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sort-btn.active{background:#065f46;color:white;border-color:#065f46;}
 .stores-found{margin-left:auto;font-size:12px;color:#888;}
 
+/* ── Store logo nav (desktop only) ──────────────────────────────────────── */
+.store-logo-nav{display:none;}
+
 /* ── App body (sidebar + main) ───────────────────────────────────────────── */
 .app-body{display:flex;flex-direction:column;flex:1;}
 .sidebar{display:flex;flex-direction:column;}
@@ -324,7 +327,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     border-left-color:#065f46;font-weight:700;
   }
   .sidebar .fc-logo{width:16px;height:16px;}
+  .sidebar #filterBar{display:none;}
   .main-area{flex:1;min-width:0;}
+
+  /* Store logo nav */
+  .store-logo-nav{
+    display:flex;flex-wrap:wrap;gap:8px;
+    padding:14px 20px 10px;
+    background:white;border-bottom:1px solid #e8e8e8;
+  }
+  .sln-item{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    cursor:pointer;padding:8px 10px;border-radius:10px;
+    transition:background 0.12s;min-width:64px;
+  }
+  .sln-item:hover{background:#f0fdf4;}
+  .sln-logo{width:44px;height:44px;object-fit:contain;border-radius:8px;border:1px solid #eee;background:#f8f8f8;}
+  .sln-initial{width:44px;height:44px;border-radius:8px;background:#065f46;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;}
+  .sln-name{font-size:10px;font-weight:600;color:#555;text-align:center;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
   /* Stores: single column, centered */
   .stores-container{
@@ -490,6 +510,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="filter-bar" id="filterBar"></div>
     </aside>
     <div class="main-area">
+      <div class="store-logo-nav" id="storeLogoNav"></div>
       <div class="filter-bar" id="deptBar"></div>
       <div id="zipBanner"><span id="zipBannerText"></span><button onclick="hideBanner()">✕</button></div>
       <div id="scrapeProgress"><div id="scrapeProgressFill"></div></div>
@@ -1112,6 +1133,24 @@ function scrollItemRow(storeId, dir) {
   if (el) el.scrollBy({ left: dir * 340, behavior: 'smooth' });
 }
 
+function renderStoreLogoNav() {
+  const nav = document.getElementById('storeLogoNav');
+  if (!nav) return;
+  const stores = sortedStores(state.stores);
+  if (!stores.length) { nav.innerHTML = ''; return; }
+  nav.innerHTML = stores.map(s => {
+    const logoHTML = s.logo_url
+      ? `<img class="sln-logo" src="${s.logo_url}" alt="${s.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="sln-initial" style="display:none">${s.name.charAt(0)}</div>`
+      : `<div class="sln-initial">${s.name.charAt(0)}</div>`;
+    return `<div class="sln-item" onclick="scrollToStore('${s.flyer_id}')">${logoHTML}<span class="sln-name">${s.name}</span></div>`;
+  }).join('');
+}
+
+function scrollToStore(storeId) {
+  const el = document.getElementById(`store-${storeId}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function scrollStores(dir) {
   const c = document.getElementById('storesContainer');
   c.scrollBy({ left: dir * 420, behavior: 'smooth' });
@@ -1660,6 +1699,7 @@ function renderApp() {
     `${state.stores.length} store${state.stores.length !== 1 ? 's' : ''} near ${state.zip}`;
   renderFilterBar();
   renderDeptBar();
+  renderStoreLogoNav();
   renderStores();
 }
 
