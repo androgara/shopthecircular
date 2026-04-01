@@ -449,6 +449,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const WORKER_URL    = 'https://groceryrun-alerts.androgara.workers.dev';
 const VAPID_PUB_KEY = 'BBE-heEPvv3hyQT0Og8zgxpb0Vv1bWVGN5cMa7TJEtZD-cdON1ywaBkt_qXFmO975Z5JvjftxXvRZH6Z5Z6Bvc8';
 
+// ── Generic grocery terms (not brand names — no alert shown for these) ────
+const GENERIC_GROCERY_TERMS = new Set([
+  // produce
+  'apple','apples','banana','bananas','orange','oranges','lemon','lemons','lime','limes',
+  'tomato','tomatoes','potato','potatoes','onion','onions','garlic','broccoli','spinach',
+  'lettuce','kale','carrot','carrots','celery','cucumber','zucchini','corn','peas',
+  'mushroom','mushrooms','pepper','peppers','avocado','avocados','strawberry','strawberries',
+  'blueberry','blueberries','grape','grapes','watermelon','peach','peaches','pear','pears',
+  'mango','mangoes','pineapple','grapefruit','cherry','cherries','melon','cantaloupe',
+  'salad','herbs','cilantro','parsley','basil','mint','ginger','beet','beets','radish',
+  // dairy
+  'milk','eggs','egg','butter','cheese','yogurt','cream','sour cream','half and half',
+  'heavy cream','whipped cream','cream cheese','cottage cheese','mozzarella','cheddar',
+  'parmesan','gouda','brie','feta','ricotta','provolone',
+  // meat & seafood
+  'chicken','beef','pork','steak','ground beef','turkey','ham','bacon','sausage',
+  'fish','shrimp','salmon','tuna','tilapia','cod','crab','lobster','clam','oyster',
+  'lamb','veal','brisket','ribs','wings','drumsticks','scallops','halibut','flounder',
+  // bakery
+  'bread','rolls','bagel','bagels','muffin','muffins','cake','cookies','pie','croissant',
+  'baguette','pita','tortilla','tortillas','waffle','waffles','pancake','pancakes',
+  // pantry staples
+  'rice','pasta','flour','sugar','salt','oil','cereal','oatmeal','beans','lentils',
+  'soup','sauce','vinegar','honey','syrup','jam','jelly','ketchup','mustard','mayo',
+  'mayonnaise','dressing','broth','stock','crackers','chips','popcorn','pretzels',
+  'nuts','almonds','cashews','peanuts','walnuts','granola','raisins','olives','pickles',
+  // beverages
+  'juice','water','soda','coffee','tea','beer','wine','lemonade','cider','milk',
+  // frozen / misc
+  'pizza','ice cream','butter','margarine',
+  // generic categories
+  'produce','meat','dairy','deli','seafood','snacks','candy','chocolate','gum',
+  'vegetables','vegetable','fruits','fruit','organic','fresh','frozen','canned',
+]);
+
 // ── State ─────────────────────────────────────────────────────────────────
 let state = {
   zip:          null,
@@ -1626,7 +1661,8 @@ function renderSearchResults() {
 
   const workerReady = WORKER_URL && !WORKER_URL.includes('YOUR_SUBDOMAIN');
   const already = workerReady && _myAlerts.some(a => a.keyword === q && a.zip === state.zip);
-  const alertHTML = workerReady && q.length >= 4
+  const isBrandLike = q.length >= 4 && !GENERIC_GROCERY_TERMS.has(q.toLowerCase().trim());
+  const alertHTML = workerReady && isBrandLike
     ? `<div class="search-alert-banner">
         <span>🔔 Notify me when <strong>${q}</strong> goes on sale</span>
         <button class="alert-set-btn${already ? ' active' : ''}" onclick="toggleAlert()">
